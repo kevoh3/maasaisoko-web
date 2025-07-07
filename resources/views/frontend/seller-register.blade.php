@@ -56,7 +56,7 @@
 		</div>
 	</div>
 	<!-- /Page Breadcrumb/ -->
-	
+
 	<!-- Inner Section -->
 	<section class="inner-section inner-section-bg">
 		<div class="container">
@@ -71,7 +71,7 @@
 					<div class="register">
 						<h4>{{ __('Create an seller account') }}</h4>
 						<p>{{ __('Please fill in the information below') }}</p>
-						
+
 						@if(Session::has('success'))
 						<div class="alert alert-success">
 							{{Session::get('success')}}
@@ -90,46 +90,46 @@
                                 <span class="text-danger">{{ $errors->first('name') }}</span>
                                 @endif
 							</div>
-							
+
 							<div class="form-group">
 								<input name="email" type="email" class="form-control @error('email') is-invalid @enderror" placeholder="{{ __('Email Address') }}" value="{{ old('email') }}" required />
                                 @if ($errors->has('email'))
                                 <span class="text-danger">{{ $errors->first('email') }}</span>
                                 @endif
 							</div>
-							
+
 							<div class="form-group">
 								<input name="password" type="password" class="form-control @error('password') is-invalid @enderror" placeholder="{{ __('Password') }}" required />
                                 @if ($errors->has('password'))
                                 <span class="text-danger">{{ $errors->first('password') }}</span>
                                 @endif
 							</div>
-							
+
 							<div class="form-group">
 								<input name="password_confirmation" type="password" class="form-control" placeholder="{{ __('Confirm password') }}" required >
 							</div>
-							
+
 							<div class="form-group">
 								<input name="shop_name" type="text" class="form-control @error('shop_name') is-invalid @enderror" placeholder="{{ __('Shop Name') }}" value="{{ old('shop_name') }}" required />
                                 @if ($errors->has('shop_name'))
                                 <span class="text-danger">{{ $errors->first('shop_name') }}</span>
                                 @endif
 							</div>
-							
-							<div class="form-group">
-								<input name="shop_url" id="shop_url" type="text" class="form-control @error('shop_url') is-invalid @enderror" placeholder="{{ __('Shop URL') }}" value="{{ old('shop_url') }}" required />
-								@if ($errors->has('shop_url'))
-                                <span class="text-danger">{{ $errors->first('shop_url') }}</span>
-                                @endif
-							</div>
-							
+
+{{--							<div class="form-group">--}}
+{{--								<input name="shop_url" id="shop_url" type="text" class="form-control @error('shop_url') is-invalid @enderror" placeholder="{{ __('Shop URL') }}" value="{{ old('shop_url') }}" required />--}}
+{{--								@if ($errors->has('shop_url'))--}}
+{{--                                <span class="text-danger">{{ $errors->first('shop_url') }}</span>--}}
+{{--                                @endif--}}
+{{--							</div>--}}
+
 							<div class="form-group">
 								<input name="shop_phone" type="text" class="form-control @error('shop_phone') is-invalid @enderror" placeholder="{{ __('Shop Phone') }}" value="{{ old('shop_phone') }}" required />
                                 @if ($errors->has('shop_phone'))
                                 <span class="text-danger">{{ $errors->first('shop_phone') }}</span>
                                 @endif
 							</div>
-							
+
 							@if($gtext['is_recaptcha'] == 1)
 							<div class="form-group">
 								<div class="g-recaptcha" data-sitekey="{{ $gtext['sitekey'] }}"></div>
