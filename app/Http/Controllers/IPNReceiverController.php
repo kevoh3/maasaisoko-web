@@ -25,7 +25,6 @@ Log::info('Received IPN from Propel:', $data);
     if (!$accountNumber || !$amount) {
         return response()->json(['status' => 'error', 'message' => 'Invalid IPN data'], 400);
     }
-
     // Find wallet using bill_ref_number
     $wallet = Wallet::where('account_number', $accountNumber)->first();
 
