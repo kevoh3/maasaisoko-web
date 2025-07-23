@@ -21,9 +21,17 @@ use App\Models\Related_product;
 use App\Models\Review;
 use App\Models\Order_item;
 use App\Models\Order_master;
-
+use App\Services\WaaSService;
 class SellerController extends Controller
 {
+
+    protected $waasService;
+
+    public function __construct(WaaSService $waasService)
+    {
+        $this->waasService = $waasService;
+    }
+
     public function LoadSellerRegister()
     {
         return view('frontend.seller-register');
@@ -88,6 +96,15 @@ class SellerController extends Controller
 		$response = User::create($data);
 
 		if($response){
+            //call propel here-------
+            $data = [
+                'wallet_name' => $request->input('shop_name'),
+                'notification_number' =>$request->input('shop_phone'),
+                'request_id' => $response->id,
+            ];
+
+           // $response = WaaSService::createWallet($data);
+            $this->waasService->addBeneficiary($data,$response->id);
 
 			if($gtext['is_mailchimp'] == 1){
 				$name = $request->input('name');
