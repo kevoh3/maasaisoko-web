@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class WaaSService
 {
@@ -17,11 +18,13 @@ class WaaSService
     }
     public function addBeneficiary(array $data,$user_id)
     {
+        Log::info('sending data to propel');
         $response = Http::withHeaders([
             'X-API-KEY' => $this->apiKey,
             'Accept' => 'application/json',
         ])->post($this->endpoint, $data);
         $result = $response->json();
+        Log::info('response from propel', ['response' => $result]);
 
         if (isset($result['data'])) {
             $walletData = $result['data'];
