@@ -103,16 +103,16 @@
 				</div>
 			</div>
 			<div class="col-lg-5">
-				<div class="status-card bg-grad-5 mb-15">
-					<div class="status-text">
-						<div class="status-name opacity50">{{ __('Current Balance') }}</div>
-						<h2 class="status-count" id="Current_Balance"></h2>
-						<input type="text" name="ubalance" id="ubalance" class="dnone" />
-					</div>
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 200">
-						<path fill="rgba(255,255,255,0.2)" fill-opacity="1" d="M0,32L34.3,58.7C68.6,85,137,139,206,138.7C274.3,139,343,85,411,53.3C480,21,549,11,617,10.7C685.7,11,754,21,823,42.7C891.4,64,960,96,1029,138.7C1097.1,181,1166,235,1234,218.7C1302.9,203,1371,117,1406,74.7L1440,32L1440,320L1405.7,320C1371.4,320,1303,320,1234,320C1165.7,320,1097,320,1029,320C960,320,891,320,823,320C754.3,320,686,320,617,320C548.6,320,480,320,411,320C342.9,320,274,320,206,320C137.1,320,69,320,34,320L0,320Z"></path>
-					</svg>
-				</div>
+{{--				<div class="status-card bg-grad-5 mb-15">--}}
+{{--					<div class="status-text">--}}
+{{--						<div class="status-name opacity50">{{ __('Current Balance') }}</div>--}}
+{{--						<h2 class="status-count" id="Current_Balance"></h2>--}}
+{{--						<input type="text" name="ubalance" id="ubalance" class="dnone" />--}}
+{{--					</div>--}}
+{{--					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 200">--}}
+{{--						<path fill="rgba(255,255,255,0.2)" fill-opacity="1" d="M0,32L34.3,58.7C68.6,85,137,139,206,138.7C274.3,139,343,85,411,53.3C480,21,549,11,617,10.7C685.7,11,754,21,823,42.7C891.4,64,960,96,1029,138.7C1097.1,181,1166,235,1234,218.7C1302.9,203,1371,117,1406,74.7L1440,32L1440,320L1405.7,320C1371.4,320,1303,320,1234,320C1165.7,320,1097,320,1029,320C960,320,891,320,823,320C754.3,320,686,320,617,320C548.6,320,480,320,411,320C342.9,320,274,320,206,320C137.1,320,69,320,34,320L0,320Z"></path>--}}
+{{--					</svg>--}}
+{{--				</div>--}}
 
 				<div class="alert alert-success mb-15">
 					<div class="seller_card">
