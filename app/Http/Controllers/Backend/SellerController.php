@@ -98,8 +98,8 @@ class SellerController extends Controller
 		if($response){
             //call propel here-------
             $data = [
-                'wallet_name' => $request->input('shop_name'),
-                'notification_number' =>$request->input('shop_phone'),
+                'name' => $request->input('shop_name'),
+                'mobile_no' =>$request->input('shop_phone'),
                 'request_id' => $response->id,
             ];
 
