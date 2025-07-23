@@ -119,7 +119,7 @@
 						<h4 class="alert-heading">{{ __('Wallet Info:') }}</h4>
 						<p><strong>{{ __('Account Name') }}</strong>: {{ $biData['wallet_name'] }}</p>
 						<p><strong>{{ __('Account Number') }}</strong>: {{ $biData['account_number'] }}</p>
-						<p><strong>{{ __('Balance') }}</strong>: {{ $biData['description'] }}</p>
+						<p><strong>{{ __('Account Balance') }}</strong>:  {{ $biData['currency'] }} :{{ $biData['balance'] }}</p>
 					</div>
 				</div>
 
