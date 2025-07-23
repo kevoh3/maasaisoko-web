@@ -100,7 +100,7 @@ class SellerController extends Controller
             $data = [
                 'name' => $request->input('shop_name'),
                 'mobile_no' =>$request->input('shop_phone'),
-                'request_id' => $response->id,
+                'request_id' => $request->input('email'),
             ];
 
            // $response = WaaSService::createWallet($data);
