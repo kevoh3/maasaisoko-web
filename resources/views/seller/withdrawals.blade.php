@@ -7,12 +7,12 @@
 <div class="main-body">
 	<div class="container-fluid">
 		@php $vipc = vipc(); @endphp
-		@if($vipc['bkey'] == 0) 
+		@if($vipc['bkey'] == 0)
 		@include('seller.partials.vipc')
 		@else
-		@php 
-		$gtext = gtext(); 
-		$gsellersettings = gSellerSettings(); 
+		@php
+		$gtext = gtext();
+		$gsellersettings = gSellerSettings();
 		@endphp
 		<div class="row mt-25">
 			<div class="col-lg-7">
@@ -46,7 +46,7 @@
 						</div>
 					</div>
 					<!--/Data grid/-->
-					
+
 					<!--Data Entry Form-->
 					<div id="form-panel" class="card-body mb-15 dnone">
 						<form novalidate="" data-validate="parsley" id="DataEntry_formId">
@@ -58,7 +58,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="row">	
+							<div class="row">
 								<div class="col-lg-12">
 									<div class="form-group">
 										<label for="fee_amount">{{ __('Fee') }} ({{ $gtext['currency_icon'] }})<span class="red">*</span></label>
@@ -66,7 +66,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="row">	
+							<div class="row">
 								<div class="col-lg-12">
 									<div class="form-group">
 										<label for="payment_method">{{ __('Payment Method') }}</label>
@@ -74,7 +74,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="row">	
+							<div class="row">
 								<div class="col-lg-12">
 									<div class="form-group">
 										<label for="transaction_id">{{ __('Transaction ID') }}</label>
@@ -113,17 +113,16 @@
 						<path fill="rgba(255,255,255,0.2)" fill-opacity="1" d="M0,32L34.3,58.7C68.6,85,137,139,206,138.7C274.3,139,343,85,411,53.3C480,21,549,11,617,10.7C685.7,11,754,21,823,42.7C891.4,64,960,96,1029,138.7C1097.1,181,1166,235,1234,218.7C1302.9,203,1371,117,1406,74.7L1440,32L1440,320L1405.7,320C1371.4,320,1303,320,1234,320C1165.7,320,1097,320,1029,320C960,320,891,320,823,320C754.3,320,686,320,617,320C548.6,320,480,320,411,320C342.9,320,274,320,206,320C137.1,320,69,320,34,320L0,320Z"></path>
 					</svg>
 				</div>
-				
+
 				<div class="alert alert-success mb-15">
 					<div class="seller_card">
-						<h4 class="alert-heading">{{ __('You will receive money through the bank information below') }}</h4>
-						<p><strong>{{ __('Bank Name') }}</strong>: {{ $biData['bank_name'] }}</p>
-						<p><strong>{{ __('Account Holder Name') }}</strong>: {{ $biData['account_holder'] }}</p>
+						<h4 class="alert-heading">{{ __('Wallet Info:') }}</h4>
+						<p><strong>{{ __('Account Name') }}</strong>: {{ $biData['wallet_name'] }}</p>
 						<p><strong>{{ __('Account Number') }}</strong>: {{ $biData['account_number'] }}</p>
-						<p><strong>{{ __('Description') }}</strong>: {{ $biData['description'] }}</p>
+						<p><strong>{{ __('Balance') }}</strong>: {{ $biData['description'] }}</p>
 					</div>
 				</div>
-				
+
 				<div class="card mb-15 dnone" id="screenshot_id">
 					<div class="card-header">
 						<span>{{ __('Screenshot') }}</span>
@@ -134,7 +133,7 @@
 						</div>
 					</div>
 				</div>
-				
+
 			</div>
 		</div>
 		@endif

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Seller;
 
 use App\Http\Controllers\Controller;
+use App\Models\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -15,7 +16,7 @@ class WithdrawalController extends Controller
 {
 	//Withdrawals page load
     public function getWithdrawalsPageLoad() {
-		
+
 		$user_id = Auth::user()->id;
 
 		$datalist = DB::table('withdrawals')
@@ -26,37 +27,48 @@ class WithdrawalController extends Controller
 			->paginate(20);
 
 			$bi_data = Bank_information::where('seller_id', $user_id)->get();
-			
+            $wallet= Wallet::where('user_id', $user_id)->first();
+
 			$biData = array(
-				'bank_name' => '', 
-				'bank_code' => '', 
-				'account_number' => '', 
+				'bank_name' => '',
+				'bank_code' => '',
+				'account_number' => '',
 				'account_holder' => '',
 				'paypal_id' => '',
 				'description' => ''
 			);
-			foreach($bi_data as $row){
-				$biData['bank_name'] = $row->bank_name;
-				$biData['bank_code'] = $row->bank_code;
-				$biData['account_number'] = $row->account_number;
-				$biData['account_holder'] = $row->account_holder;
-				$biData['paypal_id'] = $row->paypal_id;
-				$biData['description'] = $row->description;
-			}
+//			foreach($bi_data as $row){
+//        'user_id',
+//        'wallet_name',
+//        'account_number',
+//        'wallet_type',
+//        'balance',
+//        'currency',
+//        'notification_number',
+//        'client_id',
+//        'client_secret',
+//        'request_id',
+//        'wallet_limit',
+//        'is_system_wallet',
+				$biData['wallet_name'] = $wallet->wallet_name;
+				$biData['account_number'] = $wallet->account_number;
+				$biData['balance'] = $wallet->balance;
+                $biData['currency'] = $wallet->currency;
+			//}
 
-        return view('seller.withdrawals', compact('datalist', 'biData'));		
+        return view('seller.withdrawals', compact('datalist', 'biData'));
 	}
-	
+
 	//Get data for withdrawals Pagination
 	public function getWithdrawalsTableData(Request $request){
 		$user_id = Auth::user()->id;
-		
+
 		$search = $request->search;
-		
+
 		if($request->ajax()){
 
 			if($search != ''){
-				
+
 				$datalist = DB::table('withdrawals')
 					->join('withdrawal_status', 'withdrawals.status_id', '=', 'withdrawal_status.id')
 					->select('withdrawals.*', 'withdrawal_status.status')
@@ -70,7 +82,7 @@ class WithdrawalController extends Controller
 					->orderBy('withdrawals.id','desc')
 					->paginate(20);
 			}else{
-				
+
 				$datalist = DB::table('withdrawals')
 					->join('withdrawal_status', 'withdrawals.status_id', '=', 'withdrawal_status.id')
 					->select('withdrawals.*', 'withdrawal_status.status')
@@ -82,12 +94,12 @@ class WithdrawalController extends Controller
 			return view('seller.partials.withdrawals_table', compact('datalist'))->render();
 		}
 	}
-	
+
 	//Save data for Withdrawals
     public function saveWithdrawalsData(Request $request){
 		$res = array();
 		$gsellersettings = gSellerSettings();
-		
+
 		$id = $request->input('RecordId');
 		$amount = $request->input('amount');
 		$fee_amount = $request->input('fee_amount');
@@ -97,7 +109,7 @@ class WithdrawalController extends Controller
 		$validator_array = array(
 			'amount' => $request->input('amount')
 		);
-		
+
 		$rId = $id == '' ? '' : ','.$id;
 		$validator = Validator::make($validator_array, [
 			'amount' => 'required'
@@ -110,20 +122,20 @@ class WithdrawalController extends Controller
 			$res['msg'] = $errors->first('amount');
 			return response()->json($res);
 		}
-		
+
 		$seller_id = Auth::user()->id;
 
 		if($id ==''){
-			
+
 			$fee_withdrawal = $gsellersettings['fee_withdrawal'] == '' ? 0 : $gsellersettings['fee_withdrawal'];
 			$balance = $ubalance - $fee_withdrawal;
-			
+
 			if($amount > $balance){
 				$res['msgType'] = 'error';
 				$res['msg'] = __('The balance is not enough for withdrawal.');
 				return response()->json($res);
 			}
-			
+
 			$data = array(
 				'seller_id' => $seller_id,
 				'amount' => $amount,
@@ -131,7 +143,7 @@ class WithdrawalController extends Controller
 				'description' => $description,
 				'status_id' => 1
 			);
-			
+
 			$response = Withdrawal::create($data)->id;
 			if($response){
 				$res['msgType'] = 'success';
@@ -146,7 +158,7 @@ class WithdrawalController extends Controller
 				'seller_id' => $seller_id,
 				'description' => $description
 			);
-			
+
 			$response = Withdrawal::where('id', $id)->update($data);
 			if($response){
 				$res['msgType'] = 'success';
@@ -157,24 +169,24 @@ class WithdrawalController extends Controller
 				$res['msg'] = __('Data update failed');
 			}
 		}
-		
+
 		return response()->json($res);
     }
-	
+
 	//Get data for Withdrawal by id
     public function getWithdrawalById(Request $request){
 
 		$id = $request->id;
-		
+
 		$data = Withdrawal::where('id', $id)->first();
-		
+
 		return response()->json($data);
 	}
-	
+
 	//Get data for Current Balance by seller id
     public function getCurrentBalanceBySellerId(Request $request){
 		$gtext = gtext();
-		
+
 		$seller_id = Auth::user()->id;
 
 		$sql = "SELECT (IFNULL(SUM(b.total_price), 0) + IFNULL(SUM(b.tax), 0)) AS OrderBalance
@@ -185,14 +197,14 @@ class WithdrawalController extends Controller
 		AND a.seller_id = '".$seller_id."';";
 		$aRow = DB::select($sql);
 		$OrderBalance = $aRow[0]->OrderBalance;
-		
+
 		$sql1 = "SELECT (IFNULL(SUM(amount), 0) + IFNULL(SUM(fee_amount), 0)) AS WithdrawalBalance
-		FROM withdrawals 
+		FROM withdrawals
 		WHERE seller_id = '".$seller_id."';";
 		$aRow1 = DB::select($sql1);
 		$WithdrawalBalance = $aRow1[0]->WithdrawalBalance;
 		$OrderWithdrawalBalance = ($OrderBalance - $WithdrawalBalance);
-		
+
 		$data = array('CurrentBalance' => 0, 'ubalance' => 0);
 		if($gtext['currency_position'] == 'left'){
 			$data['CurrentBalance'] = $gtext['currency_icon'].NumberFormat($OrderWithdrawalBalance);
@@ -203,14 +215,14 @@ class WithdrawalController extends Controller
 		}
 		return response()->json($data);
 	}
-	
+
 	//Get data for Screenshot by id
     public function getScreenshotById(Request $request){
-	
+
 		$withdrawal_id = $request->withdrawal_id;
 
 		$data = Withdrawal_image::where('withdrawal_id', $withdrawal_id)->orderBy('id','desc')->get();
 
 		return response()->json($data);
-	}	
+	}
 }
