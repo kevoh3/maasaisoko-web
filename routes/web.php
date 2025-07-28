@@ -122,7 +122,7 @@ Route::prefix('backend')->group(function(){
 	Route::post('/updateOrderStatus', [App\Http\Controllers\Backend\OrdersController::class, 'updateOrderStatus'])->name('backend.updateOrderStatus')->middleware(['auth','is_admin']);
 	Route::get('/getPaymentOrderStatusData', [App\Http\Controllers\Backend\OrdersController::class, 'getPaymentOrderStatusData'])->name('backend.getPaymentOrderStatusData')->middleware(['auth','is_admin']);
 	Route::post('/deleteOrder', [App\Http\Controllers\Backend\OrdersController::class, 'deleteOrder'])->name('backend.deleteOrder')->middleware(['auth','is_admin']);
-	
+
 	//Transactions
 	Route::get('/transactions', [App\Http\Controllers\Backend\TransactionController::class, 'getTransactionsPageLoad'])->name('backend.transactions')->middleware(['auth','is_admin']);
 	Route::get('/getTransactionsTableData', [App\Http\Controllers\Backend\TransactionController::class, 'getTransactionsTableData'])->name('backend.getTransactionsTableData')->middleware(['auth','is_admin']);
@@ -137,21 +137,21 @@ Route::prefix('backend')->group(function(){
 	Route::post('/saveSubscriberData', [App\Http\Controllers\Backend\NewslettersController::class, 'saveSubscriberData'])->name('backend.saveSubscriberData')->middleware(['auth','is_admin']);
 	Route::post('/getSubscriberById', [App\Http\Controllers\Backend\NewslettersController::class, 'getSubscriberById'])->name('backend.getSubscriberById')->middleware(['auth','is_admin']);
 	Route::post('/deleteSubscriber', [App\Http\Controllers\Backend\NewslettersController::class, 'deleteSubscriber'])->name('backend.deleteSubscriber')->middleware(['auth','is_admin']);
-		
+
 	//languages Page
 	Route::get('/languages', [App\Http\Controllers\Backend\LanguagesController::class, 'getLanguagePageLoad'])->name('backend.languages')->middleware(['auth','is_admin']);
 	Route::get('/getLanguagesTableData', [App\Http\Controllers\Backend\LanguagesController::class, 'getLanguagesTableData'])->name('backend.getLanguagesTableData')->middleware(['auth','is_admin']);
 	Route::post('/saveLanguagesData', [App\Http\Controllers\Backend\LanguagesController::class, 'saveLanguagesData'])->name('backend.saveLanguagesData')->middleware(['auth','is_admin']);
 	Route::post('/getLanguageById', [App\Http\Controllers\Backend\LanguagesController::class, 'getLanguageById'])->name('backend.getLanguageById')->middleware(['auth','is_admin']);
 	Route::post('/deleteLanguage', [App\Http\Controllers\Backend\LanguagesController::class, 'deleteLanguage'])->name('backend.deleteLanguage')->middleware(['auth','is_admin']);
-	
+
 	//Language Keywords Page
 	Route::get('/language-keywords', [App\Http\Controllers\Backend\LanguagesController::class, 'getLanguageKeywordsPageLoad'])->name('backend.language-keywords')->middleware(['auth','is_admin']);
 	Route::get('/getLanguageKeywordsTableData', [App\Http\Controllers\Backend\LanguagesController::class, 'getLanguageKeywordsTableData'])->name('backend.getLanguageKeywordsTableData')->middleware(['auth','is_admin']);
 	Route::post('/saveLanguageKeywordsData', [App\Http\Controllers\Backend\LanguagesController::class, 'saveLanguageKeywordsData'])->name('backend.saveLanguageKeywordsData')->middleware(['auth','is_admin']);
 	Route::post('/getLanguageKeywordsById', [App\Http\Controllers\Backend\LanguagesController::class, 'getLanguageKeywordsById'])->name('backend.getLanguageKeywordsById')->middleware(['auth','is_admin']);
 	Route::post('/deleteLanguageKeywords', [App\Http\Controllers\Backend\LanguagesController::class, 'deleteLanguageKeywords'])->name('backend.deleteLanguageKeywords')->middleware(['auth','is_admin']);
-	
+
 	//Customers Page
 	Route::get('/customers', [App\Http\Controllers\Backend\CustomerController::class, 'getCustomersPageLoad'])->name('backend.customers')->middleware(['auth','is_admin']);
 	Route::get('/getCustomersTableData', [App\Http\Controllers\Backend\CustomerController::class, 'getCustomersTableData'])->name('backend.getCustomersTableData')->middleware(['auth','is_admin']);
@@ -168,7 +168,7 @@ Route::prefix('backend')->group(function(){
 	Route::post('/deleteSeller', [App\Http\Controllers\Backend\SellerController::class, 'deleteSeller'])->name('backend.deleteSeller')->middleware(['auth','is_admin']);
 	Route::post('/bulkActionSellers', [App\Http\Controllers\Backend\SellerController::class, 'bulkActionSellers'])->name('backend.bulkActionSellers')->middleware(['auth','is_admin']);
 	Route::post('/saveBankInformationData', [App\Http\Controllers\Backend\SellerController::class, 'saveBankInformationData'])->name('backend.saveBankInformationData')->middleware(['auth','is_admin']);
-	
+
 	//Users Page
 	Route::get('/users', [App\Http\Controllers\Backend\UsersController::class, 'getUsersPageLoad'])->name('backend.users')->middleware(['auth','is_admin']);
 	Route::get('/getUsersTableData', [App\Http\Controllers\Backend\UsersController::class, 'getUsersTableData'])->name('backend.getUsersTableData')->middleware(['auth','is_admin']);
@@ -188,7 +188,7 @@ Route::prefix('backend')->group(function(){
 	Route::post('/onMediaDelete', [App\Http\Controllers\Backend\MediaController::class, 'onMediaDelete'])->name('backend.onMediaDelete')->middleware(['auth','is_admin']);
 	Route::get('/getGlobalMediaData', [App\Http\Controllers\Backend\MediaController::class, 'getGlobalMediaData'])->name('backend.getGlobalMediaData')->middleware(['auth','is_admin']);
 	Route::get('/getMediaPaginationData', [App\Http\Controllers\Backend\MediaController::class, 'getMediaPaginationData'])->name('backend.getMediaPaginationData')->middleware(['auth','is_admin']);
-	
+
 	//Menu Page
 	Route::get('/menu', [App\Http\Controllers\Backend\MenuController::class, 'getMenuPageLoad'])->name('backend.menu')->middleware(['auth','is_admin']);
 	Route::get('/getMenuTableData', [App\Http\Controllers\Backend\MenuController::class, 'getMenuTableData'])->name('backend.getMenuTableData')->middleware(['auth','is_admin']);
@@ -220,7 +220,7 @@ Route::prefix('backend')->group(function(){
 	Route::post('/bulkActionPage', [App\Http\Controllers\Backend\PageController::class, 'bulkActionPage'])->name('backend.bulkActionPage')->middleware(['auth','is_admin']);
 	Route::post('/hasPageTitleSlug', [App\Http\Controllers\Backend\PageController::class, 'hasPageTitleSlug'])->name('backend.hasPageTitleSlug')->middleware(['auth','is_admin']);
 	Route::post('/savePageData', [App\Http\Controllers\Backend\PageController::class, 'savePageData'])->name('backend.savePageData')->middleware(['auth','is_admin']);
-	
+
 	//Contact
 	Route::get('/contact', [App\Http\Controllers\Backend\ContactController::class, 'getContactData'])->name('backend.contact')->middleware(['auth','is_admin']);
 	Route::get('/getContactPaginationData', [App\Http\Controllers\Backend\ContactController::class, 'getContactPaginationData'])->name('backend.getContactPaginationData')->middleware(['auth','is_admin']);
@@ -228,7 +228,7 @@ Route::prefix('backend')->group(function(){
 	Route::post('/deleteContact', [App\Http\Controllers\Backend\ContactController::class, 'deleteContact'])->name('backend.deleteContact')->middleware(['auth','is_admin']);
 	Route::post('/bulkActionContact', [App\Http\Controllers\Backend\ContactController::class, 'bulkActionContact'])->name('backend.bulkActionContact')->middleware(['auth','is_admin']);
 	Route::post('/saveContactData', [App\Http\Controllers\Backend\ContactController::class, 'saveContactData'])->name('backend.saveContactData')->middleware(['auth','is_admin']);
-	
+
 	//Products
 	Route::get('/products', [App\Http\Controllers\Backend\ProductsController::class, 'getProductsPageLoad'])->name('backend.products')->middleware(['auth','is_admin']);
 	Route::get('/getProductsTableData', [App\Http\Controllers\Backend\ProductsController::class, 'getProductsTableData'])->name('backend.getProductsTableData')->middleware(['auth','is_admin']);
@@ -239,7 +239,7 @@ Route::prefix('backend')->group(function(){
 	//Update
 	Route::get('/product/{id}', [App\Http\Controllers\Backend\ProductsController::class, 'getProductPageData'])->name('backend.product')->middleware(['auth','is_admin']);
 	Route::post('/updateProductsData', [App\Http\Controllers\Backend\ProductsController::class, 'updateProductsData'])->name('backend.updateProductsData')->middleware(['auth','is_admin']);
-	
+
 	//Manage Stock
 	Route::get('/manage-stock', [App\Http\Controllers\Backend\InventoryController::class, 'getManageStockPageLoad'])->name('backend.manage-stock')->middleware(['auth','is_admin']);
 	Route::get('/getManageStockTableData', [App\Http\Controllers\Backend\InventoryController::class, 'getManageStockTableData'])->name('backend.getManageStockTableData')->middleware(['auth','is_admin']);
@@ -249,32 +249,32 @@ Route::prefix('backend')->group(function(){
 	//Price
 	Route::get('/price/{id}', [App\Http\Controllers\Backend\ProductsController::class, 'getPricePageData'])->name('backend.price')->middleware(['auth','is_admin']);
 	Route::post('/savePriceData', [App\Http\Controllers\Backend\ProductsController::class, 'savePriceData'])->name('backend.savePriceData')->middleware(['auth','is_admin']);
-	
+
 	//Inventory
 	Route::get('/inventory/{id}', [App\Http\Controllers\Backend\ProductsController::class, 'getInventoryPageData'])->name('backend.inventory')->middleware(['auth','is_admin']);
 	Route::post('/saveInventoryData', [App\Http\Controllers\Backend\ProductsController::class, 'saveInventoryData'])->name('backend.saveInventoryData')->middleware(['auth','is_admin']);
-	
+
 	//Product Images
 	Route::get('/product-images/{id}', [App\Http\Controllers\Backend\ProductsController::class, 'getProductImagesPageData'])->name('backend.product-images')->middleware(['auth','is_admin']);
 	Route::get('/getProductImagesTableData', [App\Http\Controllers\Backend\ProductsController::class, 'getProductImagesTableData'])->name('backend.getProductImagesTableData')->middleware(['auth','is_admin']);
 	Route::post('/saveProductImagesData', [App\Http\Controllers\Backend\ProductsController::class, 'saveProductImagesData'])->name('backend.saveProductImagesData')->middleware(['auth','is_admin']);
 	Route::post('/deleteProductImages', [App\Http\Controllers\Backend\ProductsController::class, 'deleteProductImages'])->name('backend.deleteProductImages')->middleware(['auth','is_admin']);
-	
+
 	//Variations
 	Route::get('/variations/{id}', [App\Http\Controllers\Backend\ProductsController::class, 'getVariationsPageData'])->name('backend.variations')->middleware(['auth','is_admin']);
 	Route::post('/saveVariationsData', [App\Http\Controllers\Backend\ProductsController::class, 'saveVariationsData'])->name('backend.saveVariationsData')->middleware(['auth','is_admin']);
-	
+
 	//Product SEO
 	Route::get('/product-seo/{id}', [App\Http\Controllers\Backend\ProductsController::class, 'getProductSEOPageData'])->name('backend.product-seo')->middleware(['auth','is_admin']);
 	Route::post('/saveProductSEOData', [App\Http\Controllers\Backend\ProductsController::class, 'saveProductSEOData'])->name('backend.saveProductSEOData')->middleware(['auth','is_admin']);
-		
+
 	//Related Products
 	Route::get('/related-products/{id}', [App\Http\Controllers\Backend\ProductsController::class, 'getRelatedProductsPageData'])->name('backend.related-products')->middleware(['auth','is_admin']);
 	Route::get('/getProductListForRelatedTableData', [App\Http\Controllers\Backend\ProductsController::class, 'getProductListForRelatedTableData'])->name('backend.getProductListForRelatedTableData')->middleware(['auth','is_admin']);
 	Route::get('/getRelatedProductTableData', [App\Http\Controllers\Backend\ProductsController::class, 'getRelatedProductTableData'])->name('backend.getRelatedProductTableData')->middleware(['auth','is_admin']);
 	Route::post('/saveRelatedProductsData', [App\Http\Controllers\Backend\ProductsController::class, 'saveRelatedProductsData'])->name('backend.saveRelatedProductsData')->middleware(['auth','is_admin']);
 	Route::post('/deleteRelatedProduct', [App\Http\Controllers\Backend\ProductsController::class, 'deleteRelatedProduct'])->name('backend.deleteRelatedProduct')->middleware(['auth','is_admin']);
-		
+
 	//Product Categories
 	Route::get('/product-categories', [App\Http\Controllers\Backend\Pro_categoriesController::class, 'getProductCategoriesPageLoad'])->name('backend.product-categories')->middleware(['auth','is_admin']);
 	Route::get('/getProductCategoriesTableData', [App\Http\Controllers\Backend\Pro_categoriesController::class, 'getProductCategoriesTableData'])->name('backend.getProductCategoriesTableData')->middleware(['auth','is_admin']);
@@ -283,7 +283,7 @@ Route::prefix('backend')->group(function(){
 	Route::post('/deleteProductCategories', [App\Http\Controllers\Backend\Pro_categoriesController::class, 'deleteProductCategories'])->name('backend.deleteProductCategories')->middleware(['auth','is_admin']);
 	Route::post('/bulkActionProductCategories', [App\Http\Controllers\Backend\Pro_categoriesController::class, 'bulkActionProductCategories'])->name('backend.bulkActionProductCategories')->middleware(['auth','is_admin']);
 	Route::post('/hasProductCategorySlug', [App\Http\Controllers\Backend\Pro_categoriesController::class, 'hasProductCategorySlug'])->name('backend.hasProductCategorySlug')->middleware(['auth','is_admin']);
-			
+
 	//Blog Categories
 	Route::get('/blog-categories', [App\Http\Controllers\Backend\Blog_categoriesController::class, 'getBlogCategoriesPageLoad'])->name('backend.blog-categories')->middleware(['auth','is_admin']);
 	Route::get('/getBlogCategoriesTableData', [App\Http\Controllers\Backend\Blog_categoriesController::class, 'getBlogCategoriesTableData'])->name('backend.getBlogCategoriesTableData')->middleware(['auth','is_admin']);
@@ -292,7 +292,7 @@ Route::prefix('backend')->group(function(){
 	Route::post('/deleteBlogCategories', [App\Http\Controllers\Backend\Blog_categoriesController::class, 'deleteBlogCategories'])->name('backend.deleteBlogCategories')->middleware(['auth','is_admin']);
 	Route::post('/bulkActionBlogCategories', [App\Http\Controllers\Backend\Blog_categoriesController::class, 'bulkActionBlogCategories'])->name('backend.bulkActionBlogCategories')->middleware(['auth','is_admin']);
 	Route::post('/hasBlogCategorySlug', [App\Http\Controllers\Backend\Blog_categoriesController::class, 'hasBlogCategorySlug'])->name('backend.hasBlogCategorySlug')->middleware(['auth','is_admin']);
-		
+
 	//Blog
 	Route::get('/blog', [App\Http\Controllers\Backend\BlogController::class, 'getBlogPageLoad'])->name('backend.blog')->middleware(['auth','is_admin']);
 	Route::get('/getBlogTableData', [App\Http\Controllers\Backend\BlogController::class, 'getBlogTableData'])->name('backend.getBlogTableData')->middleware(['auth','is_admin']);
@@ -301,7 +301,7 @@ Route::prefix('backend')->group(function(){
 	Route::post('/deleteBlog', [App\Http\Controllers\Backend\BlogController::class, 'deleteBlog'])->name('backend.deleteBlog')->middleware(['auth','is_admin']);
 	Route::post('/bulkActionBlog', [App\Http\Controllers\Backend\BlogController::class, 'bulkActionBlog'])->name('backend.bulkActionBlog')->middleware(['auth','is_admin']);
 	Route::post('/hasBlogSlug', [App\Http\Controllers\Backend\BlogController::class, 'hasBlogSlug'])->name('backend.hasBlogSlug')->middleware(['auth','is_admin']);
-	
+
 	//Brands
 	Route::get('/brands', [App\Http\Controllers\Backend\BrandsController::class, 'getBrandsPageLoad'])->name('backend.brands')->middleware(['auth','is_admin']);
 	Route::get('/getBrandsTableData', [App\Http\Controllers\Backend\BrandsController::class, 'getBrandsTableData'])->name('backend.getBrandsTableData')->middleware(['auth','is_admin']);
@@ -331,7 +331,7 @@ Route::prefix('backend')->group(function(){
 	Route::post('/getCollectionsById', [App\Http\Controllers\Backend\CollectionsController::class, 'getCollectionsById'])->name('backend.getCollectionsById')->middleware(['auth','is_admin']);
 	Route::post('/deleteCollections', [App\Http\Controllers\Backend\CollectionsController::class, 'deleteCollections'])->name('backend.deleteCollections')->middleware(['auth','is_admin']);
 	Route::post('/bulkActionCollections', [App\Http\Controllers\Backend\CollectionsController::class, 'bulkActionCollections'])->name('backend.bulkActionCollections')->middleware(['auth','is_admin']);
-	
+
 	//Attributes
 	Route::get('/attributes', [App\Http\Controllers\Backend\AttributesController::class, 'getAttributesPageLoad'])->name('backend.attributes')->middleware(['auth','is_admin']);
 	Route::get('/getAttributesTableData', [App\Http\Controllers\Backend\AttributesController::class, 'getAttributesTableData'])->name('backend.getAttributesTableData')->middleware(['auth','is_admin']);
@@ -339,7 +339,7 @@ Route::prefix('backend')->group(function(){
 	Route::post('/getAttributesById', [App\Http\Controllers\Backend\AttributesController::class, 'getAttributesById'])->name('backend.getAttributesById')->middleware(['auth','is_admin']);
 	Route::post('/deleteAttributes', [App\Http\Controllers\Backend\AttributesController::class, 'deleteAttributes'])->name('backend.deleteAttributes')->middleware(['auth','is_admin']);
 	Route::post('/bulkActionAttributes', [App\Http\Controllers\Backend\AttributesController::class, 'bulkActionAttributes'])->name('backend.bulkActionAttributes')->middleware(['auth','is_admin']);
-	
+
 	//Labels
 	Route::get('/labels', [App\Http\Controllers\Backend\LabelsController::class, 'getLabelsPageLoad'])->name('backend.labels')->middleware(['auth','is_admin']);
 	Route::get('/getLabelsTableData', [App\Http\Controllers\Backend\LabelsController::class, 'getLabelsTableData'])->name('backend.getLabelsTableData')->middleware(['auth','is_admin']);
@@ -347,7 +347,7 @@ Route::prefix('backend')->group(function(){
 	Route::post('/getLabelsById', [App\Http\Controllers\Backend\LabelsController::class, 'getLabelsById'])->name('backend.getLabelsById')->middleware(['auth','is_admin']);
 	Route::post('/deleteLabels', [App\Http\Controllers\Backend\LabelsController::class, 'deleteLabels'])->name('backend.deleteLabels')->middleware(['auth','is_admin']);
 	Route::post('/bulkActionLabels', [App\Http\Controllers\Backend\LabelsController::class, 'bulkActionLabels'])->name('backend.bulkActionLabels')->middleware(['auth','is_admin']);
-	
+
 	//Coupons
 	Route::get('/coupons', [App\Http\Controllers\Backend\CouponsController::class, 'getCouponsPageLoad'])->name('backend.coupons')->middleware(['auth','is_admin']);
 	Route::get('/getCouponsTableData', [App\Http\Controllers\Backend\CouponsController::class, 'getCouponsTableData'])->name('backend.getCouponsTableData')->middleware(['auth','is_admin']);
@@ -387,7 +387,7 @@ Route::prefix('backend')->group(function(){
 	Route::post('/getCountryById', [App\Http\Controllers\Backend\CountriesController::class, 'getCountryById'])->name('backend.getCountryById')->middleware(['auth','is_admin']);
 	Route::post('/deleteCountry', [App\Http\Controllers\Backend\CountriesController::class, 'deleteCountry'])->name('backend.deleteCountry')->middleware(['auth','is_admin']);
 	Route::post('/bulkActionCountry', [App\Http\Controllers\Backend\CountriesController::class, 'bulkActionCountry'])->name('backend.bulkActionCountry')->middleware(['auth','is_admin']);
-	
+
 	//Page Variation
 	Route::get('/page-variation', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'getPageVariation'])->name('backend.page-variation')->middleware(['auth','is_admin']);
 	Route::post('/savePageVariation', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'savePageVariation'])->name('backend.savePageVariation')->middleware(['auth','is_admin']);
@@ -403,63 +403,63 @@ Route::prefix('backend')->group(function(){
 	Route::post('/getSectionManageById', [App\Http\Controllers\Backend\SectionManageController::class, 'getSectionManageById'])->name('backend.getSectionManageById')->middleware(['auth','is_admin']);
 	Route::post('/deleteSectionManage', [App\Http\Controllers\Backend\SectionManageController::class, 'deleteSectionManage'])->name('backend.deleteSectionManage')->middleware(['auth','is_admin']);
 	Route::post('/bulkActionSectionManage', [App\Http\Controllers\Backend\SectionManageController::class, 'bulkActionSectionManage'])->name('backend.bulkActionSectionManage')->middleware(['auth','is_admin']);
-	
+
 	//Theme Logo
 	Route::get('/theme-options', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'getThemeOptionsPageLoad'])->name('backend.theme-options')->middleware(['auth','is_admin']);
 	Route::post('/saveThemeLogo', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'saveThemeLogo'])->name('backend.saveThemeLogo')->middleware(['auth','is_admin']);
-	
+
 	//Theme Options Header
 	Route::get('/theme-options-header', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'getThemeOptionsHeaderPageLoad'])->name('backend.theme-options-header')->middleware(['auth','is_admin']);
 	Route::post('/saveThemeOptionsHeader', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'saveThemeOptionsHeader'])->name('backend.saveThemeOptionsHeader')->middleware(['auth','is_admin']);
-	
+
 	//Language Switcher
 	Route::get('/language-switcher', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'getLanguageSwitcher'])->name('backend.language-switcher')->middleware(['auth','is_admin']);
 	Route::post('/saveLanguageSwitcher', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'saveLanguageSwitcher'])->name('backend.saveLanguageSwitcher')->middleware(['auth','is_admin']);
-	
+
 	//Theme Options Footer
 	Route::get('/theme-options-footer', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'getThemeOptionsFooterPageLoad'])->name('backend.theme-options-footer')->middleware(['auth','is_admin']);
 	Route::post('/saveThemeOptionsFooter', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'saveThemeOptionsFooter'])->name('backend.saveThemeOptionsFooter')->middleware(['auth','is_admin']);
-	
+
 	//Custom css
 	Route::get('/custom-css', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'getCustomCSSPageLoad'])->name('backend.custom-css')->middleware(['auth','is_admin']);
 	Route::post('/saveCustomCSS', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'saveCustomCSS'])->name('backend.saveCustomCSS')->middleware(['auth','is_admin']);
-	
+
 	//Custom js
 	Route::get('/custom-js', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'getCustomJSPageLoad'])->name('backend.custom-js')->middleware(['auth','is_admin']);
 	Route::post('/saveCustomJS', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'saveCustomJS'])->name('backend.saveCustomJS')->middleware(['auth','is_admin']);
-	
+
 	//Theme Options Color
 	Route::get('/theme-options-color', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'getThemeOptionsColorPageLoad'])->name('backend.theme-options-color')->middleware(['auth','is_admin']);
 	Route::post('/saveThemeOptionsColor', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'saveThemeOptionsColor'])->name('backend.saveThemeOptionsColor')->middleware(['auth','is_admin']);
-	
+
 	//Theme Options SEO
 	Route::get('/theme-options-seo', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'getThemeOptionsSEOPageLoad'])->name('backend.theme-options-seo')->middleware(['auth','is_admin']);
 	Route::post('/saveThemeOptionsSEO', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'saveThemeOptionsSEO'])->name('backend.saveThemeOptionsSEO')->middleware(['auth','is_admin']);
-	
+
 	//Theme Options Facebook
 	Route::get('/theme-options-facebook', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'getThemeOptionsFacebookPageLoad'])->name('backend.theme-options-facebook')->middleware(['auth','is_admin']);
 	Route::post('/saveThemeOptionsFacebook', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'saveThemeOptionsFacebook'])->name('backend.saveThemeOptionsFacebook')->middleware(['auth','is_admin']);
-	
+
 	//Theme Options Facebook Pixel
 	Route::get('/theme-options-facebook-pixel', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'getThemeOptionsFacebookPixelLoad'])->name('backend.theme-options-facebook-pixel')->middleware(['auth','is_admin']);
 	Route::post('/saveThemeOptionsFacebookPixel', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'saveThemeOptionsFacebookPixel'])->name('backend.saveThemeOptionsFacebookPixel')->middleware(['auth','is_admin']);
-	
+
 	//Theme Options Twitter
 	Route::get('/theme-options-twitter', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'getThemeOptionsTwitterPageLoad'])->name('backend.theme-options-twitter')->middleware(['auth','is_admin']);
 	Route::post('/saveThemeOptionsTwitter', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'saveThemeOptionsTwitter'])->name('backend.saveThemeOptionsTwitter')->middleware(['auth','is_admin']);
-	
+
 	//Theme Options Google Analytics
 	Route::get('/google-analytics', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'getGoogleAnalytics'])->name('backend.google-analytics')->middleware(['auth','is_admin']);
 	Route::post('/saveGoogleAnalytics', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'saveGoogleAnalytics'])->name('backend.saveGoogleAnalytics')->middleware(['auth','is_admin']);
-	
+
 	//Theme Options Google Tag Manager
 	Route::get('/google-tag-manager', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'getGoogleTagManager'])->name('backend.google-tag-manager')->middleware(['auth','is_admin']);
 	Route::post('/saveGoogleTagManager', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'saveGoogleTagManager'])->name('backend.saveGoogleTagManager')->middleware(['auth','is_admin']);
-	
+
 	//Theme Options Whatsapp
 	Route::get('/theme-options-whatsapp', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'getThemeOptionsWhatsappPageLoad'])->name('backend.theme-options-whatsapp')->middleware(['auth','is_admin']);
 	Route::post('/saveThemeOptionsWhatsapp', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'saveThemeOptionsWhatsapp'])->name('backend.saveThemeOptionsWhatsapp')->middleware(['auth','is_admin']);
-	
+
 	//Cookie Consent
 	Route::get('/cookie-consent', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'getCookieConsent'])->name('backend.cookie-consent')->middleware(['auth','is_admin']);
 	Route::post('/saveCookieConsent', [App\Http\Controllers\Backend\ThemeOptionsController::class, 'saveCookieConsent'])->name('backend.saveCookieConsent')->middleware(['auth','is_admin']);
@@ -475,17 +475,17 @@ Route::prefix('backend')->group(function(){
 	//General Page
 	Route::get('/general', [App\Http\Controllers\Backend\SettingsController::class, 'getGeneralPageLoad'])->name('backend.general')->middleware(['auth','is_admin']);
 	Route::post('/GeneralSettingUpdate', [App\Http\Controllers\Backend\SettingsController::class, 'GeneralSettingUpdate'])->name('backend.GeneralSettingUpdate')->middleware(['auth','is_admin']);
-	
+
 	//Theme Register
 	Route::get('/theme-register', [App\Http\Controllers\Backend\SettingsController::class, 'loadThemeRegisterPage'])->name('backend.theme-register')->middleware(['auth','is_admin']);
 	Route::get('/getPcodeData', [App\Http\Controllers\Backend\SettingsController::class, 'getPcodeData'])->name('backend.getPcodeData')->middleware(['auth','is_admin']);
 	Route::post('/CodeVerified', [App\Http\Controllers\Backend\SettingsController::class, 'CodeVerified'])->name('backend.CodeVerified')->middleware(['auth','is_admin']);
 	Route::post('/deletePcode', [App\Http\Controllers\Backend\SettingsController::class, 'deletePcode'])->name('backend.deletePcode')->middleware(['auth','is_admin']);
-	
+
 	//Google Recaptcha
 	Route::get('/google-recaptcha', [App\Http\Controllers\Backend\SettingsController::class, 'loadGoogleRecaptchaPage'])->name('backend.google-recaptcha')->middleware(['auth','is_admin']);
 	Route::post('/GoogleRecaptchaUpdate', [App\Http\Controllers\Backend\SettingsController::class, 'GoogleRecaptchaUpdate'])->name('backend.GoogleRecaptchaUpdate')->middleware(['auth','is_admin']);
-	
+
 	//Google Map
 	Route::get('/google-map', [App\Http\Controllers\Backend\SettingsController::class, 'loadGoogleMapPage'])->name('backend.google-map')->middleware(['auth','is_admin']);
 	Route::post('/GoogleMapUpdate', [App\Http\Controllers\Backend\SettingsController::class, 'GoogleMapUpdate'])->name('backend.GoogleMapUpdate')->middleware(['auth','is_admin']);
@@ -493,7 +493,7 @@ Route::prefix('backend')->group(function(){
 	//Mail Settings
 	Route::get('/mail-settings', [App\Http\Controllers\Backend\SettingsController::class, 'loadMailSettingsPage'])->name('backend.mail-settings')->middleware(['auth','is_admin']);
 	Route::post('/saveMailSettings', [App\Http\Controllers\Backend\SettingsController::class, 'saveMailSettings'])->name('backend.saveMailSettings')->middleware(['auth','is_admin']);
-	
+
 	//Payment methods
 	Route::get('/payment-methods', [App\Http\Controllers\Backend\SettingsController::class, 'loadPaymentMethodsPage'])->name('backend.payment-methods')->middleware(['auth','is_admin']);
 	Route::post('/StripeSettingsUpdate', [App\Http\Controllers\Backend\SettingsController::class, 'StripeSettingsUpdate'])->name('backend.StripeSettingsUpdate')->middleware(['auth','is_admin']);
@@ -502,17 +502,17 @@ Route::prefix('backend')->group(function(){
 	Route::post('/MollieSettingsUpdate', [App\Http\Controllers\Backend\SettingsController::class, 'MollieSettingsUpdate'])->name('backend.MollieSettingsUpdate')->middleware(['auth','is_admin']);
 	Route::post('/CODSettingsUpdate', [App\Http\Controllers\Backend\SettingsController::class, 'CODSettingsUpdate'])->name('backend.CODSettingsUpdate')->middleware(['auth','is_admin']);
 	Route::post('/BankSettingsUpdate', [App\Http\Controllers\Backend\SettingsController::class, 'BankSettingsUpdate'])->name('backend.BankSettingsUpdate')->middleware(['auth','is_admin']);
-	
+
 	//Media Settings
 	Route::get('/media-settings', [App\Http\Controllers\Backend\SettingsController::class, 'loadMediaSettingsPage'])->name('backend.media-settings')->middleware(['auth','is_admin']);
 	Route::get('/getMediaSettingsTableData', [App\Http\Controllers\Backend\SettingsController::class, 'getMediaSettingsTableData'])->name('backend.getMediaSettingsTableData')->middleware(['auth','is_admin']);
 	Route::post('/getMediaSettingsById', [App\Http\Controllers\Backend\SettingsController::class, 'getMediaSettingsById'])->name('backend.getMediaSettingsById')->middleware(['auth','is_admin']);
 	Route::post('/MediaSettingsUpdate', [App\Http\Controllers\Backend\SettingsController::class, 'MediaSettingsUpdate'])->name('backend.MediaSettingsUpdate')->middleware(['auth','is_admin']);
-	
+
 	//All File Upload
 	Route::post('/FileUpload', [App\Http\Controllers\Backend\UploadController::class, 'FileUpload'])->name('backend.FileUpload')->middleware(['auth','is_admin']);
 	Route::post('/MediaUpload', [App\Http\Controllers\Backend\UploadController::class, 'MediaUpload'])->name('backend.MediaUpload')->middleware(['auth','is_admin']);
-	
+
 	//All Combo
 	Route::post('/getTimezoneList', [App\Http\Controllers\Backend\ComboController::class, 'getTimezoneList'])->name('backend.getTimezoneList')->middleware(['auth','is_admin']);
 	Route::post('/getUserStatusList', [App\Http\Controllers\Backend\ComboController::class, 'getUserStatusList'])->name('backend.getUserStatusList')->middleware(['auth','is_admin']);
@@ -520,22 +520,22 @@ Route::prefix('backend')->group(function(){
 	Route::post('/getStatusList', [App\Http\Controllers\Backend\ComboController::class, 'getStatusList'])->name('backend.getStatusList')->middleware(['auth','is_admin']);
 	Route::post('/getCategoryList', [App\Http\Controllers\Backend\ComboController::class, 'getCategoryList'])->name('backend.getCategoryList')->middleware(['auth','is_admin']);
 	Route::post('/getBrandList', [App\Http\Controllers\Backend\ComboController::class, 'getBrandList'])->name('backend.getBrandList')->middleware(['auth','is_admin']);
-	
+
 	//Orders Excel/CSV Export
 	Route::get('/orders-excel-export', [App\Http\Controllers\Backend\OrdersExportController::class, 'OrdersExcelExport'])->name('backend.orders-excel-export')->middleware(['auth','is_admin']);
 	Route::get('/orders-csv-export', [App\Http\Controllers\Backend\OrdersExportController::class, 'OrdersCSVExport'])->name('backend.orders-csv-export')->middleware(['auth','is_admin']);
-	
+
 	//Transactions Excel/CSV Export
 	Route::get('/transactions-excel-export', [App\Http\Controllers\Backend\TransactionsExportController::class, 'TransactionsExcelExport'])->name('backend.transactions-excel-export')->middleware(['auth','is_admin']);
 	Route::get('/transactions-csv-export', [App\Http\Controllers\Backend\TransactionsExportController::class, 'TransactionsCSVExport'])->name('backend.transactions-csv-export')->middleware(['auth','is_admin']);
-	
+
 	//Withdrawals
 	Route::get('/withdrawals', [App\Http\Controllers\Backend\WithdrawalController::class, 'getWithdrawalsPageLoad'])->name('backend.withdrawals')->middleware(['auth','is_admin']);
 	Route::get('/getWithdrawalsTableData', [App\Http\Controllers\Backend\WithdrawalController::class, 'getWithdrawalsTableData'])->name('backend.getWithdrawalsTableData')->middleware(['auth','is_admin']);
 	Route::post('/saveWithdrawalsData', [App\Http\Controllers\Backend\WithdrawalController::class, 'saveWithdrawalsData'])->name('backend.saveWithdrawalsData')->middleware(['auth','is_admin']);
 	Route::post('/getWithdrawalById', [App\Http\Controllers\Backend\WithdrawalController::class, 'getWithdrawalById'])->name('backend.getWithdrawalById')->middleware(['auth','is_admin']);
 	Route::post('/deleteWithdrawal', [App\Http\Controllers\Backend\WithdrawalController::class, 'deleteWithdrawal'])->name('backend.deleteWithdrawal')->middleware(['auth','is_admin']);
-	
+
 	Route::post('/saveScreenshot', [App\Http\Controllers\Backend\WithdrawalController::class, 'saveScreenshot'])->name('backend.saveScreenshot')->middleware(['auth','is_admin']);
 	Route::post('/getScreenshotById', [App\Http\Controllers\Backend\WithdrawalController::class, 'getScreenshotById'])->name('backend.getScreenshotById')->middleware(['auth','is_admin']);
 	Route::post('/deleteScreenshotById', [App\Http\Controllers\Backend\WithdrawalController::class, 'deleteScreenshotById'])->name('backend.deleteScreenshotById')->middleware(['auth','is_admin']);
@@ -547,24 +547,26 @@ Route::prefix('backend')->group(function(){
 });
 
 Route::prefix('seller')->group(function(){
-	
+
 	//Dashboard
 	Route::get('/dashboard', [App\Http\Controllers\Seller\DashboardController::class, 'getDashboardData'])->name('seller.dashboard')->middleware(['auth','is_seller']);
-	
+
 	//Withdrawals
 	Route::get('/withdrawals', [App\Http\Controllers\Seller\WithdrawalController::class, 'getWithdrawalsPageLoad'])->name('seller.withdrawals')->middleware(['auth','is_seller']);
-	Route::get('/getWithdrawalsTableData', [App\Http\Controllers\Seller\WithdrawalController::class, 'getWithdrawalsTableData'])->name('seller.getWithdrawalsTableData')->middleware(['auth','is_seller']);
+    Route::get('/transactions', [App\Http\Controllers\Seller\WithdrawalController::class, 'showTransactions'])->name('seller.transactions')->middleware(['auth','is_seller']);
+
+    Route::get('/getWithdrawalsTableData', [App\Http\Controllers\Seller\WithdrawalController::class, 'getWithdrawalsTableData'])->name('seller.getWithdrawalsTableData')->middleware(['auth','is_seller']);
 	Route::post('/saveWithdrawalsData', [App\Http\Controllers\Seller\WithdrawalController::class, 'saveWithdrawalsData'])->name('seller.saveWithdrawalsData')->middleware(['auth','is_seller']);
 	Route::post('/getWithdrawalById', [App\Http\Controllers\Seller\WithdrawalController::class, 'getWithdrawalById'])->name('seller.getWithdrawalById')->middleware(['auth','is_seller']);
 	Route::post('/getCurrentBalanceBySellerId', [App\Http\Controllers\Seller\WithdrawalController::class, 'getCurrentBalanceBySellerId'])->name('seller.getCurrentBalanceBySellerId')->middleware(['auth','is_seller']);
 	Route::post('/getScreenshotById', [App\Http\Controllers\Seller\WithdrawalController::class, 'getScreenshotById'])->name('seller.getScreenshotById')->middleware(['auth','is_seller']);
-	
+
 	//Settings Page
 	Route::get('/settings', [App\Http\Controllers\Seller\SellerSettingsController::class, 'getSellerSettingsPageLoad'])->name('seller.settings')->middleware(['auth','is_seller']);
 	Route::post('/saveSellersData', [App\Http\Controllers\Seller\SellerSettingsController::class, 'saveSellersData'])->name('seller.saveSellersData')->middleware(['auth','is_seller']);
 	Route::post('/saveBankInformationData', [App\Http\Controllers\Seller\SellerSettingsController::class, 'saveBankInformationData'])->name('seller.saveBankInformationData')->middleware(['auth','is_seller']);
 	Route::post('/hasShopSlug', [App\Http\Controllers\Seller\SellerSettingsController::class, 'hasShopSlug'])->name('seller.hasShopSlug')->middleware(['auth','is_seller']);
-	
+
 	//Review & Ratings
 	Route::get('/review', [App\Http\Controllers\Seller\ReviewsSellerController::class, 'getReviewRatingsPageLoad'])->name('seller.review')->middleware(['auth','is_seller']);
 	Route::get('/getReviewRatingsTableData', [App\Http\Controllers\Seller\ReviewsSellerController::class, 'getReviewRatingsTableData'])->name('seller.getReviewRatingsTableData')->middleware(['auth','is_seller']);
@@ -578,11 +580,11 @@ Route::prefix('seller')->group(function(){
 	Route::post('/updateOrderStatus', [App\Http\Controllers\Seller\OrdersSellerController::class, 'updateOrderStatus'])->name('seller.updateOrderStatus')->middleware(['auth','is_seller']);
 	Route::get('/getPaymentOrderStatusData', [App\Http\Controllers\Seller\OrdersSellerController::class, 'getPaymentOrderStatusData'])->name('seller.getPaymentOrderStatusData')->middleware(['auth','is_seller']);
 	Route::post('/deleteOrder', [App\Http\Controllers\Seller\OrdersSellerController::class, 'deleteOrder'])->name('seller.deleteOrder')->middleware(['auth','is_seller']);
-	
+
 	//Orders Excel/CSV Export
 	Route::get('/orders-excel-export', [App\Http\Controllers\Seller\OrdersSellerExportController::class, 'OrdersExcelExport'])->name('seller.orders-excel-export')->middleware(['auth','is_seller']);
 	Route::get('/orders-csv-export', [App\Http\Controllers\Seller\OrdersSellerExportController::class, 'OrdersCSVExport'])->name('seller.orders-csv-export')->middleware(['auth','is_seller']);
-	
+
 	//Products
 	Route::get('/products', [App\Http\Controllers\Seller\ProductsController::class, 'getProductsPageLoad'])->name('seller.products')->middleware(['auth','is_seller']);
 	Route::get('/getProductsTableData', [App\Http\Controllers\Seller\ProductsController::class, 'getProductsTableData'])->name('seller.getProductsTableData')->middleware(['auth','is_seller']);
@@ -597,28 +599,28 @@ Route::prefix('seller')->group(function(){
 	//Price
 	Route::get('/price/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getPricePageData'])->name('seller.price')->middleware(['auth','is_seller']);
 	Route::post('/savePriceData', [App\Http\Controllers\Seller\ProductsController::class, 'savePriceData'])->name('seller.savePriceData')->middleware(['auth','is_seller']);
-	
+
 	//Inventory
 	Route::get('/inventory/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getInventoryPageData'])->name('seller.inventory')->middleware(['auth','is_seller']);
 	Route::post('/saveInventoryData', [App\Http\Controllers\Seller\ProductsController::class, 'saveInventoryData'])->name('seller.saveInventoryData')->middleware(['auth','is_seller']);
-	
+
 	//Product Images
 	Route::get('/product-images/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getProductImagesPageData'])->name('seller.product-images')->middleware(['auth','is_seller']);
 	Route::get('/getProductImagesTableData', [App\Http\Controllers\Seller\ProductsController::class, 'getProductImagesTableData'])->name('seller.getProductImagesTableData')->middleware(['auth','is_seller']);
 	Route::post('/saveProductImagesData', [App\Http\Controllers\Seller\ProductsController::class, 'saveProductImagesData'])->name('seller.saveProductImagesData')->middleware(['auth','is_seller']);
 	Route::post('/deleteProductImages', [App\Http\Controllers\Seller\ProductsController::class, 'deleteProductImages'])->name('seller.deleteProductImages')->middleware(['auth','is_seller']);
-	
+
 	//Variations
 	Route::get('/variations/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getVariationsPageData'])->name('seller.variations')->middleware(['auth','is_seller']);
 	Route::post('/saveVariationsData', [App\Http\Controllers\Seller\ProductsController::class, 'saveVariationsData'])->name('seller.saveVariationsData')->middleware(['auth','is_seller']);
-		
+
 	//Related Products
 	Route::get('/related-products/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getRelatedProductsPageData'])->name('seller.related-products')->middleware(['auth','is_seller']);
 	Route::get('/getProductListForRelatedTableData', [App\Http\Controllers\Seller\ProductsController::class, 'getProductListForRelatedTableData'])->name('seller.getProductListForRelatedTableData')->middleware(['auth','is_seller']);
 	Route::get('/getRelatedProductTableData', [App\Http\Controllers\Seller\ProductsController::class, 'getRelatedProductTableData'])->name('seller.getRelatedProductTableData')->middleware(['auth','is_seller']);
 	Route::post('/saveRelatedProductsData', [App\Http\Controllers\Seller\ProductsController::class, 'saveRelatedProductsData'])->name('seller.saveRelatedProductsData')->middleware(['auth','is_seller']);
 	Route::post('/deleteRelatedProduct', [App\Http\Controllers\Seller\ProductsController::class, 'deleteRelatedProduct'])->name('seller.deleteRelatedProduct')->middleware(['auth','is_seller']);
-	
+
 	//Product SEO
 	Route::get('/product-seo/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getProductSEOPageData'])->name('seller.product-seo')->middleware(['auth','is_seller']);
 	Route::post('/saveProductSEOData', [App\Http\Controllers\Seller\ProductsController::class, 'saveProductSEOData'])->name('seller.saveProductSEOData')->middleware(['auth','is_seller']);

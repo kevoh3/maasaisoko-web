@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Seller;
 
 use App\Http\Controllers\Controller;
+use App\Models\PaymentTransaction;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +16,7 @@ use App\Models\Withdrawal_image;
 class WithdrawalController extends Controller
 {
 	//Withdrawals page load
-    public function getWithdrawalsPageLoad() {
+    public function getWithdrawalsPageLoad(Request $request) {
 
 		$user_id = Auth::user()->id;
 
@@ -29,14 +30,14 @@ class WithdrawalController extends Controller
 			$bi_data = Bank_information::where('seller_id', $user_id)->get();
             $wallet= Wallet::where('user_id', $user_id)->first();
 
-			$biData = array(
-				'bank_name' => '',
-				'bank_code' => '',
-				'account_number' => '',
-				'account_holder' => '',
-				'paypal_id' => '',
-				'description' => ''
-			);
+//			$biData = array(
+//				'bank_name' => '',
+//				'bank_code' => '',
+//				'account_number' => '',
+//				'account_holder' => '',
+//				'paypal_id' => '',
+//				'description' => ''
+//			);
 //			foreach($bi_data as $row){
 //        'user_id',
 //        'wallet_name',
@@ -55,8 +56,25 @@ class WithdrawalController extends Controller
 				$biData['balance'] = $wallet->balance;
                 $biData['currency'] = $wallet->currency;
 			//}
+        $query = PaymentTransaction::query()->where('wallet_id', auth()->user()->wallet->id);
 
-        return view('seller.withdrawals', compact('datalist', 'biData'));
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('transaction_code', 'like', "%{$request->search}%")
+                    ->orWhere('amount', $request->search);
+            });
+        }
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('transaction_date', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('transaction_date', '<=', $request->end_date);
+        }
+
+        $transactions = $query->latest()->paginate(20);
+        return view('seller.withdrawals', compact('datalist', 'biData','transactions'));
 	}
 
 	//Get data for withdrawals Pagination
@@ -225,4 +243,32 @@ class WithdrawalController extends Controller
 
 		return response()->json($data);
 	}
+    public function showTransactions(Request $request)
+    {
+        $query = PaymentTransaction::query()->where('wallet_id', auth()->user()->wallet->id);
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('transaction_code', 'like', "%{$request->search}%")
+                    ->orWhere('amount', $request->search);
+            });
+        }
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('transaction_date', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('transaction_date', '<=', $request->end_date);
+        }
+
+        $transactions = $query->latest()->paginate(20);
+
+        if ($request->ajax()) {
+            return view('seller.partials.transactions_table', compact('transactions'));
+        }
+
+        return view('seller.transactions.index', compact('transactions'));
+    }
+
 }

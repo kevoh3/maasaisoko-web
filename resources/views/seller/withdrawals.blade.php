@@ -137,7 +137,54 @@
 			</div>
 		</div>
 		@endif
-	</div>
+        <div class="row mt-25">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <span>{{ __('Transactions') }}</span>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="group-button float-right">
+                                    <button type="button" onClick="onExcelExport()" class="btn btn-theme mb0 btn-padding">
+                                        <i class="fa fa-download"></i> {{ __('Excel') }}
+                                    </button>
+                                    <button type="button" onClick="onCSVExport()" class="btn btn-theme mb0 btn-padding">
+                                        <i class="fa fa-download"></i> {{ __('CSV') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Data grid -->
+                    <div class="card-body">
+                        <div class="row mb-10">
+                            <div class="col-lg-12">
+                                <div class="form-inline">
+                                    <input id="search" name="search" type="text" class="form-control mr-2" placeholder="{{ __('Search by code or amount') }}">
+                                    <button type="submit" onClick="onSearch()" class="btn btn-theme">{{ __('Search') }}</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-10">
+                            <div class="col-lg-6"></div>
+                            <div class="col-lg-6">
+                                <div class="filter-form-group pull-right">
+                                    <input name="start_date" id="start_date" type="text" class="form-control" placeholder="yyyy-mm-dd">
+                                    <input name="end_date" id="end_date" type="text" class="form-control" placeholder="yyyy-mm-dd">
+                                    <button type="submit" onClick="onFilterAction()" class="btn btn-theme">{{ __('Filter') }}</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tp_datalist">
+                            @include('seller.partials.transactions_table')
+                        </div>
+                    </div>
+                    <!-- /Data grid -->
+                </div>
+
+            </div>
 </div>
 <!-- /main Section -->
 @endsection
