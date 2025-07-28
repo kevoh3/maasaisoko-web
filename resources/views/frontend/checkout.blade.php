@@ -183,14 +183,21 @@ $tax_rate = $gtax['percentage'];
                                             <div class="col-md-12">
                                                 <div class="row">
                                                     <div class="col-md-12">
+                                                        {{ $gtext['cod_description'] }}
                                                         <div class="mb-3">
-                                                            <div class="form-control" id="card-element"></div>
-                                                            <span class="card-errors" id="card-errors"></span>
+                                                            <label for="mpesa_phone_number" class="form-label">Mobile Number</label>
+                                                            <input type="text"
+                                                                   name="mpesa_phone_number"
+                                                                   id="mpesa_phone_number"
+                                                                   class="form-control"
+                                                                   placeholder="e.g. 254712345678"
+                                                                   required>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+
                                     </div>
                                 @endif
 								@if($gtext['stripe_isenable'] == 1)
