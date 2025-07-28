@@ -326,7 +326,7 @@ function onConfirmWhenAddEditForMpesa() {
     $.ajax({
         type : 'POST',
         url: base_url + '/backend/MpesaSettingsUpdate',
-        data: $('#bank_formId').serialize(),
+        data: $('#mpesa_formId').serialize(),
         success: function (response) {
             var msgType = response.msgType;
             var msg = response.msg;

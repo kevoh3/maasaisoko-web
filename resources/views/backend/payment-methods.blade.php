@@ -417,8 +417,8 @@
                                         <div class="row">
                                             <div class="col-lg-8">
                                                 <div class="tw_checkbox checkbox_group">
-                                                    <input id="isenable_bank" name="isenable_bank" type="checkbox" {{ $mpesa_data_list['isenable'] == 1 ? 'checked' : '' }}>
-                                                    <label for="isenable_bank">{{ __('Active/Inactive') }}</label>
+                                                    <input id="isenable_mpesa" name="isenable_mpesa" type="checkbox" {{ $mpesa_data_list['isenable'] == 1 ? 'checked' : '' }}>
+                                                    <label for="isenable_mpesa">{{ __('Active/Inactive') }}</label>
                                                     <span></span>
                                                 </div>
                                                 <div class="form-group">
