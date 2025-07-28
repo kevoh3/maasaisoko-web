@@ -1,8 +1,8 @@
 @extends('layouts.frontend')
 
 @section('title', __('Checkout'))
-@php 
-$gtext = gtext(); 
+@php
+$gtext = gtext();
 $gtax = getTax();
 $tax_rate = $gtax['percentage'];
 @endphp
@@ -60,7 +60,7 @@ $tax_rate = $gtax['percentage'];
 		</div>
 	</div>
 	<!-- /Page Breadcrumb/ -->
-	
+
 	<!-- Inner Section -->
 	<section class="inner-section inner-section-bg my_card">
 		<div class="container">
@@ -142,7 +142,7 @@ $tax_rate = $gtax['percentage'];
 							<div class="col-md-12">
 								<div class="checkboxlist">
 									<label class="checkbox-title">
-										<input id="new_account" name="new_account" type="checkbox">{{ __('Register an account with above information?') }} 
+										<input id="new_account" name="new_account" type="checkbox">{{ __('Register an account with above information?') }}
 									</label>
 								</div>
 								@if ($errors->has('password'))
@@ -150,7 +150,7 @@ $tax_rate = $gtax['percentage'];
 								@endif
 							</div>
 						</div>
-						
+
 						<div class="row hideclass" id="new_account_pass">
 							<div class="col-md-6">
 								<div class="mb-3">
@@ -164,11 +164,32 @@ $tax_rate = $gtax['percentage'];
 								</div>
 							</div>
 						</div>
-						
+
 						<h5 class="mt10">{{ __('Payment Method') }}</h5>
 						<div class="row">
 							<div class="col-md-12">
 								<span class="text-danger error-text payment_method_error"></span>
+                                @if($gtext['mpesa_isenable'] == 1)
+                                    <div class="payment_card">
+                                        <div class="checkboxlist">
+                                            <label class="checkbox-title">
+                                                <input id="payment_method_mpesa" name="payment_method" type="radio" value="3"><img src="{{ asset('public/frontend/images/mpesa.png') }}" alt="M-Pesa" />
+                                            </label>
+                                        </div>
+                                        <div id="pay_mpesae" class="row hideclass">
+                                            <div class="col-md-12">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="mb-3">
+                                                            <div class="form-control" id="card-element"></div>
+                                                            <span class="card-errors" id="card-errors"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
 								@if($gtext['stripe_isenable'] == 1)
 								<div class="payment_card">
 									<div class="checkboxlist">
@@ -190,7 +211,7 @@ $tax_rate = $gtax['percentage'];
 									</div>
 								</div>
 								@endif
-								
+
 								@if($gtext['isenable_paypal'] == 1)
 								<div class="payment_card">
 									<div class="checkboxlist">
@@ -201,7 +222,7 @@ $tax_rate = $gtax['percentage'];
 									<p id="pay_paypal" class="hideclass">{{ __('Pay online via Paypal') }}</p>
 								</div>
 								@endif
-								
+
 								@if($gtext['isenable_razorpay'] == 1)
 								<div class="payment_card">
 									<div class="checkboxlist">
@@ -212,7 +233,7 @@ $tax_rate = $gtax['percentage'];
 									<p id="pay_razorpay" class="hideclass">{{ __('Pay online via Razorpay') }}</p>
 								</div>
 								@endif
-								
+
 								@if($gtext['isenable_mollie'] == 1)
 								<div class="payment_card">
 									<div class="checkboxlist">
@@ -223,7 +244,7 @@ $tax_rate = $gtax['percentage'];
 									<p id="pay_mollie" class="hideclass">{{ __('Pay online via Mollie') }}</p>
 								</div>
 								@endif
-								
+
 								@if($gtext['cod_isenable'] == 1)
 								<div class="payment_card">
 									<div class="checkboxlist">
@@ -234,7 +255,7 @@ $tax_rate = $gtax['percentage'];
 									<p id="pay_cod" class="hideclass">{{ $gtext['cod_description'] }}</p>
 								</div>
 								@endif
-								
+
 								@if($gtext['bank_isenable'] == 1)
 								<div class="payment_card">
 									<div class="checkboxlist">
@@ -255,7 +276,7 @@ $tax_rate = $gtax['percentage'];
 							</div>
 						</div>
 					</div>
-					
+
 					<div class="col-lg-5">
 						<div class="carttotals-card">
 							<div class="carttotals-head">{{ __('Order Summary') }}</div>
@@ -263,23 +284,23 @@ $tax_rate = $gtax['percentage'];
 							@if(session('shopping_cart'))
 								<table class="table">
 									<tbody>
-										@php 
+										@php
 										$CartDataArr = array();
 										$Total_Price = 0;
 										@endphp
 										@foreach(session('shopping_cart') as $row)
 											@php
-											
+
 											$Total_Price += $row['price']*$row['qty'];
-											
+
 											$data = array(
-												'rowId' => $row['id'], 
-												'id' => $row['id'], 
-												'qty' => $row['qty'], 
-												'name' => $row['name'], 
-												'price' => $row['price'], 
-												'weight' => $row['weight'], 
-												'thumbnail' => $row['thumbnail'], 
+												'rowId' => $row['id'],
+												'id' => $row['id'],
+												'qty' => $row['qty'],
+												'name' => $row['name'],
+												'price' => $row['price'],
+												'weight' => $row['weight'],
+												'thumbnail' => $row['thumbnail'],
 												'unit' => $row['unit'],
 												'seller_id' => $row['seller_id'],
 												'seller_name' => $row['seller_name'],
@@ -290,23 +311,23 @@ $tax_rate = $gtax['percentage'];
 												'seller_phone' => $row['seller_phone'],
 												'seller_address' => $row['seller_address']
 											);
-											
+
 											$CartDataArr[$row['seller_id']][] = $data;
 											@endphp
 										@endforeach
-										
+
 										@php $CartData_Arr = array(); @endphp
 										@foreach($CartDataArr as $aRows)
 											@foreach($aRows as $row)
 												@php $CartData_Arr[] = $row; @endphp
 											@endforeach
 										@endforeach
-										
-										@php 
-										$tempSellerId = ''; 
-										$SellerCount = 0; 
+
+										@php
+										$tempSellerId = '';
+										$SellerCount = 0;
 										@endphp
-		
+
 										@foreach($CartData_Arr as $row)
 											@php
 											if($row['unit'] == '0'){
@@ -315,7 +336,7 @@ $tax_rate = $gtax['percentage'];
 												$unit = '<strong>'.$row['qty'].' '.$row['unit'].'</strong>';
 											}
 											@endphp
-											
+
 											@if($tempSellerId != $row['seller_id'])
 											<tr>
 												<td colspan="2" class="tp_group">
@@ -330,14 +351,14 @@ $tax_rate = $gtax['percentage'];
 													</div>
 												</td>
 											</tr>
-											
-											@php 
-											$tempSellerId=$row['seller_id']; 
+
+											@php
+											$tempSellerId=$row['seller_id'];
 											$SellerCount++;
 											@endphp
-											
+
 											@endif
-											
+
 											@if($gtext['currency_position'] == 'left')
 											<tr>
 												<td>
@@ -362,14 +383,14 @@ $tax_rate = $gtax['percentage'];
 											</tr>
 											@endif
 										@endforeach
-										
+
 										@php
-										
+
 											$TaxCal = ($Total_Price*$tax_rate)/100;
 											$TotalPrice = $Total_Price+$TaxCal;
-											
+
 											if($gtext['currency_position'] == 'left'){
-												$ShippingFee = $gtext['currency_icon'].'<span class="shipping_fee">0</span>'; 
+												$ShippingFee = $gtext['currency_icon'].'<span class="shipping_fee">0</span>';
 												$tax = $gtext['currency_icon'].NumberFormat($TaxCal);
 												$total = $gtext['currency_icon'].'<span class="total_amount">'.NumberFormat($TotalPrice).'</span>';
 											}else{
@@ -378,13 +399,13 @@ $tax_rate = $gtax['percentage'];
 												$total = '<span class="total_amount">'.NumberFormat($TotalPrice).'</span>'.$gtext['currency_icon'];
 											}
 										@endphp
-										
+
 										<tr><td colspan="2"><span class="title">{{ __('Shipping Fee') }} </span><span class="price">@php echo $ShippingFee; @endphp</span></td></tr>
 										<tr><td colspan="2"><span class="title">{{ __('Tax') }}</span><span class="price">{{ $tax }}</span></td></tr>
 										<tr><td colspan="2"><span class="total">{{ __('Total') }}</span><span class="total-price">@php echo $total; @endphp</span></td></tr>
 									</tbody>
 								</table>
-								
+
 								@if(count($shipping_list)>0)
 								<h5>{{ __('Shipping Method') }}</h5>
 								<div class="row">
@@ -456,4 +477,4 @@ var TEXT = [];
 </script>
 @endif
 <script src="{{asset('public/frontend/pages/checkout.js')}}"></script>
-@endpush	
+@endpush
