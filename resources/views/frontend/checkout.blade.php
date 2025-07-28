@@ -179,7 +179,7 @@ $tax_rate = $gtax['percentage'];
 
                                             </label>
                                         </div>
-                                        <div id="pay_mpesae" class="row hideclass">
+                                        <div id="pay_mpesa" class="row hideclass">
                                             <div class="col-md-12">
                                                 <div class="row">
                                                     <div class="col-md-12">

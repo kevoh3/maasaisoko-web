@@ -9,7 +9,7 @@ $(function () {
 			'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 		}
 	});
-	
+
     $("#new_account").on("click", function () {
 		if($(this).is(":checked")){
 			$("#new_account_pass").removeClass("hideclass");
@@ -21,8 +21,9 @@ $(function () {
 			$("#password_confirmation").removeAttr("required");
 		}
     });
-	
+
     $("#payment_method_stripe").on("click", function () {
+		$("#pay_mpesa").addClass("hideclass");
 		$("#pay_paypal").addClass("hideclass");
 		$("#pay_razorpay").addClass("hideclass");
 		$("#pay_mollie").addClass("hideclass");
@@ -30,8 +31,9 @@ $(function () {
 		$("#pay_bank").addClass("hideclass");
 		$("#pay_stripe").removeClass("hideclass");
     });
-	
+
     $("#payment_method_paypal").on("click", function () {
+        $("#pay_mpesa").addClass("hideclass");
 		$("#pay_stripe").addClass("hideclass");
 		$("#pay_razorpay").addClass("hideclass");
 		$("#pay_mollie").addClass("hideclass");
@@ -39,8 +41,9 @@ $(function () {
 		$("#pay_bank").addClass("hideclass");
 		$("#pay_paypal").removeClass("hideclass");
     });
-	
+
     $("#payment_method_razorpay").on("click", function () {
+        $("#pay_mpesa").addClass("hideclass");
 		$("#pay_stripe").addClass("hideclass");
 		$("#pay_paypal").addClass("hideclass");
 		$("#pay_mollie").addClass("hideclass");
@@ -48,8 +51,9 @@ $(function () {
 		$("#pay_bank").addClass("hideclass");
 		$("#pay_razorpay").removeClass("hideclass");
     });
-	
+
     $("#payment_method_mollie").on("click", function () {
+        $("#pay_mpesa").addClass("hideclass");
 		$("#pay_stripe").addClass("hideclass");
 		$("#pay_paypal").addClass("hideclass");
 		$("#pay_razorpay").addClass("hideclass");
@@ -57,8 +61,9 @@ $(function () {
 		$("#pay_bank").addClass("hideclass");
 		$("#pay_mollie").removeClass("hideclass");
     });
-	
+
     $("#payment_method_cod").on("click", function () {
+        $("#pay_mpesa").addClass("hideclass");
 		$("#pay_stripe").addClass("hideclass");
 		$("#pay_paypal").addClass("hideclass");
 		$("#pay_razorpay").addClass("hideclass");
@@ -66,8 +71,9 @@ $(function () {
 		$("#pay_bank").addClass("hideclass");
 		$("#pay_cod").removeClass("hideclass");
     });
-	
+
     $("#payment_method_bank").on("click", function () {
+        $("#pay_mpesa").addClass("hideclass");
 		$("#pay_stripe").addClass("hideclass");
 		$("#pay_paypal").addClass("hideclass");
 		$("#pay_razorpay").addClass("hideclass");
@@ -75,17 +81,29 @@ $(function () {
 		$("#pay_cod").addClass("hideclass");
 		$("#pay_bank").removeClass("hideclass");
     });
-	
+
+    $("#payment_method_mpesa").on("click", function () {
+        $("#pay_stripe").addClass("hideclass");
+        $("#pay_paypal").addClass("hideclass");
+        $("#pay_razorpay").addClass("hideclass");
+        $("#pay_mollie").addClass("hideclass");
+        $("#pay_cod").addClass("hideclass");
+        $("#pay_bank").addClass("hideclass");
+        $("#pay_mpesa").removeClass("hideclass");
+
+
+    });
+
     $(".shipping_method").on("click", function () {
 		var totalWithComma = $(this).data('total');
 		var shipping_fee = $(this).data('shippingfee');
 		var seller_count = $(this).data('seller_count');
 		var shippingfee = shipping_fee*seller_count;
-		
+
 		var total = removeCommas(totalWithComma);
-		
+
 		var TotalShippingfee = addCommas(parseFloat(total) + parseFloat(shippingfee));
-		
+
 		$(".shipping_fee").text(shippingfee);
 		$(".total_amount").text(TotalShippingfee);
     });
@@ -115,7 +133,7 @@ function removeCommas(nStr){
 	}else{
 		var num = nStr;
 	}
-	
+
     return num;
 }
 
@@ -141,7 +159,7 @@ jQuery('#checkout_formid').parsley({
 				}else{
 					onConfirmMakeOrder();
 				}
-				
+
                 return false;
             }
         }
@@ -178,7 +196,7 @@ function onPaymentByRazorpay() {
 			}
 		};
 	var rzp1 = new Razorpay(options);
-	rzp1.open();		
+	rzp1.open();
 }
 
 function onConfirmMakeOrder() {
@@ -195,9 +213,9 @@ function onConfirmMakeOrder() {
 	}else{
 		$("span.payment_method_error").text('');
 	}
-	
+
 	var checkout_btn = $('.checkout_btn').html();
-	
+
     $.ajax({
 		type : 'POST',
 		url: base_url + '/frontend/make_order',
@@ -205,13 +223,13 @@ function onConfirmMakeOrder() {
 		beforeSend: function() {
 			$('.checkout_btn').html('<span class="spinner-border spinner-border-sm"></span> Please Wait...');
 		},
-		success: function (response) {		
+		success: function (response) {
 			var msgType = response.msgType;
 			var msg = response.msg;
 
 			if (msgType == "success") {
 				$("#checkout_formid").find('span.error-text').text('');
-				
+
 				//Stripe
 				if(payment_method == 3){
 					if(isenable_stripe == 1){
@@ -219,13 +237,13 @@ function onConfirmMakeOrder() {
 							onConfirmPayment(response.intent, msg);
 						}
 					}
-				
+
 				//Paypal
 				}else if(payment_method == 4){
 					if(response.intent != ''){
 						window.location.href = response.intent;
 					}
-				
+
 				//Mollie
 				}else if(payment_method == 6){
 					if(response.intent != ''){
@@ -245,7 +263,7 @@ function onConfirmMakeOrder() {
 					}
 				});
 			}
-			
+
 			$('.checkout_btn').html(checkout_btn);
 		}
 	});
