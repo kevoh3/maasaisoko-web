@@ -173,7 +173,10 @@ $tax_rate = $gtax['percentage'];
                                     <div class="payment_card">
                                         <div class="checkboxlist">
                                             <label class="checkbox-title">
-                                                <input id="payment_method_mpesa" name="payment_method" type="radio" value="3"><img src="{{ asset('public/frontend/images/mpesa.png') }}" alt="M-Pesa" />
+{{--                                                <input id="payment_method_mpesa" name="payment_method" type="radio" value="3"><img src="{{ asset('public/frontend/images/mpesa.png') }}" alt="M-Pesa" />--}}
+                                                <input id="payment_method_mpesa" name="payment_method" type="radio" value="3">
+                                                <img src="{{ asset('public/frontend/images/mpesa.png') }}" alt="M-Pesa" style="width: 50px; height: auto;" />
+
                                             </label>
                                         </div>
                                         <div id="pay_mpesae" class="row hideclass">
