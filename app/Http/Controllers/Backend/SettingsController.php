@@ -666,8 +666,26 @@ class SettingsController extends Controller
 			$bank_data_list['description'] = '';
 			$bank_data_list['isenable'] = '';
 		}
+        //mpesa
+        $mpesa_data = Tp_option::where('option_name', 'mpesa')->get();
 
-        return view('backend.payment-methods', compact('stripe_data_list', 'paypal_data_list', 'razorpay_data_list', 'mollie_data_list', 'cod_data_list', 'bank_data_list'));
+        $mpesa_id = '';
+        foreach ($mpesa_data as $row){
+            $mpesa_id = $row->id;
+        }
+
+        $mpesa_data_list = array();
+        if($mpesa_id != ''){
+            $mpesaData = json_decode($mpesa_data);
+            $mpesaObj = json_decode($mpesaData[0]->option_value);
+            $mpesa_data_list['description'] = $mpesaObj->description;
+            $mpesa_data_list['isenable'] = $mpesaObj->isenable;
+        }else{
+            $mpesa_data_list['description'] = '';
+            $mpesa_data_list['isenable'] = '';
+        }
+
+        return view('backend.payment-methods', compact('stripe_data_list', 'paypal_data_list', 'razorpay_data_list', 'mollie_data_list', 'cod_data_list', 'bank_data_list','mpesa_data_list'));
     }
 
 	//Save data for Stripe
