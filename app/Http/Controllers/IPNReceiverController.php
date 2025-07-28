@@ -53,7 +53,8 @@ Log::info('Received IPN from Propel:', $data);
         'running_balance' => $wallet->balance, // 💰 Balance after the top-up
         'party_b_name' => $data['first_name'], // 💰 Balance after the top-up
         'party_b_account_number' => $data['msisdn'], // 💰 Balance after the top-up
-        'party_b_platform' => $wallet->balance, // 💰 Balance after the top-up
+        'party_b_platform' => 'Propel', // 💰 Balance after the top-up
+        'fees_and_charges' => 0, // 💰 Balance after the top-up
     ]);
 
     Log::info("Created transaction {$transactionCode} for wallet {$wallet->id} with balance {$wallet->balance}");

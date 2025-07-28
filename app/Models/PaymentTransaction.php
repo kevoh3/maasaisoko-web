@@ -17,5 +17,9 @@ class PaymentTransaction extends Model
         'channel',
         'reference_number',
         'transaction_date',
+        'fees_and_charges',
+        'party_b_name',
+        'party_b_account_number',
+        'party_b_platform'
     ];
 }
