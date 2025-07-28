@@ -18,6 +18,7 @@ class PaymentTransaction extends Model
         'reference_number',
         'transaction_date',
         'fees_and_charges',
+        'running_balance',
         'party_b_name',
         'party_b_account_number',
         'party_b_platform'
