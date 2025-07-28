@@ -56,7 +56,7 @@ class WithdrawalController extends Controller
 				$biData['balance'] = $wallet->balance;
                 $biData['currency'] = $wallet->currency;
 			//}
-        $query = PaymentTransaction::query()->where('wallet_id', auth()->user()->wallet->id);
+        $query = PaymentTransaction::query()->where('wallet_id', $wallet->id);
 
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
