@@ -3,42 +3,45 @@ var RecordId = '';
 
 $(function () {
 	"use strict";
-	
+
 	$.ajaxSetup({
 		headers: {
 			'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 		}
-	});	
+	});
 
 	$("#submit-form-stripe").on("click", function () {
         $("#stripe_formId").submit();
     });
-	
+
 	$("#submit-form-paypal").on("click", function () {
         $("#paypal_formId").submit();
     });
-	
+
 	$("#submit-form-razorpay").on("click", function () {
         $("#razorpay_formId").submit();
     });
-	
+
 	$("#submit-form-mollie").on("click", function () {
         $("#mollie_formId").submit();
     });
-	
+
 	$("#submit-form-cod").on("click", function () {
         $("#cod_formId").submit();
     });
-	
+
 	$("#submit-form-bank").on("click", function () {
         $("#bank_formId").submit();
     });
-	
+    $("#submit-form-mpesa").on("click", function () {
+        $("#mpesa_formId").submit();
+    });
+
 });
 
 function onListPanel() {
 	$('.parsley-error-list').hide();
-	
+
     $('#list-panel').show();
     $('.btn-list').hide();
     $('#form-panel-'+RecordId).hide();
@@ -46,8 +49,8 @@ function onListPanel() {
 
 function onEditPanel() {
     $('#list-panel').hide();
-    $('.btn-list').show();	
-    $('#form-panel-'+RecordId).show();	
+    $('.btn-list').show();
+    $('#form-panel-'+RecordId).show();
 }
 
 function showPerslyError() {
@@ -57,7 +60,7 @@ function showPerslyError() {
 function onEdit(id) {
 	RecordId = id;
 	var msg = TEXT["Do you really want to edit this record"];
-	onCustomModal(msg, "onEditData");	
+	onCustomModal(msg, "onEditData");
 }
 
 function onEditData() {
@@ -90,7 +93,7 @@ function onConfirmWhenAddEditForStripe() {
 		type : 'POST',
 		url: base_url + '/backend/StripeSettingsUpdate',
 		data: $('#stripe_formId').serialize(),
-		success: function (response) {			
+		success: function (response) {
 			var msgType = response.msgType;
 			var msg = response.msg;
 
@@ -129,7 +132,7 @@ function onConfirmWhenAddEditForPaypal() {
 		type : 'POST',
 		url: base_url + '/backend/PaypalSettingsUpdate',
 		data: $('#paypal_formId').serialize(),
-		success: function (response) {			
+		success: function (response) {
 			var msgType = response.msgType;
 			var msg = response.msg;
 
@@ -168,7 +171,7 @@ function onConfirmWhenAddEditForRazorpay() {
 		type : 'POST',
 		url: base_url + '/backend/RazorpaySettingsUpdate',
 		data: $('#razorpay_formId').serialize(),
-		success: function (response) {			
+		success: function (response) {
 			var msgType = response.msgType;
 			var msg = response.msg;
 
@@ -207,7 +210,7 @@ function onConfirmWhenAddEditForMollie() {
 		type : 'POST',
 		url: base_url + '/backend/MollieSettingsUpdate',
 		data: $('#mollie_formId').serialize(),
-		success: function (response) {			
+		success: function (response) {
 			var msgType = response.msgType;
 			var msg = response.msg;
 
@@ -246,7 +249,7 @@ function onConfirmWhenAddEditForCOD() {
 		type : 'POST',
 		url: base_url + '/backend/CODSettingsUpdate',
 		data: $('#cod_formId').serialize(),
-		success: function (response) {			
+		success: function (response) {
 			var msgType = response.msgType;
 			var msg = response.msg;
 
@@ -285,7 +288,7 @@ function onConfirmWhenAddEditForBank() {
 		type : 'POST',
 		url: base_url + '/backend/BankSettingsUpdate',
 		data: $('#bank_formId').serialize(),
-		success: function (response) {			
+		success: function (response) {
 			var msgType = response.msgType;
 			var msg = response.msg;
 
@@ -296,6 +299,45 @@ function onConfirmWhenAddEditForBank() {
 			}
 		}
 	});
+}
+
+jQuery('#mpesa_formId').parsley({
+    listeners: {
+        onFieldValidate: function (elem) {
+            if (!$(elem).is(':visible')) {
+                return true;
+            }
+            else {
+                showPerslyError();
+                return false;
+            }
+        },
+        onFormSubmit: function (isFormValid, event) {
+            if (isFormValid) {
+                onConfirmWhenAddEditForMpesa();
+                return false;
+            }
+        }
+    }
+});
+
+function onConfirmWhenAddEditForMpesa() {
+
+    $.ajax({
+        type : 'POST',
+        url: base_url + '/backend/MpesaSettingsUpdate',
+        data: $('#bank_formId').serialize(),
+        success: function (response) {
+            var msgType = response.msgType;
+            var msg = response.msg;
+
+            if (msgType == "success") {
+                onSuccessMsg(msg);
+            } else {
+                onErrorMsg(msg);
+            }
+        }
+    });
 }
 
 

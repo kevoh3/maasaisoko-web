@@ -7,7 +7,7 @@
 <div class="main-body">
 	<div class="container-fluid">
 		@php $vipc = vipc(); @endphp
-		@if($vipc['bkey'] == 0) 
+		@if($vipc['bkey'] == 0)
 		@include('backend.partials.vipc')
 		@else
 		<div class="row mt-25">
@@ -42,7 +42,7 @@
 														@if($stripe_data_list['isenable'] == 1)
 														<span class="enable_btn">{{ __('Active') }}</span>
 														@else
-														<span class="disable_btn">{{ __('Inactive') }}</span>	
+														<span class="disable_btn">{{ __('Inactive') }}</span>
 														@endif
 													</td>
 													<td class="text-center" width="5%">
@@ -60,7 +60,7 @@
 														@if($paypal_data_list['isenable_paypal'] == 1)
 														<span class="enable_btn">{{ __('Active') }}</span>
 														@else
-														<span class="disable_btn">{{ __('Inactive') }}</span>	
+														<span class="disable_btn">{{ __('Inactive') }}</span>
 														@endif
 													</td>
 													<td class="text-center" width="5%">
@@ -78,7 +78,7 @@
 														@if($razorpay_data_list['isenable_razorpay'] == 1)
 														<span class="enable_btn">{{ __('Active') }}</span>
 														@else
-														<span class="disable_btn">{{ __('Inactive') }}</span>	
+														<span class="disable_btn">{{ __('Inactive') }}</span>
 														@endif
 													</td>
 													<td class="text-center" width="5%">
@@ -96,7 +96,7 @@
 														@if($mollie_data_list['isenable_mollie'] == 1)
 														<span class="enable_btn">{{ __('Active') }}</span>
 														@else
-														<span class="disable_btn">{{ __('Inactive') }}</span>	
+														<span class="disable_btn">{{ __('Inactive') }}</span>
 														@endif
 													</td>
 													<td class="text-center" width="5%">
@@ -114,7 +114,7 @@
 														@if($cod_data_list['isenable'] == 1)
 														<span class="enable_btn">{{ __('Active') }}</span>
 														@else
-														<span class="disable_btn">{{ __('Inactive') }}</span>	
+														<span class="disable_btn">{{ __('Inactive') }}</span>
 														@endif
 													</td>
 													<td class="text-center" width="5%">
@@ -127,12 +127,13 @@
 													</td>
 												</tr>
 												<tr>
+
 													<td class="text-left" width="70%">{{ __('Bank Transfer') }}</td>
 													<td class="text-left" width="25%">
 														@if($bank_data_list['isenable'] == 1)
 														<span class="enable_btn">{{ __('Active') }}</span>
 														@else
-														<span class="disable_btn">{{ __('Inactive') }}</span>	
+														<span class="disable_btn">{{ __('Inactive') }}</span>
 														@endif
 													</td>
 													<td class="text-center" width="5%">
@@ -143,13 +144,32 @@
 															</div>
 														</div>
 													</td>
+
 												</tr>
+                                                <tr>
+                                                    <td class="text-left" width="70%">{{ __('M-PESA') }}</td>
+                                                    <td class="text-left" width="25%">
+                                                        @if($mpesa_data_list['isenable'] == 1)
+                                                            <span class="enable_btn">{{ __('Active') }}</span>
+                                                        @else
+                                                            <span class="disable_btn">{{ __('Inactive') }}</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-center" width="5%">
+                                                        <div class="btn-group action-group">
+                                                            <a class="action-btn" href="javascript:void(0);" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+                                                            <div class="dropdown-menu dropdown-menu-right">
+                                                                <a onclick="onEdit(2)" class="dropdown-item" href="javascript:void(0);">{{ __('Edit') }}</a>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
 											</tbody>
 										</table>
 									</div>
 								</div>
 								<!--/Data grid-->
-								
+
 								<!--/Stripe Form-->
 								<div id="form-panel-1" class="dnone">
 									<form novalidate="" data-validate="parsley" id="stripe_formId">
@@ -190,7 +210,7 @@
 									</form>
 								</div>
 								<!--/Stripe Form-->
-								
+
 								<!--/Paypal Form-->
 								<div id="form-panel-4" class="dnone">
 									<form novalidate="" data-validate="parsley" id="paypal_formId">
@@ -237,7 +257,7 @@
 								</div>
 								<!--/Paypal Form-->
 
-								
+
 								<!--/Razorpay Form-->
 								<div id="form-panel-5" class="dnone">
 									<form novalidate="" data-validate="parsley" id="razorpay_formId">
@@ -324,7 +344,7 @@
 									</form>
 								</div>
 								<!--/Mollie Form-->
-								
+
 								<!--/Cash on Delivery (COD) Form-->
 								<div id="form-panel-2" class="dnone">
 									<form novalidate="" data-validate="parsley" id="cod_formId">
@@ -355,7 +375,7 @@
 									</form>
 								</div>
 								<!--/Cash on Delivery (COD) Form-->
-								
+
 								<!--/Bank Transfer Form-->
 								<div id="form-panel-3" class="dnone">
 									<form novalidate="" data-validate="parsley" id="bank_formId">
@@ -386,6 +406,36 @@
 									</form>
 								</div>
 								<!--/Bank Transfer Form-->
+{{--                                mpesa form--}}
+                                <div id="form-panel-7" class="dnone">
+                                    <form novalidate="" data-validate="parsley" id="mpesa_formId">
+                                        <div class="row mb-10">
+                                            <div class="col-lg-8">
+                                                <h5>{{ __('M-PESA') }}</h5>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-8">
+                                                <div class="tw_checkbox checkbox_group">
+                                                    <input id="isenable_bank" name="isenable_bank" type="checkbox" {{ $mpesa_data_list['isenable'] == 1 ? 'checked' : '' }}>
+                                                    <label for="isenable_bank">{{ __('Active/Inactive') }}</label>
+                                                    <span></span>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="description">{{ __('Description') }}</label>
+                                                    <textarea name="description" class="form-control" rows="3">{{ $mpesa_data_list['description'] }}</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4"></div>
+                                        </div>
+                                        <div class="row tabs-footer mt-15">
+                                            <div class="col-lg-12">
+                                                <a id="submit-form-mpesa" href="javascript:void(0);" class="btn blue-btn mr-10">{{ __('Save') }}</a>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+{{--                                end of mpesa form--}}
 							</div>
 						</div>
 					</div>
