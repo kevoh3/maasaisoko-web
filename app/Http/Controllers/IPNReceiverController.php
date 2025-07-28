@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\PaymentTransaction;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -36,10 +37,29 @@ Log::info('Received IPN from Propel:', $data);
     $wallet->balance += $amount;
     $wallet->save();
     Log::info("Updated wallet {$wallet->id} balance by {$amount}");
+    // Create transaction record with running balance
+    $transactionCode = $data['trans_id'] ?? null;
 
-    Log::info("Updated wallet {$wallet->id} balance by {$amount}");
+    PaymentTransaction::create([
+        'wallet_id' => $wallet->id,
+        'amount' => $amount,
+        'type' => 'money_in',
+        'status' => 'successful',
+        'transaction_code' => $transactionCode,
+        'description' => 'Top-up via IPN',
+        'channel' => 'IPN',
+        'reference_number' => $data['bill_ref_number'] ?? null,
+        'transaction_date' => now(),
+        'running_balance' => $wallet->balance, // 💰 Balance after the top-up
+        'party_b_name' => $data['first_name'], // 💰 Balance after the top-up
+        'party_b_account_number' => $data['msisdn'], // 💰 Balance after the top-up
+        'party_b_platform' => $wallet->balance, // 💰 Balance after the top-up
+    ]);
+
+    Log::info("Created transaction {$transactionCode} for wallet {$wallet->id} with balance {$wallet->balance}");
 
 // Always respond with 200 OK
 return response()->json(['status' => 'received'], 200);
 }
 }
+
