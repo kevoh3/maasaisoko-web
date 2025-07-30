@@ -980,6 +980,7 @@ function gtext(){
     }
 
     if($mpesa_id != ''){
+
         $btData = json_decode($mpesa_data);
         $btObj = json_decode($btData[0]->option_value);
         $data['mpesa_description'] = $btObj->description;

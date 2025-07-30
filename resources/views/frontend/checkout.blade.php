@@ -183,7 +183,7 @@ $tax_rate = $gtax['percentage'];
                                             <div class="col-md-12">
                                                 <div class="row">
                                                     <div class="col-md-12">
-                                                        {{ $gtext['cod_description'] }}
+                                                        {{ $gtext['mpesa_description'] }}
                                                         <div class="mb-3">
                                                             <label for="mpesa_phone_number" class="form-label">Mobile Number</label>
                                                             <input type="text"
