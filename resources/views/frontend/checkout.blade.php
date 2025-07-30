@@ -169,35 +169,46 @@ $tax_rate = $gtax['percentage'];
 						<div class="row">
 							<div class="col-md-12">
 								<span class="text-danger error-text payment_method_error"></span>
+{{--                                @if($gtext['mpesa_isenable'] == 1)--}}
+{{--                                    <div class="payment_card">--}}
+{{--                                        <div class="checkboxlist">--}}
+{{--                                            <label class="checkbox-title">--}}
+{{--                                                <input id="payment_method_mpesa" name="payment_method" type="radio" value="3"><img src="{{ asset('public/frontend/images/mpesa.png') }}" alt="M-Pesa" />--}}
+{{--                                                <input id="payment_method_mpesa" name="payment_method" type="radio" value="7">--}}
+{{--                                                <img src="{{ asset('public/frontend/images/mpesa.png') }}" alt="M-Pesa" style="width: 70px; height: auto;" />--}}
+
+{{--                                            </label>--}}
+{{--                                        </div>--}}
+{{--                                        <div id="pay_mpesa" class="row hideclass">--}}
+{{--                                            <div class="col-md-12">--}}
+{{--                                                <div class="row">--}}
+{{--                                                    <div class="col-md-12">--}}
+{{--                                                        {{ $gtext['mpesa_description'] }}--}}
+{{--                                                        <div class="mb-3">--}}
+{{--                                                            <label for="mpesa_phone_number" class="form-label">Mobile Number</label>--}}
+{{--                                                            <input type="text"--}}
+{{--                                                                   name="mpesa_phone_number"--}}
+{{--                                                                   id="mpesa_phone_number"--}}
+{{--                                                                   class="form-control"--}}
+{{--                                                                   placeholder="e.g. 254712345678"--}}
+{{--                                                                   required>--}}
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
+
+{{--                                    </div>--}}
+{{--                                @endif--}}
+
                                 @if($gtext['mpesa_isenable'] == 1)
                                     <div class="payment_card">
                                         <div class="checkboxlist">
                                             <label class="checkbox-title">
-{{--                                                <input id="payment_method_mpesa" name="payment_method" type="radio" value="3"><img src="{{ asset('public/frontend/images/mpesa.png') }}" alt="M-Pesa" />--}}
-                                                <input id="payment_method_mpesa" name="payment_method" type="radio" value="7">
-                                                <img src="{{ asset('public/frontend/images/mpesa.png') }}" alt="M-Pesa" style="width: 70px; height: auto;" />
-
+                                                <input id="payment_method_mpesa" name="payment_method" type="radio" value="1"><img src="{{ asset('public/frontend/images/mpesa.png') }}" alt="M-Pesa" />
                                             </label>
                                         </div>
-                                        <div id="pay_mpesa" class="row hideclass">
-                                            <div class="col-md-12">
-                                                <div class="row">
-                                                    <div class="col-md-12">
-                                                        {{ $gtext['mpesa_description'] }}
-                                                        <div class="mb-3">
-                                                            <label for="mpesa_phone_number" class="form-label">Mobile Number</label>
-                                                            <input type="text"
-                                                                   name="mpesa_phone_number"
-                                                                   id="mpesa_phone_number"
-                                                                   class="form-control"
-                                                                   placeholder="e.g. 254712345678"
-                                                                   required>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
+                                        <p id="pay_mpesa" class="hideclass">{{ $gtext['mpesa_description'] }}</p>
                                     </div>
                                 @endif
 								@if($gtext['stripe_isenable'] == 1)
