@@ -83,6 +83,7 @@ $(function () {
     });
 
     $("#payment_method_mpesa").on("click", function () {
+        alert('nmefinywa');
         $("#pay_stripe").addClass("hideclass");
         $("#pay_paypal").addClass("hideclass");
         $("#pay_razorpay").addClass("hideclass");
