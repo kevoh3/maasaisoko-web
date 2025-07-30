@@ -138,6 +138,23 @@
                                 @endif
 							</div>
 							@endif
+                            <div class="form-group">
+                                <input name="business_registration_number" type="text" class="form-control" placeholder="{{ __('Business Registration Number (Optional)') }}" value="{{ old('business_registration_number') }}" />
+                            </div>
+
+                            <div class="form-group">
+                                <input name="kra_pin" type="text" class="form-control" placeholder="{{ __('KRA PIN (Optional)') }}" value="{{ old('kra_pin') }}" />
+                            </div>
+
+                            <div class="form-group form-check">
+                                <input type="checkbox" name="terms" class="form-check-input @error('terms') is-invalid @enderror" value="1" required>
+                                <label class="form-check-label" for="terms">
+                                    {!! __('I agree to the') !!} <a href="https://maasaisoko.co.ke/page/45/terms-and-conditions" target="_blank">{{ __('Terms and Conditions') }}</a>
+                                </label>
+                                @if ($errors->has('terms'))
+                                    <span class="text-danger">{{ $errors->first('terms') }}</span>
+                                @endif
+                            </div>
 							<input type="submit" class="btn theme-btn full" value="{{ __('Register') }}">
 						</form>
 						@if (Route::has('frontend.reset'))
@@ -146,23 +163,7 @@
 						@if (Route::has('frontend.login'))
 						<h3><a href="{{ route('frontend.login') }}">{{ __('Back to login') }}</a></h3>
 						@endif
-                        <div class="form-group">
-                            <input name="business_registration_number" type="text" class="form-control" placeholder="{{ __('Business Registration Number (Optional)') }}" value="{{ old('business_registration_number') }}" />
-                        </div>
 
-                        <div class="form-group">
-                            <input name="kra_pin" type="text" class="form-control" placeholder="{{ __('KRA PIN (Optional)') }}" value="{{ old('kra_pin') }}" />
-                        </div>
-
-                        <div class="form-group form-check">
-                            <input type="checkbox" name="terms" class="form-check-input @error('terms') is-invalid @enderror" value="1" required>
-                            <label class="form-check-label" for="terms">
-                                {!! __('I agree to the') !!} <a href="https://maasaisoko.co.ke/page/45/terms-and-conditions" target="_blank">{{ __('Terms and Conditions') }}</a>
-                            </label>
-                            @if ($errors->has('terms'))
-                                <span class="text-danger">{{ $errors->first('terms') }}</span>
-                            @endif
-                        </div>
 					</div>
 				</div>
 			</div>
