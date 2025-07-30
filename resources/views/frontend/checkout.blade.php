@@ -208,7 +208,15 @@ $tax_rate = $gtax['percentage'];
                                                 <input id="payment_method_mpesa" name="payment_method" type="radio" value="7"><img src="{{ asset('public/frontend/images/mpesa.png') }}" alt="M-Pesa" />
                                             </label>
                                         </div>
-                                        <p id="pay_mpesa" class="hideclass">{{ $gtext['mpesa_description'] }}</p>
+{{--                                        <p id="pay_mpesa" class="hideclass">{{ $gtext['mpesa_description'] }}</p>--}}
+                                        <div id="pay_mpesa" class="hideclass">
+                                            <p>{{ $gtext['mpesa_description'] }}</p>
+
+                                            <div class="form-group mt-2">
+                                                <label for="mpesa_number">M-Pesa Number</label>
+                                                <input type="text" name="mpesa_number" id="mpesa_number" class="form-control" placeholder="Enter your M-Pesa number">
+                                            </div>
+                                        </div>
                                     </div>
                                 @endif
 								@if($gtext['stripe_isenable'] == 1)
