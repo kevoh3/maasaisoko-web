@@ -23,6 +23,7 @@ $(function () {
     });
 
     $("#payment_method_stripe").on("click", function () {
+        console.log('nmefinywa payment_method_stripe');
 		$("#pay_mpesa").addClass("hideclass");
 		$("#pay_paypal").addClass("hideclass");
 		$("#pay_razorpay").addClass("hideclass");
@@ -83,7 +84,7 @@ $(function () {
     });
 
     $("#payment_method_mpesa").on("click", function () {
-        alert('nmefinywa');
+        console.log('nmefinywa payment_method_mpesa');
         $("#pay_stripe").addClass("hideclass");
         $("#pay_paypal").addClass("hideclass");
         $("#pay_razorpay").addClass("hideclass");
