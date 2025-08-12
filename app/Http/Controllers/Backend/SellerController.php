@@ -54,6 +54,10 @@ class SellerController extends Controller
 				'shop_name' => 'required',
 //				'shop_url' => 'required',
 				'shop_phone' => 'required',
+                'classification' => 'required|in:individual,company',             // NEW
+                'document_number' => 'required|string|max:191',                  // NEW
+                'group_option' => 'nullable|in:group',                           // NEW
+                'group_id' => 'required_if:group_option,group|exists:groups,id', // NEW
 			]);
 
 			$captcha = $request->input('g-recaptcha-response');
@@ -73,7 +77,11 @@ class SellerController extends Controller
 				'shop_name' => 'required',
 //				'shop_url' => 'required',
 				'shop_phone' => 'required',
-			]);
+                'classification' => 'required|in:individual,company',             // NEW
+                'document_number' => 'required|string|max:191',                  // NEW
+                'group_option' => 'nullable|in:group',                           // NEW
+                'group_id' => 'required_if:group_option,group|exists:groups,id', // NEW
+            ]);
 		}
 
 		$SellerSettings = gSellerSettings();
@@ -92,8 +100,14 @@ class SellerController extends Controller
 			'shop_url' => $request->input('shop_name'),
 			'phone' => $request->input('shop_phone'),
 			'status_id' => $status_id,
-			'role_id' => 3
+			'role_id' => 3,
+            'classification'  => $request->input('classification'),   // <-- new
+            'document_number' => $request->input('document_number'),  // <-- new
 		);
+
+        if ($request->filled('group_option') && $request->input('group_option') === 'group' && $request->filled('group_id')) {
+            $data['group_id'] = (int) $request->input('group_id');
+        }
 
 		$response = User::create($data);
 
