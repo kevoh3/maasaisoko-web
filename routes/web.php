@@ -161,6 +161,7 @@ Route::prefix('backend')->group(function(){
 	Route::post('/bulkActionCustomers', [App\Http\Controllers\Backend\CustomerController::class, 'bulkActionCustomers'])->name('backend.bulkActionCustomers')->middleware(['auth','is_admin']);
 
 	//Sellers Page
+	Route::get('/groups', [App\Http\Controllers\Backend\GroupsController::class, 'getGroupssPageLoad'])->name('backend.groups')->middleware(['auth','is_admin']);
 	Route::get('/sellers', [App\Http\Controllers\Backend\SellerController::class, 'getSellersPageLoad'])->name('backend.sellers')->middleware(['auth','is_admin']);
 	Route::get('/getSellersTableData', [App\Http\Controllers\Backend\SellerController::class, 'getSellersTableData'])->name('backend.getSellersTableData')->middleware(['auth','is_admin']);
 	Route::post('/saveSellersData', [App\Http\Controllers\Backend\SellerController::class, 'saveSellersData'])->name('backend.saveSellersData')->middleware(['auth','is_admin']);

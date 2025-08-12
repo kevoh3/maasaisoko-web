@@ -46,6 +46,7 @@
 		</li>
 		<li class="dropdown"><a class="nav-link has-dropdown" href="#" data-toggle="dropdown"><i class="fa fa-sitemap"></i>{{ __('Marketplace') }}</a>
 			<ul class="dropdown-menu">
+				<li><a href="{{ route('backend.groups') }}">{{ __('Groups/Organizations') }}</a></li>
 				<li><a href="{{ route('backend.sellers') }}">{{ __('Sellers') }}</a></li>
 				<li><a href="{{ route('backend.withdrawals') }}">{{ __('Withdrawals') }}</a></li>
 				<li><a href="{{ route('backend.seller-settings') }}">{{ __('Settings') }}</a></li>

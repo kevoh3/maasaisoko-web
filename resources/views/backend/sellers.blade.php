@@ -7,7 +7,7 @@
 <div class="main-body">
 	<div class="container-fluid">
 		@php $vipc = vipc(); @endphp
-		@if($vipc['bkey'] == 0) 
+		@if($vipc['bkey'] == 0)
 		@include('backend.partials.vipc')
 		@else
 		<div class="row mt-25">
@@ -25,7 +25,7 @@
 							</div>
 						</div>
 					</div>
-					
+
 					<!--Data grid-->
 					<div class="card-body">
 						<div class="row mb-10">
@@ -38,7 +38,7 @@
 								<input type="hidden" id="view_by_status" value="0">
 							</div>
 						</div>
-					
+
 						<div class="row">
 							<div class="col-lg-4">
 								<div class="form-group bulk-box">
@@ -65,7 +65,7 @@
 					</div>
 					<!--/Data grid/-->
 				</div>
-				
+
 				<div class="dnone" id="form-panel">
 					<div class="row">
 						<div class="col-md-9">
@@ -86,7 +86,7 @@
 								<div class="card-body">
 									<a onClick="onDetailsBankInfo(1)" href="javascript:void(0);" id="details_bank_info_1" class="btn custom-btn font-bold mr-10 details_bank_info active">{{ __('Details') }}</a>
 									<a onClick="onDetailsBankInfo(2)" href="javascript:void(0);" id="details_bank_info_2" class="btn custom-btn font-bold details_bank_info">{{ __('Bank Information') }}</a>
-									
+
 									<!--Details-->
 									<div class="mt-15" id="details">
 										<form novalidate="" data-validate="parsley" id="DataEntry_formId">
@@ -134,7 +134,7 @@
 													</div>
 												</div>
 											</div>
-											
+
 											<div class="row">
 												<div class="col-md-6">
 													<div class="form-group">
@@ -149,7 +149,7 @@
 													</div>
 												</div>
 											</div>
-											
+
 											<div class="row">
 												<div class="col-md-6">
 													<div class="form-group">
@@ -164,7 +164,7 @@
 													</div>
 												</div>
 											</div>
-											
+
 											<div class="row">
 												<div class="col-md-6">
 													<div class="form-group">
@@ -209,9 +209,9 @@
 												</div>
 												<div class="col-md-6"></div>
 											</div>
-											
+
 											<input type="text" id="RecordId" name="RecordId" class="dnone"/>
-											
+
 											<div class="row tabs-footer mt-15">
 												<div class="col-lg-12">
 													<a id="submit-form" href="javascript:void(0);" class="btn blue-btn mr-10">{{ __('Save') }}</a>
@@ -220,7 +220,7 @@
 										</form>
 									</div>
 									<!--/Details/-->
-									
+
 									<!--Bank Information-->
 									<div class="mt-15 dnone" id="bank_information">
 										<form novalidate="" data-validate="parsley" id="bankInformation_formId">
@@ -238,7 +238,7 @@
 													</div>
 												</div>
 											</div>
-											
+
 											<div class="row">
 												<div class="col-md-6">
 													<div class="form-group">
@@ -253,7 +253,7 @@
 													</div>
 												</div>
 											</div>
-											
+
 											<div class="row">
 												<div class="col-md-12">
 													<div class="form-group">
@@ -262,7 +262,7 @@
 													</div>
 												</div>
 											</div>
-											
+
 											<div class="row">
 												<div class="col-md-12">
 													<div class="form-group">
@@ -274,7 +274,7 @@
 
 											<input type="text" id="seller_id" name="seller_id" class="dnone"/>
 											<input type="text" id="bank_information_id" name="bank_information_id" class="dnone"/>
-											
+
 											<div class="row tabs-footer mt-15">
 												<div class="col-lg-12">
 													<a id="bank_information_submit_form" href="javascript:void(0);" class="btn blue-btn mr-10">{{ __('Save') }}</a>
@@ -305,7 +305,7 @@
 									<path fill="rgba(255,255,255,0.2)" fill-opacity="1" d="M0,32L34.3,58.7C68.6,85,137,139,206,138.7C274.3,139,343,85,411,53.3C480,21,549,11,617,10.7C685.7,11,754,21,823,42.7C891.4,64,960,96,1029,138.7C1097.1,181,1166,235,1234,218.7C1302.9,203,1371,117,1406,74.7L1440,32L1440,320L1405.7,320C1371.4,320,1303,320,1234,320C1165.7,320,1097,320,1029,320C960,320,891,320,823,320C754.3,320,686,320,617,320C548.6,320,480,320,411,320C342.9,320,274,320,206,320C137.1,320,69,320,34,320L0,320Z"></path>
 								</svg>
 							</div>
-							
+
 							<div class="status-card bg-grad-10 mb-15">
 								<div class="status-text">
 									<div class="status-name opacity50">{{ __('Total Withdraw') }}</div>
@@ -315,7 +315,7 @@
 									<path fill="rgba(255,255,255,0.2)" fill-opacity="1" d="M0,32L34.3,58.7C68.6,85,137,139,206,138.7C274.3,139,343,85,411,53.3C480,21,549,11,617,10.7C685.7,11,754,21,823,42.7C891.4,64,960,96,1029,138.7C1097.1,181,1166,235,1234,218.7C1302.9,203,1371,117,1406,74.7L1440,32L1440,320L1405.7,320C1371.4,320,1303,320,1234,320C1165.7,320,1097,320,1029,320C960,320,891,320,823,320C754.3,320,686,320,617,320C548.6,320,480,320,411,320C342.9,320,274,320,206,320C137.1,320,69,320,34,320L0,320Z"></path>
 								</svg>
 							</div>
-							
+
 							<div class="status-card bg-grad-9 mb-15">
 								<div class="status-text">
 									<div class="status-name opacity50">{{ __('Total Sold') }}</div>
@@ -325,7 +325,7 @@
 									<path fill="rgba(255,255,255,0.2)" fill-opacity="1" d="M0,32L34.3,58.7C68.6,85,137,139,206,138.7C274.3,139,343,85,411,53.3C480,21,549,11,617,10.7C685.7,11,754,21,823,42.7C891.4,64,960,96,1029,138.7C1097.1,181,1166,235,1234,218.7C1302.9,203,1371,117,1406,74.7L1440,32L1440,320L1405.7,320C1371.4,320,1303,320,1234,320C1165.7,320,1097,320,1029,320C960,320,891,320,823,320C754.3,320,686,320,617,320C548.6,320,480,320,411,320C342.9,320,274,320,206,320C137.1,320,69,320,34,320L0,320Z"></path>
 								</svg>
 							</div>
-							
+
 							<div class="status-card bg-grad-4 mb-15">
 								<div class="status-text">
 									<div class="status-name opacity50">{{ __('Total Products') }}</div>

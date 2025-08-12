@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +35,8 @@ class SellerController extends Controller
 
     public function LoadSellerRegister()
     {
-        return view('frontend.seller-register');
+        $groups=Group::where('status','active')->get();
+        return view('frontend.seller-register',compact('groups'));
     }
 
     public function SellerRegister(Request $request)
