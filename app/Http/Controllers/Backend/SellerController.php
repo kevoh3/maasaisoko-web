@@ -36,7 +36,7 @@ class SellerController extends Controller
     public function LoadSellerRegister()
     {
         $groups=Group::where('status','active')->get();
-        dd($groups);
+     //   dd($groups);
         return view('frontend.seller-register',compact('groups'));
     }
 
