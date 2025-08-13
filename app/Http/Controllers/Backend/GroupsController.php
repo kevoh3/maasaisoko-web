@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Group;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +24,7 @@ use App\Models\Review;
 use App\Models\Order_item;
 use App\Models\Order_master;
 use App\Services\WaaSService;
+use Illuminate\Validation\Rule; // <-- add this
 class GroupsController extends Controller
 {
 
@@ -35,6 +38,233 @@ class GroupsController extends Controller
     public function LoadSellerRegister()
     {
         return view('frontend.seller-register');
+    }
+    public function index(Request $request)
+    {
+        $search         = trim((string) $request->get('search', ''));
+        $status         = $request->get('status');           // pending|active|suspended|inactive
+        $verifiedStatus = $request->get('verified_status');  // pending|verified|rejected
+        $statuslist = DB::table('user_status')->orderBy('id', 'asc')->get();
+        $countrylist = DB::table('countries')->where('is_publish', '=', 1)->orderBy('country_name', 'asc')->get();
+        $media_datalist = Media_option::orderBy('id','desc')->paginate(28);
+
+        // Counts for quick filters
+        $Counts = [
+            'all'       => Group::count(),
+            'active'    => Group::where('status', 'active')->count(),
+            'pending'   => Group::where('status', 'pending')->count(),
+            'suspended' => Group::where('status', 'suspended')->count(),
+            'inactive'  => Group::where('status', 'inactive')->count(),
+        ];
+
+        $groups = Group::with(['verifier:id,name', 'approver:id,name'])
+            ->withCount('members') // uses Group::members() -> hasMany(User::class, 'group_id')
+            ->when($status, fn($q)        => $q->where('status', $status))
+            ->when($verifiedStatus, fn($q)=> $q->where('verified_status', $verifiedStatus))
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($qq) use ($search) {
+                    $qq->where('name', 'like', "%{$search}%")
+                        ->orWhere('registration_number', 'like', "%{$search}%")
+                        ->orWhere('kra_pin', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('name')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('backend.groups.index', compact('groups', 'Counts', 'search', 'status', 'verifiedStatus','statuslist','media_datalist','countrylist'));
+    }
+    /**
+     * Create/Update a Group (used by GroupEntry_formId via AJAX).
+     * Expects optional "id" for updates; creates a new record when id is empty.
+     * Returns JSON: { msgType: 'success'|'error', msg: string, id?: int }
+     */
+    public function saveGroupData(Request $request)
+    {
+        $id = $request->input('id');
+
+        // Validate
+        $validated = $request->validate([
+            'name'                  => ['required', 'string', 'max:191'],
+            'registration_number'   => ['nullable', 'string', 'max:191', Rule::unique('groups', 'registration_number')->ignore($id)],
+            'type'                  => ['nullable', 'string', 'max:50'],
+            'industry'              => ['nullable', 'string', 'max:100'],
+
+            'contact_person'        => ['nullable', 'string', 'max:191'],
+            'phone'                 => ['required', 'string', 'max:50'],
+            'email'                 => ['nullable', 'email', 'max:191', Rule::unique('groups', 'email')->ignore($id)],
+            'address'               => ['nullable', 'string', 'max:255'],
+            'county'                => ['nullable', 'string', 'max:100'],
+            'sub_county'            => ['nullable', 'string', 'max:100'],
+
+            'kra_pin'               => ['nullable', 'string', 'max:20', Rule::unique('groups', 'kra_pin')->ignore($id)],
+            'business_permit_number'=> ['nullable', 'string', 'max:100'],
+            'certificate_of_incorporation' => ['nullable', 'string', 'max:100'],
+            'tax_compliance_certificate'   => ['nullable', 'string', 'max:100'],
+
+            'bank_name'             => ['nullable', 'string', 'max:191'],
+            'bank_branch'           => ['nullable', 'string', 'max:191'],
+            'bank_account_number'   => ['nullable', 'string', 'max:191'],
+
+            'website'               => ['nullable', 'string', 'max:255'],
+            'social_media'          => ['nullable', 'string', 'max:255'],
+
+            // Status/verification
+            'status'                => ['required', Rule::in(['pending','active','suspended','inactive'])],
+            'verified_status'       => ['nullable', Rule::in(['pending','verified','rejected'])],
+            'verified_notes'        => ['nullable', 'string', 'max:1000'],
+
+            // Media picker stores a path string; we persist it in "photo"
+            'logo'                  => ['nullable', 'string', 'max:255'],
+        ]);
+
+        try {
+            $group = DB::transaction(function () use ($request, $id) {
+                $group = $id ? Group::findOrFail($id) : new Group();
+
+                // Map fields
+                $group->name                         = $request->input('name');
+                $group->registration_number          = $request->input('registration_number');
+                $group->type                         = $request->input('type');
+                $group->industry                     = $request->input('industry');
+
+                $group->contact_person               = $request->input('contact_person');
+                $group->phone                        = $request->input('phone');
+                $group->email                        = $request->input('email');
+                $group->address                      = $request->input('address');
+                $group->county                       = $request->input('county');
+                $group->sub_county                   = $request->input('sub_county');
+
+                $group->kra_pin                      = $request->input('kra_pin');
+                $group->business_permit_number       = $request->input('business_permit_number');
+                $group->certificate_of_incorporation = $request->input('certificate_of_incorporation');
+                $group->tax_compliance_certificate   = $request->input('tax_compliance_certificate');
+
+                $group->bank_name                    = $request->input('bank_name');
+                $group->bank_branch                  = $request->input('bank_branch');
+                $group->bank_account_number          = $request->input('bank_account_number');
+
+                $group->website                      = $request->input('website');
+                $group->social_media                 = $request->input('social_media');
+
+                // Persist logo path into "photo" (your blades check $row->logo ?? $row->photo)
+                if ($request->filled('logo')) {
+                    $group->photo = $request->input('logo');
+                }
+
+                $group->status                       = $request->input('status') ?? 'pending';
+                $group->verified_status              = $request->input('verified_status') ?: 'pending';
+                $group->verified_notes               = $request->input('verified_notes');
+
+                // Auto-stamp verification metadata when moving to "verified"
+                if ($group->isDirty('verified_status') && $group->verified_status === 'verified') {
+                    $group->verified_by  = Auth::id();
+                    $group->verified_at  = now();
+                }
+
+                $group->save();
+
+                return $group;
+            });
+
+            return response()->json([
+                'msgType' => 'success',
+                'msg'     => $id ? __('Group updated successfully.') : __('Group created successfully.'),
+                'id'      => $group->id,
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+            return response()->json([
+                'msgType' => 'error',
+                'msg'     => __('Something went wrong while saving the group.'),
+            ], 422);
+        }
+    }
+
+    /**
+     * Load a group by id for editing (used by onLoadEditData).
+     * Returns JSON: { group: {...} }
+     */
+    public function getGroupById(Request $request)
+    {
+        $request->validate(['id' => ['required','integer','min:1']]);
+
+        $group = Group::withCount('members')->findOrFail($request->id);
+
+        return response()->json([
+            'group' => $group,
+        ]);
+    }
+
+    /**
+     * Delete a group (guarded: cannot delete if it still has members).
+     */
+    public function deleteGroup(Request $request)
+    {
+        $request->validate(['id' => ['required','integer','min:1']]);
+
+        $group = Group::withCount('members')->findOrFail($request->id);
+
+        if ($group->members_count > 0) {
+            return response()->json([
+                'msgType' => 'error',
+                'msg'     => __('Cannot delete a group that still has members.'),
+            ], 422);
+        }
+
+        $group->delete();
+
+        return response()->json([
+            'msgType' => 'success',
+            'msg'     => __('Group deleted successfully.'),
+        ]);
+    }
+
+    /**
+     * Bulk actions: active/inactive/delete (same UX as sellers).
+     * Expects ids[]=... and BulkAction in {active,inactive,delete}
+     */
+    public function bulkActionGroups(Request $request)
+    {
+        $request->validate([
+            'ids'        => ['required'],
+            'BulkAction' => ['required', Rule::in(['active','inactive','delete'])],
+        ]);
+
+        $ids = is_array($request->ids) ? $request->ids : explode(',', (string) $request->ids);
+        $ids = array_filter(array_map('intval', $ids));
+
+        if (empty($ids)) {
+            return response()->json(['msgType' => 'error', 'msg' => __('No valid records selected.')], 422);
+        }
+
+        if ($request->BulkAction === 'delete') {
+            // Guard: only delete groups with zero members
+            $deletableIds = Group::withCount('members')
+                ->whereIn('id', $ids)
+                ->get()
+                ->filter(fn($g) => $g->members_count == 0)
+                ->pluck('id')
+                ->all();
+
+            Group::whereIn('id', $deletableIds)->delete();
+
+            $skipped = count($ids) - count($deletableIds);
+            $msg = __('Deleted :n groups. :s skipped due to existing members.', ['n' => count($deletableIds), 's' => $skipped]);
+
+            return response()->json(['msgType' => 'success', 'msg' => $msg]);
+        }
+
+        // Status updates
+        $newStatus = $request->BulkAction === 'active' ? 'active' : 'inactive';
+        Group::whereIn('id', $ids)->update(['status' => $newStatus]);
+
+        return response()->json([
+            'msgType' => 'success',
+            'msg'     => __('Updated :n groups to :status.', ['n' => count($ids), 'status' => $newStatus]),
+        ]);
     }
 
     public function SellerRegister(Request $request)
@@ -211,59 +441,39 @@ class GroupsController extends Controller
             ->orderBy('users.id','desc')
             ->paginate(20);
 
-        return view('backend.sellers', compact('AllCount', 'ActiveCount', 'InactiveCount', 'statuslist', 'countrylist', 'media_datalist', 'datalist'));
+        return view('backend.groups.index', compact('AllCount', 'ActiveCount', 'InactiveCount', 'statuslist', 'countrylist', 'media_datalist', 'datalist'));
     }
 
     //Get data for Sellers Pagination
-    public function getSellersTableData(Request $request){
+    public function getGroupsTableData(Request $request)
+    {
+        $status         = $request->status;            // '0' = all, else: pending|active|suspended|inactive
+        $verifiedStatus = $request->verified_status;   // '', else: pending|verified|rejected
+        $search         = trim((string) $request->search);
 
-        $status = $request->status;
-        $search = $request->search;
-
-        if($request->ajax()){
-
-            if($search != ''){
-
-                $datalist = DB::table('users')
-                    ->join('user_roles', 'users.role_id', '=', 'user_roles.id')
-                    ->join('user_status', 'users.status_id', '=', 'user_status.id')
-                    ->select('users.*', 'user_roles.role', 'user_status.status')
-                    ->where(function ($query) use ($search){
-                        $query->where('name', 'like', '%'.$search.'%')
-                            ->orWhere('email', 'like', '%'.$search.'%')
-                            ->orWhere('phone', 'like', '%'.$search.'%')
-                            ->orWhere('shop_name', 'like', '%'.$search.'%')
-                            ->orWhere('shop_url', 'like', '%'.$search.'%')
-                            ->orWhere('address', 'like', '%'.$search.'%')
-                            ->orWhere('city', 'like', '%'.$search.'%')
-                            ->orWhere('state', 'like', '%'.$search.'%');
-                    })
-                    ->where(function ($query) use ($status){
-                        $query->whereRaw("users.status_id = '".$status."' OR '".$status."' = '0'");
-                    })
-                    ->where(function ($query) use ($status){
-                        $query->whereRaw("users.role_id = 3");
-                    })
-                    ->orderBy('users.id','desc')
-                    ->paginate(20);
-            }else{
-
-                $datalist = DB::table('users')
-                    ->join('user_roles', 'users.role_id', '=', 'user_roles.id')
-                    ->join('user_status', 'users.status_id', '=', 'user_status.id')
-                    ->select('users.*', 'user_roles.role', 'user_status.status')
-                    ->where(function ($query) use ($status){
-                        $query->whereRaw("users.status_id = '".$status."' OR '".$status."' = '0'");
-                    })
-                    ->where(function ($query) use ($status){
-                        $query->whereRaw("users.role_id = 3");
-                    })
-                    ->orderBy('users.id','desc')
-                    ->paginate(20);
-            }
-
-            return view('backend.partials.sellers_table', compact('datalist'))->render();
+        if (!$request->ajax()) {
+            abort(404);
         }
+
+        $groups = \App\Models\Group::with(['verifier:id,name', 'approver:id,name'])
+            ->withCount('members') // provides members_count for the blade
+            ->when($status && $status !== '0', fn($q) => $q->where('status', $status))
+            ->when($verifiedStatus, fn($q) => $q->where('verified_status', $verifiedStatus))
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($qq) use ($search) {
+                    $qq->where('name', 'like', "%{$search}%")
+                        ->orWhere('registration_number', 'like', "%{$search}%")
+                        ->orWhere('kra_pin', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->orderByDesc('id')
+            ->paginate(20)
+            ->withQueryString();
+
+        // IMPORTANT: returns the partial you shared and passes $groups (not $datalist)
+        return view('backend.groupd.partials.groups_table', compact('groups'))->render();
     }
 
     //Save data for Sellers
