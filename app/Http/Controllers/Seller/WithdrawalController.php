@@ -51,29 +51,43 @@ class WithdrawalController extends Controller
 //        'request_id',
 //        'wallet_limit',
 //        'is_system_wallet',
-				$biData['wallet_name'] = $wallet->wallet_name;
-				$biData['account_number'] = $wallet->account_number;
-				$biData['balance'] = $wallet->balance;
-                $biData['currency'] = $wallet->currency;
-			//}
-        $query = PaymentTransaction::query()->where('wallet_id', $wallet->id);
+//				$biData['wallet_name'] = $wallet->wallet_name;
+//				$biData['account_number'] = $wallet->account_number;
+//				$biData['balance'] = $wallet->balance;
+//                $biData['currency'] = $wallet->currency;
+        $biData['wallet_name']    = $wallet?->wallet_name;
+        $biData['account_number'] = $wallet?->account_number;
+        $biData['balance']        = $wallet?->balance ?? 0;
+        $biData['currency']       = $wallet?->currency ?? 'KES';
+        if (!$wallet) {
+            // No wallet → no transactions
+            $transactions = collect();              // or ->paginate(20) on an empty query below
+            //$totals = ['in' => 0, 'out' => 0];
+            // return view(..., compact('biData','transactions','totals'));
+        } else {
+           // $query = PaymentTransaction::where('wallet_id', $wallet->id);
+            //$transactions = $query->latest()->paginate(20);
+            // compute totals if you need them...
 
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('transaction_code', 'like', "%{$request->search}%")
-                    ->orWhere('amount', $request->search);
-            });
+            //}
+            $query = PaymentTransaction::query()->where('wallet_id', $wallet->id);
+
+            if ($request->filled('search')) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('transaction_code', 'like', "%{$request->search}%")
+                        ->orWhere('amount', $request->search);
+                });
+            }
+
+            if ($request->filled('start_date')) {
+                $query->whereDate('transaction_date', '>=', $request->start_date);
+            }
+
+            if ($request->filled('end_date')) {
+                $query->whereDate('transaction_date', '<=', $request->end_date);
+            }
+            $transactions = $query->latest()->paginate(20);
         }
-
-        if ($request->filled('start_date')) {
-            $query->whereDate('transaction_date', '>=', $request->start_date);
-        }
-
-        if ($request->filled('end_date')) {
-            $query->whereDate('transaction_date', '<=', $request->end_date);
-        }
-
-        $transactions = $query->latest()->paginate(20);
         return view('seller.withdrawals', compact('datalist', 'biData','transactions'));
 	}
 

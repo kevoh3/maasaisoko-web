@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Seller\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -660,6 +661,12 @@ Route::prefix('seller')->group(function () {
     Route::post('/getStatusList', [App\Http\Controllers\Backend\ComboController::class, 'getStatusList'])->name('seller.getStatusList')->middleware(['auth', 'is_seller']);
     Route::post('/getCategoryList', [App\Http\Controllers\Backend\ComboController::class, 'getCategoryList'])->name('seller.getCategoryList')->middleware(['auth', 'is_seller']);
     Route::post('/getBrandList', [App\Http\Controllers\Backend\ComboController::class, 'getBrandList'])->name('seller.getBrandList')->middleware(['auth', 'is_seller']);
+
+        Route::get('/plans', [SubscriptionController::class, 'plans'])->name('seller.plans');
+        Route::post('/checkout', [SubscriptionController::class, 'checkout'])->name('seller.checkout');
+        Route::post('/subscribe/confirm', [SubscriptionController::class, 'confirm'])->name('seller.subscribe.confirm');
+
+
 
 });
 

@@ -7,7 +7,7 @@
 <div class="main-body">
 	<div class="container-fluid">
 		@php $vipc = vipc(); @endphp
-		@if($vipc['bkey'] == 0) 
+		@if($vipc['bkey'] == 0)
 		@include('seller.partials.vipc')
 		@else
 		<div class="row">
@@ -23,7 +23,7 @@
 					</svg>
 				</div>
 			</div>
-			
+
 			<div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mt-25">
 				<div class="status-card bg-grad-2">
 					<div class="status-text">
@@ -36,7 +36,7 @@
 					</svg>
 				</div>
 			</div>
-			
+
 			<div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mt-25">
 				<div class="status-card bg-grad-3">
 					<div class="status-text">
@@ -97,7 +97,7 @@
 					</svg>
 				</div>
 			</div>
-			
+
 			<div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mt-25">
 				<div class="status-card bg-grad-10">
 					<div class="status-text">
@@ -111,8 +111,102 @@
 				</div>
 			</div>
 		</div>
-		
-		<div class="row">
+
+            {{-- Seller Compliance Row --}}
+            <div class="row mt-30">
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h5 class="card-title mb-1">{{ __('KYC Verification') }}</h5>
+                                @php
+                                    $kyc = $kycStatus ?? 'not_submitted';
+                                    $kycLabel = ucfirst(str_replace('_',' ', $kyc));
+                                    $kycClass = match($kyc) {
+                                        'verified' => 'badge-success',
+                                        'pending'  => 'badge-info',
+                                        'rejected' => 'badge-danger',
+                                        default    => 'badge-secondary',
+                                    };
+                                @endphp
+                                <span class="badge {{ $kycClass }} px-3 py-2">{{ $kycLabel }}</span>
+                            </div>
+                            @if($kyc !== 'verified')
+{{--                                {{ route('seller.kyc.start') }}--}}
+                                <a href="#" class="btn btn-outline-primary btn-sm ml-3">
+                                    {{ __('Complete KYC') }}
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h5 class="card-title mb-1">{{ __('Registration Fee') }}</h5>
+                                @if($regFeePaid ?? false)
+                                    <span class="badge badge-success px-3 py-2">{{ __('Paid') }}</span>
+                                    @if($user->registration_fee_amount)
+                                        <small class="text-muted ml-2">
+                                            {{ number_format($user->registration_fee_amount, 0) }} {{ $user->registration_fee_currency }}
+                                        </small>
+                                    @endif
+                                @else
+                                    <span class="badge badge-danger px-3 py-2">{{ __('Unpaid') }}</span>
+                                    <small class="d-block text-muted mt-1">
+                                        {{ __('Amount Due:') }}
+                                        {{ number_format($regFeeAmount, 0) }} {{ $regFeeCurrency }}
+                                        ({{ ucfirst($user->classification) }})
+                                    </small>
+                                @endif
+                            </div>
+                            @if(!($regFeePaid ?? false))
+{{--                                {{ route('seller.registration.fee.pay') }}--}}
+                                <a href="#"
+                                   class="btn btn-outline-success btn-sm ml-3">
+                                    {{ __('Pay Now') }}
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+
+            @php
+                $sub = auth()->user()->currentSubscription()->first();
+                $pkg = $sub?->package;
+            @endphp
+
+            <div class="row mt-25">
+                <div class="col-md-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body d-flex align-items-center justify-content-between">
+                            <div>
+                                <h5 class="mb-1">{{ __('Current Plan') }}: {{ $pkg->name ?? '—' }}</h5>
+                                @if($pkg)
+                                    <small class="text-muted">
+                                        {{ __('Item limit') }}: {{ $pkg->items }} &middot;
+                                        {{ __('Billing') }}: {{ ucfirst(str_replace('_',' ', $sub->billing_cycle)) }} &middot;
+                                        {{ __('Next due') }}: {{ optional($sub->next_due_at)->format('Y-m-d') ?? '—' }}
+                                    </small>
+                                @else
+                                    <small class="text-muted">{{ __('No active plan. You are on the Free tier.') }}</small>
+                                @endif
+                            </div>
+                            <div>
+                                <a href="{{ route('seller.plans') }}" class="btn btn-outline-primary btn-sm">{{ __('Change Plan') }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
 			<div class="col-lg-6 mt-25">
 				<div class="card">
 					<div class="card-header">
@@ -136,7 +230,7 @@
 									@foreach($top_selling_products as $row)
 									<tr>
 										<td class="text-left"><a href="{{ route('frontend.product', [$row->product_id, $row->slug]) }}">{{ $row->title }}</a></td>
-										<td class="text-center">{{ $row->TotalSelling }}</td> 
+										<td class="text-center">{{ $row->TotalSelling }}</td>
 									</tr>
 									@endforeach
 									@else
@@ -174,8 +268,8 @@
 									@foreach($top_rating_products as $row)
 									<tr>
 										<td class="text-left"><a href="{{ route('frontend.product', [$row->item_id, $row->slug]) }}">{{ $row->title }}</a></td>
-										<td class="text-center">{{ $row->TotalReview }}</td> 
-										<td class="text-center">{{ $row->TotalRating }}</td> 
+										<td class="text-center">{{ $row->TotalReview }}</td>
+										<td class="text-center">{{ $row->TotalRating }}</td>
 									</tr>
 									@endforeach
 									@else

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Group;
+use App\Models\Package;
+use App\Models\UserSubscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -123,6 +125,24 @@ class SellerController extends Controller
 
            // $response = WaaSService::createWallet($data);
             $this->waasService->addBeneficiary($data,$response->id);
+            // already has an active subscription?
+            if ($response->currentSubscription()->exists()) return;
+
+            $free = Package::where('name', 'Free')->first(); // or by id
+            if (!$free) return;
+
+            $now = now();
+            UserSubscription::create([
+                'user_id'      => $response->id,
+                'package_id'   => $free->id,
+                'billing_cycle'=> 'monthly',
+                'price'        => 0,
+                'currency'     => 'KES',
+                'status'       => 'active',
+                'starts_at'    => $now,
+                'expires_at'   => null,        // keep free open-ended, or set $now->copy()->addMonths(1)
+                'next_due_at'  => null,
+            ]);
 
 			if($gtext['is_mailchimp'] == 1){
 				$name = $request->input('name');
