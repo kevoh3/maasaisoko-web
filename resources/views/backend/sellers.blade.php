@@ -84,8 +84,13 @@
 								</div>
 								<!--/Data Entry Form-->
 								<div class="card-body">
-									<a onClick="onDetailsBankInfo(1)" href="javascript:void(0);" id="details_bank_info_1" class="btn custom-btn font-bold mr-10 details_bank_info active">{{ __('Details') }}</a>
-									<a onClick="onDetailsBankInfo(2)" href="javascript:void(0);" id="details_bank_info_2" class="btn custom-btn font-bold details_bank_info">{{ __('Bank Information') }}</a>
+{{--									<a onClick="onDetailsBankInfo(1)" href="javascript:void(0);" id="details_bank_info_1" class="btn custom-btn font-bold mr-10 details_bank_info active">{{ __('Details') }}</a>--}}
+{{--									<a onClick="onDetailsBankInfo(2)" href="javascript:void(0);" id="details_bank_info_2" class="btn custom-btn font-bold details_bank_info">{{ __('Bank Information') }}</a>--}}
+                                    <a onClick="onDetailsTab('details')"           href="javascript:void(0);" id="tab_details"  class="btn custom-btn font-bold mr-10 details_tab active">{{ __('Details') }}</a>
+                                    <a onClick="onDetailsTab('bank_information')"  href="javascript:void(0);" id="tab_bank"     class="btn custom-btn font-bold mr-10 details_tab">{{ __('Bank Information') }}</a>
+                                    <a onClick="onDetailsTab('package_info')"      href="javascript:void(0);" id="tab_package"  class="btn custom-btn font-bold mr-10 details_tab">{{ __('Package') }}</a>
+                                    <a onClick="onDetailsTab('kyc_info')"          href="javascript:void(0);" id="tab_kyc"      class="btn custom-btn font-bold details_tab">{{ __('KYC') }}</a>
+
 
 									<!--Details-->
 									<div class="mt-15" id="details">
@@ -254,14 +259,14 @@
 												</div>
 											</div>
 
-											<div class="row">
-												<div class="col-md-12">
-													<div class="form-group">
-														<label for="paypal_id">{{ __('PayPal ID') }}</label>
-														<input type="text" name="paypal_id" id="paypal_id" class="form-control">
-													</div>
-												</div>
-											</div>
+{{--											<div class="row">--}}
+{{--												<div class="col-md-12">--}}
+{{--													<div class="form-group">--}}
+{{--														<label for="paypal_id">{{ __('PayPal ID') }}</label>--}}
+{{--														<input type="text" name="paypal_id" id="paypal_id" class="form-control">--}}
+{{--													</div>--}}
+{{--												</div>--}}
+{{--											</div>--}}
 
 											<div class="row">
 												<div class="col-md-12">
@@ -283,8 +288,92 @@
 										</form>
 									</div>
 									<!--/Bank Information/-->
-								</div>
-								<!--/Data Entry Form-->
+                                    <!--Package Info-->
+                                    <div class="mt-15 dnone" id="package_info">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="card p-15">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h6 class="mb-10">{{ __('Package Name') }}</h6>
+                                                            <div id="pkg_name" class="font-bold">—</div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h6 class="mb-10">{{ __('Status') }}</h6>
+                                                            <div id="pkg_status" class="badge">—</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row mt-15">
+                                                        <div class="col-md-4">
+                                                            <h6 class="mb-10">{{ __('Billing Cycle') }}</h6>
+                                                            <div id="pkg_billing_cycle">—</div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <h6 class="mb-10">{{ __('Price') }}</h6>
+                                                            <div id="pkg_price">—</div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <h6 class="mb-10">{{ __('Currency') }}</h6>
+                                                            <div id="pkg_currency">—</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row mt-15">
+                                                        <div class="col-md-6">
+                                                            <h6 class="mb-10">{{ __('Starts At') }}</h6>
+                                                            <div id="pkg_starts_at">—</div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h6 class="mb-10">{{ __('Expires At') }}</h6>
+                                                            <div id="pkg_expires_at">—</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--/Package Info/-->
+                                    <!--KYC Info-->
+                                    <div class="mt-15 dnone" id="kyc_info">
+                                        <div class="card p-15">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <h6 class="mb-10">{{ __('KYC Status') }}</h6>
+                                                    <div id="kyc_status_badge" class="badge">—</div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h6 class="mb-10">{{ __('Document Number') }}</h6>
+                                                    <div id="kyc_document_number">—</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mt-15">
+                                                <div class="col-md-4">
+                                                    <h6 class="mb-10">{{ __('Submitted At') }}</h6>
+                                                    <div id="kyc_submitted_at">—</div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <h6 class="mb-10">{{ __('Verified At') }}</h6>
+                                                    <div id="kyc_verified_at">—</div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <h6 class="mb-10">{{ __('Rejected At') }}</h6>
+                                                    <div id="kyc_rejected_at">—</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mt-15">
+                                                <div class="col-md-12">
+                                                    <h6 class="mb-10">{{ __('Notes') }}</h6>
+                                                    <div id="kyc_notes">—</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--/KYC Info/-->
+                                                                    </div>
+                                                                    <!--/Data Entry Form-->
 							</div>
 						</div>
 						<div class="col-md-3">
@@ -296,15 +385,49 @@
 									</div>
 								</div>
 							</div>
-							<div class="status-card bg-grad-5 mb-15">
-								<div class="status-text">
-									<div class="status-name opacity50">{{ __('Current Balance') }}</div>
-									<h2 class="status-count" id="Current_Balance"></h2>
-								</div>
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 200">
-									<path fill="rgba(255,255,255,0.2)" fill-opacity="1" d="M0,32L34.3,58.7C68.6,85,137,139,206,138.7C274.3,139,343,85,411,53.3C480,21,549,11,617,10.7C685.7,11,754,21,823,42.7C891.4,64,960,96,1029,138.7C1097.1,181,1166,235,1234,218.7C1302.9,203,1371,117,1406,74.7L1440,32L1440,320L1405.7,320C1371.4,320,1303,320,1234,320C1165.7,320,1097,320,1029,320C960,320,891,320,823,320C754.3,320,686,320,617,320C548.6,320,480,320,411,320C342.9,320,274,320,206,320C137.1,320,69,320,34,320L0,320Z"></path>
-								</svg>
-							</div>
+{{--							<div class="status-card bg-grad-5 mb-15">--}}
+{{--								<div class="status-text">--}}
+{{--									<div class="status-name opacity50">{{ __('Current Balance') }}</div>--}}
+{{--									<h2 class="status-count" id="Current_Balance"></h2>--}}
+{{--								</div>--}}
+{{--								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 200">--}}
+{{--									<path fill="rgba(255,255,255,0.2)" fill-opacity="1" d="M0,32L34.3,58.7C68.6,85,137,139,206,138.7C274.3,139,343,85,411,53.3C480,21,549,11,617,10.7C685.7,11,754,21,823,42.7C891.4,64,960,96,1029,138.7C1097.1,181,1166,235,1234,218.7C1302.9,203,1371,117,1406,74.7L1440,32L1440,320L1405.7,320C1371.4,320,1303,320,1234,320C1165.7,320,1097,320,1029,320C960,320,891,320,823,320C754.3,320,686,320,617,320C548.6,320,480,320,411,320C342.9,320,274,320,206,320C137.1,320,69,320,34,320L0,320Z"></path>--}}
+{{--								</svg>--}}
+{{--							</div>--}}
+                            <!-- Wallets -->
+                            <div class="card mb-15">
+                                <div class="card-body">
+                                    <div class="seller_card">
+                                        <h5 class="mb-10"><strong>{{ __('Wallets') }}</strong></h5>
+
+                                        <!-- Primary wallet summary -->
+                                        <div id="primary_wallet" class="mb-10 dnone">
+                                            <div class="status-card bg-grad-5">
+                                                <div class="status-text">
+                                                    <div class="status-name opacity50" id="Wallet_Name">—</div>
+                                                    <h2 class="status-count" id="Wallet_Balance">—</h2>
+                                                    <div class="mt-5 small">
+                                                        <div><strong>{{ __('Account') }}:</strong> <span id="Wallet_Account">—</span></div>
+                                                        <div><strong>{{ __('Type') }}:</strong> <span id="Wallet_Type">—</span></div>
+                                                        <div><strong>{{ __('Currency') }}:</strong> <span id="Wallet_Currency">—</span></div>
+                                                        <div><strong>{{ __('Limit') }}:</strong> <span id="Wallet_Limit">—</span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Other wallets (list) -->
+                                        <div id="other_wallets" class="dnone">
+                                            <h6 class="mt-10 mb-5">{{ __('Other Wallets') }}</h6>
+                                            <div id="wallets_container"></div>
+                                        </div>
+
+                                        <!-- No wallet -->
+                                        <div id="no_wallet" class="text-muted">— {{ __('No wallet found for this seller') }} —</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /Wallets -->
 
 							<div class="status-card bg-grad-10 mb-15">
 								<div class="status-text">
@@ -357,7 +480,9 @@
 var media_type = 'Thumbnail';
 var TEXT = [];
 	TEXT['Do you really want to edit this record'] = "{{ __('Do you really want to edit this record') }}";
+	TEXT['Do you really want to view this record'] = "{{ __('Do you really want to view this record') }}";
 	TEXT['Do you really want to delete this record'] = "{{ __('Do you really want to delete this record') }}";
+	TEXT['Do you really want to suspend this record'] = "{{ __('Do you really want to suspend this record') }}";
 	TEXT['Do you really want to active this records'] = "{{ __('Do you really want to active this records') }}";
 	TEXT['Do you really want to inactive this records'] = "{{ __('Do you really want to inactive this records') }}";
 	TEXT['Do you really want to delete this records'] = "{{ __('Do you really want to delete this records') }}";

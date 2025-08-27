@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Backend\AccountingController;
 use App\Http\Controllers\Seller\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
@@ -108,6 +109,21 @@ Route::get('/stores/{id}/{title}', [App\Http\Controllers\Frontend\StoresControll
 Route::get('/frontend/getStoresGrid', [App\Http\Controllers\Frontend\StoresController::class, 'getStoresGrid'])->name('frontend.getStoresGrid');
 
 Route::prefix('backend')->group(function () {
+    Route::prefix('accounting')->group(function () {
+        Route::get('coa', [AccountingController::class, 'chartOfAccounts'])->name('backend.coa');
+        Route::get('ledgers', [AccountingController::class, 'ledgers'])->name('backend.ledgers');
+        Route::get('journal-entries', [AccountingController::class, 'journalEntries'])->name('backend.journal-entries');
+        Route::get('bank-accounts', [AccountingController::class, 'bankAccounts'])->name('backend.bank-accounts');
+        Route::get('wallets', [AccountingController::class, 'wallets'])->name('backend.wallets');
+        Route::get('receipts-payments', [AccountingController::class, 'receiptsPayments'])->name('backend.receipts-payments');
+        Route::get('reconcile', [AccountingController::class, 'reconcile'])->name('backend.reconcile');
+
+        // Reports
+        Route::get('trial-balance', [AccountingController::class, 'trialBalance'])->name('backend.trial-balance');
+        Route::get('income-statement', [AccountingController::class, 'incomeStatement'])->name('backend.income-statement');
+        Route::get('balance-sheet', [AccountingController::class, 'balanceSheet'])->name('backend.balance-sheet');
+        Route::get('tax-reports', [AccountingController::class, 'taxReports'])->name('backend.tax-reports');
+    });
 
     //Not Found Page
     Route::get('/notfound', [App\Http\Controllers\HomeController::class, 'notFoundPage'])->name('backend.notfound')->middleware('auth');

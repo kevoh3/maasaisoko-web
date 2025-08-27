@@ -240,12 +240,19 @@ class SellerController extends Controller
 		$AllCount = User::where('role_id', '=', 3)->count();
 		$ActiveCount = User::where('status_id', '=', 1)->where('role_id', '=', 3)->count();
 		$InactiveCount = User::where('status_id', '=', 2)->where('role_id', '=', 3)->count();
-
-		$datalist = DB::table('users')
+//
+//		$datalist = DB::table('users')
+        $datalist = User::with([
+            'currentSubscription' => function ($q) {
+                $q->select('id','user_id','package_id','billing_cycle','price','currency','status','starts_at','expires_at');
+            },
+            'currentSubscription.package:id,name'
+        ])
 			->join('user_roles', 'users.role_id', '=', 'user_roles.id')
 			->join('user_status', 'users.status_id', '=', 'user_status.id')
 			->select('users.*', 'user_roles.role', 'user_status.status')
 			->where('users.role_id', 3)
+            ->where('users.status_id', '!=', 3)
 			->orderBy('users.id','desc')
 			->paginate(20);
 
@@ -526,67 +533,218 @@ class SellerController extends Controller
     }
 
 	//Get data for Sellers by id
-    public function getSellerById(Request $request){
-		$gtext = gtext();
-		$lan = glan();
+//    public function getSellerById(Request $request){
+//		$gtext = gtext();
+//		$lan = glan();
+//
+//		$datalist = array(
+//			'seller_data' => '',
+//			'bank_information' => '',
+//			'CurrentBalance' => 0,
+//			'OrderBalance' => 0,
+//			'WithdrawalBalance' => 0,
+//			'TotalProducts' => 0
+//		);
+//
+//		$id = $request->id;
+//
+//		$data = DB::table('users')->where('id', $id)->first();
+//		$data->bactive = base64_decode($data->bactive);
+//		$data->created_at = date('d F, Y', strtotime($data->created_at));
+//
+//		$bankInfoData = DB::table('bank_informations')->where('seller_id', $id)->first();
+//
+//		$datalist['seller_data'] = $data;
+//		$datalist['bank_information'] = $bankInfoData;
+//
+//		$sql = "SELECT (IFNULL(SUM(b.total_price), 0) + IFNULL(SUM(b.tax), 0)) AS OrderBalance
+//		FROM order_masters a
+//		INNER JOIN order_items b ON a.id = b.order_master_id
+//		WHERE a.payment_status_id = 1
+//		AND a.order_status_id = 4
+//		AND a.seller_id = '".$id."';";
+//		$aRow = DB::select($sql);
+//		$OrderBalance = $aRow[0]->OrderBalance;
+//
+//		$sql1 = "SELECT (IFNULL(SUM(amount), 0) + IFNULL(SUM(fee_amount), 0)) AS WithdrawalBalance
+//		FROM withdrawals
+//		WHERE seller_id = '".$id."'
+//		AND status_id = 3;";
+//		$aRow1 = DB::select($sql1);
+//		$WithdrawalBalance = $aRow1[0]->WithdrawalBalance;
+//		$OrderWithdrawalBalance = ($OrderBalance - $WithdrawalBalance);
+//
+//		if($gtext['currency_position'] == 'left'){
+//			$datalist['CurrentBalance'] = $gtext['currency_icon'].NumberFormat($OrderWithdrawalBalance);
+//			$datalist['OrderBalance'] = $gtext['currency_icon'].NumberFormat($OrderBalance);
+//			$datalist['WithdrawalBalance'] = $gtext['currency_icon'].NumberFormat($WithdrawalBalance);
+//		}else{
+//			$datalist['CurrentBalance'] = NumberFormat($OrderWithdrawalBalance).$gtext['currency_icon'];
+//			$datalist['OrderBalance'] = NumberFormat($OrderBalance).$gtext['currency_icon'];
+//			$datalist['WithdrawalBalance'] = NumberFormat($WithdrawalBalance).$gtext['currency_icon'];
+//		}
+//		$sql2 = "SELECT COUNT(id) AS TotalProducts
+//		FROM products
+//		WHERE user_id = '".$id."'
+//		AND is_publish = 1
+//		AND lan = '".$lan."';";
+//		$aRow2 = DB::select($sql2);
+//		$datalist['TotalProducts'] = $aRow2[0]->TotalProducts;
+//
+//		return response()->json($datalist);
+//	}
+    public function getSellerById(Request $request)
+    {
+        $gtext = gtext();
+        $lan = glan();
 
-		$datalist = array(
-			'seller_data' => '',
-			'bank_information' => '',
-			'CurrentBalance' => 0,
-			'OrderBalance' => 0,
-			'WithdrawalBalance' => 0,
-			'TotalProducts' => 0
-		);
+        $datalist = [
+            'seller_data'        => '',
+            'bank_information'   => '',
+            'CurrentBalance'     => 0,
+            'OrderBalance'       => 0,
+            'WithdrawalBalance'  => 0,
+            'TotalProducts'      => 0,
+            'package'            => [ // new block
+                'name'          => null,
+                'billing_cycle' => null,
+                'price'         => null,
+                'currency'      => null,
+                'status'        => null,
+                'starts_at'     => null,
+                'expires_at'    => null,
+            ],
+        ];
 
-		$id = $request->id;
+        $id = $request->id;
 
-		$data = DB::table('users')->where('id', $id)->first();
-		$data->bactive = base64_decode($data->bactive);
-		$data->created_at = date('d F, Y', strtotime($data->created_at));
+        // ---- Seller core ----
+        $data = DB::table('users')->where('id', $id)->first();
+        if (!$data) {
+            return response()->json(['message' => 'Seller not found'], 404);
+        }
 
-		$bankInfoData = DB::table('bank_informations')->where('seller_id', $id)->first();
+        $data->bactive     = $data->bactive ? base64_decode($data->bactive) : $data->bactive;
+        $data->created_at  = date('d F, Y', strtotime($data->created_at));
 
-		$datalist['seller_data'] = $data;
-		$datalist['bank_information'] = $bankInfoData;
+        $bankInfoData = DB::table('bank_informations')->where('seller_id', $id)->first();
 
-		$sql = "SELECT (IFNULL(SUM(b.total_price), 0) + IFNULL(SUM(b.tax), 0)) AS OrderBalance
-		FROM order_masters a
-		INNER JOIN order_items b ON a.id = b.order_master_id
-		WHERE a.payment_status_id = 1
-		AND a.order_status_id = 4
-		AND a.seller_id = '".$id."';";
-		$aRow = DB::select($sql);
-		$OrderBalance = $aRow[0]->OrderBalance;
+        $datalist['seller_data']      = $data;
+        $datalist['bank_information'] = $bankInfoData;
 
-		$sql1 = "SELECT (IFNULL(SUM(amount), 0) + IFNULL(SUM(fee_amount), 0)) AS WithdrawalBalance
-		FROM withdrawals
-		WHERE seller_id = '".$id."'
-		AND status_id = 3;";
-		$aRow1 = DB::select($sql1);
-		$WithdrawalBalance = $aRow1[0]->WithdrawalBalance;
-		$OrderWithdrawalBalance = ($OrderBalance - $WithdrawalBalance);
+        // ---- Balances ----
+        $sql = "
+        SELECT (IFNULL(SUM(b.total_price), 0) + IFNULL(SUM(b.tax), 0)) AS OrderBalance
+        FROM order_masters a
+        INNER JOIN order_items b ON a.id = b.order_master_id
+        WHERE a.payment_status_id = 1
+          AND a.order_status_id  = 4
+          AND a.seller_id        = ?
+    ";
+        $aRow = DB::select($sql, [$id]);
+        $OrderBalance = (float)($aRow[0]->OrderBalance ?? 0);
 
-		if($gtext['currency_position'] == 'left'){
-			$datalist['CurrentBalance'] = $gtext['currency_icon'].NumberFormat($OrderWithdrawalBalance);
-			$datalist['OrderBalance'] = $gtext['currency_icon'].NumberFormat($OrderBalance);
-			$datalist['WithdrawalBalance'] = $gtext['currency_icon'].NumberFormat($WithdrawalBalance);
-		}else{
-			$datalist['CurrentBalance'] = NumberFormat($OrderWithdrawalBalance).$gtext['currency_icon'];
-			$datalist['OrderBalance'] = NumberFormat($OrderBalance).$gtext['currency_icon'];
-			$datalist['WithdrawalBalance'] = NumberFormat($WithdrawalBalance).$gtext['currency_icon'];
-		}
+        $sql1 = "
+        SELECT (IFNULL(SUM(amount), 0) + IFNULL(SUM(fee_amount), 0)) AS WithdrawalBalance
+        FROM withdrawals
+        WHERE seller_id = ?
+          AND status_id = 3
+    ";
+        $aRow1 = DB::select($sql1, [$id]);
+        $WithdrawalBalance = (float)($aRow1[0]->WithdrawalBalance ?? 0);
 
-		$sql2 = "SELECT COUNT(id) AS TotalProducts
-		FROM products
-		WHERE user_id = '".$id."'
-		AND is_publish = 1
-		AND lan = '".$lan."';";
-		$aRow2 = DB::select($sql2);
-		$datalist['TotalProducts'] = $aRow2[0]->TotalProducts;
+        $OrderWithdrawalBalance = $OrderBalance - $WithdrawalBalance;
 
-		return response()->json($datalist);
-	}
+        if ($gtext['currency_position'] == 'left') {
+            $datalist['CurrentBalance']    = $gtext['currency_icon'] . NumberFormat($OrderWithdrawalBalance);
+            $datalist['OrderBalance']      = $gtext['currency_icon'] . NumberFormat($OrderBalance);
+            $datalist['WithdrawalBalance'] = $gtext['currency_icon'] . NumberFormat($WithdrawalBalance);
+        } else {
+            $datalist['CurrentBalance']    = NumberFormat($OrderWithdrawalBalance) . $gtext['currency_icon'];
+            $datalist['OrderBalance']      = NumberFormat($OrderBalance) . $gtext['currency_icon'];
+            $datalist['WithdrawalBalance'] = NumberFormat($WithdrawalBalance) . $gtext['currency_icon'];
+        }
+
+        $sql2 = "
+        SELECT COUNT(id) AS TotalProducts
+        FROM products
+        WHERE user_id   = ?
+          AND is_publish = 1
+          AND lan        = ?
+    ";
+        $aRow2 = DB::select($sql2, [$id, $lan]);
+        $datalist['TotalProducts'] = (int)($aRow2[0]->TotalProducts ?? 0);
+
+        // ---- Subscription / Package (NEW) ----
+        // latest active subscription for this user
+        $sub = DB::select("
+        SELECT s.id, s.package_id, s.billing_cycle, s.price, s.currency, s.status,
+               s.starts_at, s.expires_at, p.name AS package_name
+        FROM user_subscriptions s
+        JOIN packages p ON p.id = s.package_id
+        WHERE s.user_id = ?
+          AND s.status = 'active'
+        ORDER BY s.starts_at DESC
+        LIMIT 1
+    ", [$id]);
+
+        if (!empty($sub)) {
+            $s = $sub[0];
+
+            // format price using the subscription’s currency (not the site currency)
+            $formattedPrice = NumberFormat((float)$s->price);
+            $priceOut = $s->currency === 'KES'
+                ? ($gtext['currency_position'] == 'left'
+                    ? $gtext['currency_icon'] . $formattedPrice
+                    : $formattedPrice . $gtext['currency_icon'])
+                : ($s->currency . ' ' . $formattedPrice);
+
+            $datalist['package'] = [
+                'name'          => $s->package_name,
+                'billing_cycle' => $s->billing_cycle,
+                'price'         => $priceOut,
+                'currency'      => $s->currency,
+                'status'        => $s->status,
+                'starts_at'     => $s->starts_at,
+                'expires_at'    => $s->expires_at,
+            ];
+        } else {
+            // Optional: fallback to most recent (any status) if you want
+            // or leave as nulls to signal “no active subscription”.
+        }
+        $wallets = DB::table('wallets')
+            ->where('user_id', $id)
+            ->orderByDesc('is_system_wallet')   // system/primary first if you want
+            ->orderBy('id')
+            ->get();
+
+        $formatMoney = function($amount, $currency) use ($gtext) {
+            $amount = NumberFormat((float)$amount);
+            return $gtext['currency_position'] == 'left'
+                ? ($currency ?: $gtext['currency_icon']).$amount
+                : $amount.($currency ?: $gtext['currency_icon']);
+        };
+
+        $payloadWallets = [];
+        foreach ($wallets as $w) {
+            $payloadWallets[] = [
+                'id'             => $w->id,
+                'wallet_name'    => $w->wallet_name,
+                'account_number' => $w->account_number,
+                'wallet_type'    => $w->wallet_type,
+                'balance'        => $formatMoney($w->balance, $w->currency),
+                'raw_balance'    => (float)$w->balance,
+                'currency'       => $w->currency,
+                'wallet_limit'   => isset($w->wallet_limit) ? $formatMoney($w->wallet_limit, $w->currency) : null,
+                'is_system_wallet' => (int)$w->is_system_wallet,
+            ];
+        }
+
+        $datalist['wallets'] = $payloadWallets;
+
+        return response()->json($datalist);
+    }
+
 
 	//Delete data for Sellers
 	public function deleteSeller(Request $request){
@@ -596,6 +754,16 @@ class SellerController extends Controller
 		$id = $request->id;
 
 		if($id != ''){
+            $response = User::where('id', $id)->update(['status_id' => 3]);
+
+            if ($response) {
+                $res['msgType'] = 'success';
+                $res['msg'] = __('User deactivated successfully');
+            } else {
+                $res['msgType'] = 'error';
+                $res['msg'] = __('Failed to deactivate user');
+            }
+            return response()->json($res);
 
 			$aRows = Product::where('user_id', $id)->get();
 			$idsArray = array();

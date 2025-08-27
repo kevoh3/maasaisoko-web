@@ -12,6 +12,25 @@
 		<li><a href="{{ route('backend.page') }}"><i class="fa fa-clipboard"></i>{{ __('Pages') }}</a></li>
 		<li><a href="{{ route('backend.orders') }}" id="select_orders"><i class="fa fa-rocket"></i>{{ __('Orders') }}</a></li>
 		<li class="dnone"><a href="{{ route('backend.transactions') }}"><i class="fa fa-credit-card"></i>{{ __('Transactions') }}</a></li>
+            <li class="dropdown">
+                <a class="nav-link has-dropdown" href="#" data-toggle="dropdown">
+                    <i class="fa fa-calculator"></i>{{ __('Accounting') }}
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ route('backend.coa') }}"><i class="fa fa-sitemap"></i> {{ __('Chart of Accounts') }}</a></li>
+                    <li><a href="{{ route('backend.ledgers') }}"><i class="fa fa-book"></i> {{ __('Ledgers') }}</a></li>
+                    <li><a href="{{ route('backend.journal-entries') }}"><i class="fa fa-pencil"></i> {{ __('Journal Entries') }}</a></li>
+                    <li><a href="{{ route('backend.bank-accounts') }}"><i class="fa fa-university"></i> {{ __('Bank Accounts') }}</a></li>
+                    <li><a href="{{ route('backend.wallets') }}"><i class="fa fa-credit-card"></i> {{ __('Wallets') }}</a></li>
+{{--                    <li><a href="{{ route('backend.receipts-payments') }}"><i class="fa fa-exchange"></i> {{ __('Receipts & Payments') }}</a></li>--}}
+{{--                    <li><a href="{{ route('backend.reconcile') }}"><i class="fa fa-balance-scale"></i> {{ __('Reconciliation') }}</a></li>--}}
+{{--                    <li class="divider"></li>--}}
+{{--                    <li><a href="{{ route('backend.trial-balance') }}"><i class="fa fa-table"></i> {{ __('Trial Balance') }}</a></li>--}}
+{{--                    <li><a href="{{ route('backend.income-statement') }}"><i class="fa fa-line-chart"></i> {{ __('Income Statement') }}</a></li>--}}
+{{--                    <li><a href="{{ route('backend.balance-sheet') }}"><i class="fa fa-bar-chart"></i> {{ __('Balance Sheet') }}</a></li>--}}
+{{--                    <li><a href="{{ route('backend.tax-reports') }}"><i class="fa fa-percent"></i> {{ __('Tax Reports') }}</a></li>--}}
+                </ul>
+            </li>
 		<li class="dropdown"><a class="nav-link has-dropdown" href="#" data-toggle="dropdown"><i class="fa fa-shopping-cart"></i>{{ __('eCommerce') }}</a>
 			<ul class="dropdown-menu">
 				<li><a href="{{ route('backend.products') }}">{{ __('Products') }}</a></li>
