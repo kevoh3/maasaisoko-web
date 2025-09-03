@@ -45,7 +45,7 @@
 							<li><a href="{{ route('frontend.login') }}"><i class="bi bi-person"></i>{{ __('Sign in') }}</a></li>
 							@endif
 							@endauth
-							
+
 							@if($gtext['is_language_switcher'] == 1)
 							<li>
 								@php echo language(); @endphp
@@ -56,7 +56,7 @@
 				</div>
 			</div>
 		</div><!--/Top Header/-->
-		
+
 		<!--Desktop Header-->
 		<div class="header-desktop">
 			<div class="container">
@@ -106,11 +106,11 @@
 										</div>
 										<h3>{{ __('Your cart is empty!') }}</h3>
 									</div>
-									
+
 									<div class="shoping-cart-body has_cart_item">
 										<ul class="cart_list" id="tp_cart_data"></ul>
 									</div>
-									
+
 									<div class="shoping-cart-footer has_cart_item">
 										<p>{{ __('Subtotal') }}<span class="sub_total">0</span></p>
 										<p>{{ __('Tax') }}<span class="tax">0</span></p>
@@ -118,7 +118,7 @@
 										<a href="{{ route('frontend.cart') }}" class="btn view-cart-btn">{{ __('View Cart') }}</a>
 										<a href="{{ route('frontend.checkout') }}" class="btn checkout-btn">{{ __('Checkout') }}</a>
 									</div>
-									
+
 								</div>
 							</li>
 						</ul>
@@ -126,7 +126,7 @@
 				</div>
 			</div>
 		</div><!--/Desktop Header/-->
-		
+
 		<!--Mobile Header-->
 		<div class="header-mobile" id="sticky-header">
 			<div class="container">
@@ -164,18 +164,18 @@
 											<span class="cart_count total_qty">0</span>
 										</a>
 										<div class="shoping-cart-card headerShopingCart">
-											
+
 											<div class="empty_card has_item_empty">
 												<div class="empty_img">
 													<img src="{{ asset('public/frontend/images/empty.png') }}" />
 												</div>
 												<h3>{{ __('Your cart is empty!') }}</h3>
 											</div>
-											
+
 											<div class="shoping-cart-body has_cart_item">
 												<ul class="cart_list" id="tp_cart_data_for_mobile"></ul>
 											</div>
-											
+
 											<div class="shoping-cart-footer has_cart_item">
 												<p>{{ __('Subtotal') }}<span class="sub_total">0</span></p>
 												<p>{{ __('Tax') }}<span class="tax">0</span></p>
@@ -192,23 +192,23 @@
 				</div>
 			</div>
 		</div><!--/Mobile Header/-->
-		
+
 		<!--Menu-->
 		<div class="header-menu" id="sticky-menu">
 			<div class="container">
 				<div class="row">
-					<div class="col-lg-3">
-						<ul class="categories-wrap">
-							<li>
-								<a class="navCategoryListActive" href="javascript:void(0);">{{ __('Browse Categories') }}</a>
-								<ul class="nav-category-list">
-									@php echo CategoryMenuList(); @endphp
-									<li><a href="javascript:void(0);" class="btn cat-more-btn catMoreBtnActive"><span class="onCatMoreBtn">{{ __('Show More') }}</span></a></li>
-								</ul>
-							</li>
-						</ul>
-					</div>
-					<div class="col-lg-9">
+{{--					<div class="col-lg-3">--}}
+{{--						<ul class="categories-wrap">--}}
+{{--							<li>--}}
+{{--								<a class="navCategoryListActive" href="javascript:void(0);">{{ __('Browse Categories') }}</a>--}}
+{{--								<ul class="nav-category-list">--}}
+{{--									@php echo CategoryMenuList(); @endphp--}}
+{{--									<li><a href="javascript:void(0);" class="btn cat-more-btn catMoreBtnActive"><span class="onCatMoreBtn">{{ __('Show More') }}</span></a></li>--}}
+{{--								</ul>--}}
+{{--							</li>--}}
+{{--						</ul>--}}
+{{--					</div>--}}
+					<div class="col-lg-12">
 						<div class="tp-mega-full">
 							<div class="tp-menu align-self-center">
 								<nav>
@@ -237,7 +237,7 @@
 				<form method="GET" action="{{ route('frontend.search') }}">
 					<input name="search" type="text" class="form-control" placeholder="{{ __('Search for Products') }}..." required />
 					<button type="submit" class="btn theme-btn"><i class="bi bi-search"></i>{{ __('Search') }}</button>
-				</form>	
+				</form>
 			</div>
 			<div class="mobile-navigation">
 				<nav>
