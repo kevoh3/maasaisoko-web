@@ -58,6 +58,14 @@ Route::get('/frontend/add_to_wishlist/{id}', [App\Http\Controllers\Frontend\Cart
 Route::get('/wishlist', [App\Http\Controllers\Frontend\CartController::class, 'getWishlist'])->name('frontend.wishlist');
 Route::get('/frontend/remove_to_wishlist/{rowid}', [App\Http\Controllers\Frontend\CartController::class, 'RemoveToWishlist'])->name('frontend.remove_to_wishlist');
 Route::get('/frontend/count_wishlist', [App\Http\Controllers\Frontend\CartController::class, 'countWishlist'])->name('frontend.countWishlist');
+//addationalcart
+/// Quantity controls
+Route::get('/frontend/decrease_to_cart/{rowid}', [App\Http\Controllers\Frontend\CartController::class, 'DecreaseToCart'])->name('frontend.decrease_to_cart');
+Route::get('/frontend/increase_to_cart/{rowid}', [App\Http\Controllers\Frontend\CartController::class, 'IncreaseToCart'])->name('frontend.increase_to_cart');
+Route::get('/frontend/update_cart_qty/{rowid}/{qty}', [App\Http\Controllers\Frontend\CartController::class, 'UpdateCartQty'])->name('frontend.update_cart_qty');
+// Move one wishlist item to cart (qty optional, defaults to 1)
+Route::get('/frontend/move_wishlist_to_cart/{id}/{qty?}', [App\Http\Controllers\Frontend\CartController::class, 'MoveWishlistToCart'])->name('frontend.move_wishlist_to_cart');
+
 
 //Customer Authentication
 Route::get('/user/login', [App\Http\Controllers\Backend\CustomerAuthController::class, 'LoadLogin'])->name('frontend.login');

@@ -19,7 +19,7 @@ class CartController extends Controller
 
 		$quantity = $qty == 0 ? 1 : $qty;
 		$cart = session()->get('shopping_cart', []);
-		
+
 		if(isset($cart[$id])){
 			$cart[$id]['qty'] = $cart[$id]['qty'] + $quantity;
 		}else{
@@ -46,10 +46,10 @@ class CartController extends Controller
 
 		$res['msgType'] = 'success';
 		$res['msg'] = __('New Data Added Successfully');
-		
+
 		return response()->json($res);
 	}
-	
+
 	//Add to Cart
 	public function ViewCart(){
 		$gtext = gtext();
@@ -69,13 +69,13 @@ class CartController extends Controller
 				$count += $row['qty'];
 				$Total_Price += $row['price']*$row['qty'];
 				$Sub_Total += $row['price']*$row['qty'];
-				
+
 				if($gtext['currency_position'] == 'left'){
-					$price = '<span id="product-quatity">'.$row['qty'].'</span> x '.$gtext['currency_icon'].$row['price']; 
+					$price = '<span id="product-quatity">'.$row['qty'].'</span> x '.$gtext['currency_icon'].$row['price'];
 				}else{
-					$price = '<span id="product-quatity">'.$row['qty'].'</span> x '.$row['price'].$gtext['currency_icon']; 
+					$price = '<span id="product-quatity">'.$row['qty'].'</span> x '.$row['price'].$gtext['currency_icon'];
 				}
-			
+
 				$items .= '<li>
 							<div class="cart-item-card">
 								<a data-id="'.$row['id'].'" id="removetocart_'.$row['id'].'" onclick="onRemoveToCart('.$row['id'].')" href="javascript:void(0);" class="item-remove"><i class="bi bi-x"></i></a>
@@ -90,17 +90,17 @@ class CartController extends Controller
 						</li>';
 			}
 		}
-		
+
 		$TotalPrice = NumberFormat($Total_Price);
 		$SubTotal = NumberFormat($Sub_Total);
-		
+
 		$TaxCal = ($Total_Price*$taxRate)/100;
 		$tax = NumberFormat($TaxCal);
-		
+
 		$total = $Sub_Total+$TaxCal;
 		$GrandTotal = NumberFormat($total);
 		$discount = 0;
-		
+
 		$datalist = array();
 		$datalist['items'] = $items;
 		$datalist['total_qty'] = $count;
@@ -118,7 +118,7 @@ class CartController extends Controller
 
 		return response()->json($datalist);
 	}
-	
+
 	//Remove to Cart
 	public function RemoveToCart($rowid){
 		$res = array();
@@ -131,28 +131,28 @@ class CartController extends Controller
 
 		$res['msgType'] = 'success';
 		$res['msg'] = __('Data Removed Successfully');
-		
+
 		return response()->json($res);
 	}
-	
+
     //get Cart
     public function getCart(){
         return view('frontend.cart');
     }
-	
+
     //get Cart
     public function getViewCartData(){
 		$gtext = gtext();
 		$gtax = getTax();
 		$taxRate = $gtax['percentage'];
-		
+
 		$ShoppingCartData = session()->get('shopping_cart');
 		$count = 0;
 		$Total_Price = 0;
 		$Sub_Total = 0;
 		$tax = 0;
 		$total = 0;
-		
+
 		if(session()->get('shopping_cart')){
 			foreach ($ShoppingCartData as $row) {
 				$count += $row['qty'];
@@ -160,17 +160,25 @@ class CartController extends Controller
 				$Sub_Total += $row['price']*$row['qty'];
 			}
 		}
-		
-		$TotalPrice = NumberFormat($Total_Price);
-		$SubTotal = NumberFormat($Sub_Total);
-		
-		$TaxCal = ($Total_Price*$taxRate)/100;
+/////////////
+// inside getViewCartData()
+        $TotalPrice = NumberFormat($Total_Price);
+        $SubTotal   = NumberFormat($Sub_Total);
+
+        $TaxCal = ($Total_Price * $taxRate) / 100;
+        $total  = $Sub_Total + $TaxCal; // ← use numeric $Sub_Total, not formatted $SubTotal
+        $GrandTotal = NumberFormat($total);
+/// ////
+		//$TotalPrice = NumberFormat($Total_Price);
+		//$SubTotal = NumberFormat($Sub_Total);
+
+		//$TaxCal = ($Total_Price*$taxRate)/100;
 		$tax = NumberFormat($TaxCal);
-		
-		$total = $SubTotal+$TaxCal;
+
+		//$total = $SubTotal+$TaxCal;
 		$GrandTotal = NumberFormat($total);
 		$discount = 0;
-		
+
 		$datalist = array();
 		$datalist['total_qty'] = $count;
 		if($gtext['currency_position'] == 'left'){
@@ -189,17 +197,17 @@ class CartController extends Controller
 
 		return response()->json($datalist);
     }
-	
+
 	//Add to Wishlist
 	public function addToWishlist($id){
 
 		$res = array();
 		$datalist = Product::where('id', $id)->first();
 		$user = User::where('id', $datalist['user_id'])->first();
-		
+
 		$quantity = 1;
 		$cart = session()->get('shopping_wishlist', []);
-		
+
 		if(isset($cart[$id])){
 			$cart[$id]['qty'] = $quantity;
 		}else{
@@ -225,19 +233,19 @@ class CartController extends Controller
 
 		$res['msgType'] = 'success';
 		$res['msg'] = __('New Data Added Successfully');
-		
+
 		return response()->json($res);
 	}
-	
+
     //get Wishlist
     public function getWishlist(){
 		return view('frontend.wishlist');
 	}
-	
+
 	//Remove to Wishlist
 	public function RemoveToWishlist($rowid){
 		$res = array();
-		
+
 		$cart = session()->get('shopping_wishlist');
 		if(isset($cart[$rowid])){
 			unset($cart[$rowid]);
@@ -246,10 +254,10 @@ class CartController extends Controller
 
 		$res['msgType'] = 'success';
 		$res['msg'] = __('Data Removed Successfully');
-		
+
 		return response()->json($res);
 	}
-	
+
 	//Count to Wishlist
 	public function countWishlist(){
 
@@ -260,7 +268,101 @@ class CartController extends Controller
 				$count++;
 			}
 		}
-		
+
 		return response()->json($count);
 	}
+    // -1 a single unit (remove line only if it would hit 0)
+    public function DecreaseToCart($rowid)
+    {
+        $cart = session()->get('shopping_cart', []);
+
+        if (!isset($cart[$rowid])) {
+            return response()->json(['msgType'=>'error','msg'=>__('Item not found in cart.')], 404);
+        }
+
+        $qty = (int)($cart[$rowid]['qty'] ?? 1);
+        if ($qty > 1) {
+            $cart[$rowid]['qty'] = $qty - 1;
+            $msg = __('Quantity updated.');
+        } else {
+            unset($cart[$rowid]);
+            $msg = __('Item removed from cart.');
+        }
+
+        session()->put('shopping_cart', $cart);
+        return response()->json(['msgType'=>'success','msg'=>$msg]);
+    }
+
+// +1 a single unit (reuses your AddToCart to keep behavior consistent)
+    public function IncreaseToCart($rowid)
+    {
+        return $this->AddToCart($rowid, 1);
+    }
+
+// Set exact qty (>=1)
+    public function UpdateCartQty($rowid, $qty)
+    {
+        $qty = (int)$qty;
+        if ($qty < 1) {
+            return response()->json(['msgType'=>'error','msg'=>__('Quantity must be at least 1.')], 422);
+        }
+
+        $cart = session()->get('shopping_cart', []);
+        if (!isset($cart[$rowid])) {
+            return response()->json(['msgType'=>'error','msg'=>__('Item not found in cart.')], 404);
+        }
+
+        $cart[$rowid]['qty'] = $qty;
+        session()->put('shopping_cart', $cart);
+
+        return response()->json(['msgType'=>'success','msg'=>__('Quantity updated.')]);
+    }
+    public function MoveWishlistToCart($id, $qty = 1)
+    {
+        $qty = max(1, (int)$qty);
+
+        $datalist = Product::where('id', $id)->first();
+        if (!$datalist) {
+            return response()->json(['msgType'=>'error','msg'=>__('Product not found')], 404);
+        }
+        $user = User::where('id', $datalist['user_id'])->first();
+
+        // Add to cart
+        $cart = session()->get('shopping_cart', []);
+        if (isset($cart[$id])) {
+            $cart[$id]['qty'] = (int)$cart[$id]['qty'] + $qty;
+        } else {
+            $cart[$id] = [
+                "id"            => $datalist['id'],
+                "name"          => $datalist['title'],
+                "qty"           => $qty,
+                "price"         => $datalist['sale_price'],
+                "weight"        => 0,
+                "thumbnail"     => $datalist['f_thumbnail'],
+                "unit"          => $datalist['variation_size'],
+                "seller_id"     => $datalist['user_id'],
+                "seller_name"   => $user['name'] ?? '',
+                "store_name"    => $user['shop_name'] ?? '',
+                "store_logo"    => $user['photo'] ?? '',
+                "store_url"     => $user['shop_url'] ?? '',
+                "seller_email"  => $user['email'] ?? '',
+                "seller_phone"  => $user['phone'] ?? '',
+                "seller_address"=> $user['address'] ?? '',
+            ];
+        }
+        session()->put('shopping_cart', $cart);
+
+        // Remove just this item from wishlist
+        $wl = session()->get('shopping_wishlist', []);
+        if (isset($wl[$id])) {
+            unset($wl[$id]);
+            session()->put('shopping_wishlist', $wl);
+        }
+
+        return response()->json([
+            'msgType' => 'success',
+            'msg'     => __('Moved to cart.'),
+        ]);
+    }
+
 }

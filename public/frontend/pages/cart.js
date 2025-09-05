@@ -8,10 +8,10 @@ $(function () {
 			'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 		}
 	});
-	
+
 	onViewCart();
 	onWishlist();
-	
+
 	$(document).on("click", ".product_addtocart", function(event) {
 		event.preventDefault();
 
@@ -34,7 +34,7 @@ $(function () {
 				return;
 			}
 		}
-		
+
 		$.ajax({
 			type : 'GET',
 			url: base_url + '/frontend/add_to_cart/'+id+'/'+qty,
@@ -52,13 +52,13 @@ $(function () {
 			}
 		});
     });
-	
+
 	$(document).on("click", ".product_buy_now", function(event) {
 		event.preventDefault();
 
 		var id = $(this).data('id');
 		var qty = $("#quantity").val();
-		
+
 		if((qty == undefined) || (qty == '') || (qty <= 0)){
 			onErrorMsg(TEXT['Please enter quantity.']);
 			return;
@@ -75,7 +75,7 @@ $(function () {
 				return;
 			}
 		}
-		
+
 		$.ajax({
 			type : 'GET',
 			url: base_url + '/frontend/add_to_cart/'+id+'/'+qty,
@@ -94,10 +94,10 @@ $(function () {
 			}
 		});
     });
-	
+
 	$(document).on("click", ".addtocart", function(event) {
 		event.preventDefault();
-		
+
 		var id = $(this).data('id');
 		var qty = 0;
 		$.ajax({
@@ -116,11 +116,11 @@ $(function () {
 				onViewCart();
 			}
 		});
-    });	
-	
+    });
+
 	$(document).on("click", ".addtowishlist", function(event) {
 		event.preventDefault();
-		
+
 		var id = $(this).data('id');
 
 		$.ajax({
@@ -139,7 +139,7 @@ $(function () {
 				onWishlist();
 			}
 		});
-    });	
+    });
 });
 
 function onViewCart() {
@@ -156,10 +156,10 @@ function onViewCart() {
 			}else{
 				$(".has_item_empty").hide();
 				$(".has_cart_item").show();
-				
+
 				$('#tp_cart_data').html(data.items);
 				$('#tp_cart_data_for_mobile').html(data.items);
-				
+
 				$(".total_qty").text(data.total_qty);
 				$(".sub_total").text(data.sub_total);
 				$(".tax").text(data.tax);
@@ -177,7 +177,7 @@ function onRemoveToCart(id) {
 		url: base_url + '/frontend/remove_to_cart/'+rowid,
 		dataType:"json",
 		success: function (response) {
-			
+
 			var msgType = response.msgType;
 			var msg = response.msg;
 
@@ -186,7 +186,7 @@ function onRemoveToCart(id) {
 			} else {
 				onErrorMsg(msg);
 			}
-			
+
 			onViewCart();
 		}
 	});
@@ -202,4 +202,42 @@ function onWishlist() {
 			$(".count_wishlist").text(data);
 		}
 	});
+}
+function onDecreaseQty(id) {
+    $.ajax({
+        type: 'GET',
+        url: base_url + '/frontend/decrease_to_cart/' + id,
+        dataType: 'json',
+        success: function (res) {
+            if (res.msgType === 'success') onSuccessMsg(res.msg); else onErrorMsg(res.msg);
+            onViewCart(); // refresh mini-cart html + totals
+        }
+    });
+}
+
+function onIncreaseQty(id) {
+    $.ajax({
+        type: 'GET',
+        url: base_url + '/frontend/increase_to_cart/' + id,
+        dataType: 'json',
+        success: function (res) {
+            if (res.msgType === 'success') onSuccessMsg(res.msg); else onErrorMsg(res.msg);
+            onViewCart();
+        }
+    });
+}
+
+// Optional: set exact quantity from an <input>
+function onSetQty(id, qty) {
+    qty = parseInt(qty, 10);
+    if (!qty || qty < 1) { onErrorMsg(TEXT['Please enter quantity.']); return; }
+    $.ajax({
+        type: 'GET',
+        url: base_url + '/frontend/update_cart_qty/' + id + '/' + qty,
+        dataType: 'json',
+        success: function (res) {
+            if (res.msgType === 'success') onSuccessMsg(res.msg); else onErrorMsg(res.msg);
+            onViewCart();
+        }
+    });
 }
