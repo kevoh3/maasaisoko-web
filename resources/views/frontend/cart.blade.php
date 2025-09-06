@@ -118,26 +118,48 @@
                                             </td>
 
                                             <!-- Quantity controls -->
+{{--                                            <td class="text-center pro-quantity-w" data-title="{{ __('Quantity') }}:">--}}
+{{--                                                <div class="d-inline-flex align-items-center gap-1 qty-control">--}}
+{{--                                                    <button type="button"--}}
+{{--                                                            class="btn btn-sm btn-outline-secondary"--}}
+{{--                                                            aria-label="Decrease"--}}
+{{--                                                            onclick="onDecreaseQty({{ $row['id'] }}); setTimeout(function(){ window.location.reload(); }, 250);">−</button>--}}
+
+{{--                                                    <input type="number"--}}
+{{--                                                           class="form-control form-control-sm"--}}
+{{--                                                           value="{{ $pro_qty }}"--}}
+{{--                                                           min="1"--}}
+{{--                                                           step="1"--}}
+{{--                                                           style="width:80px;text-align:center;"--}}
+{{--                                                           onchange="onSetQty2({{ $row['id'] }}, this.value); setTimeout(function(){ window.location.reload(); }, 250);"--}}
+{{--                                                           oninput="this.value = this.value.replace(/[^0-9]/g,'');" />--}}
+
+{{--                                                    <button type="button"--}}
+{{--                                                            class="btn btn-sm btn-outline-secondary"--}}
+{{--                                                            aria-label="Increase"--}}
+{{--                                                            onclick="onIncreaseQty2({{ $row['id'] }}); setTimeout(function(){ window.location.reload(); }, 250);">+</button>--}}
+{{--                                                </div>--}}
+{{--                                            </td>--}}
                                             <td class="text-center pro-quantity-w" data-title="{{ __('Quantity') }}:">
                                                 <div class="d-inline-flex align-items-center gap-1 qty-control">
                                                     <button type="button"
                                                             class="btn btn-sm btn-outline-secondary"
                                                             aria-label="Decrease"
-                                                            onclick="onDecreaseQty({{ $row['id'] }}); setTimeout(function(){ window.location.reload(); }, 250);">−</button>
+                                                            onclick="onDecreaseQty({{ $row['id'] }})">−</button>
 
                                                     <input type="number"
                                                            class="form-control form-control-sm"
-                                                           value="{{ $pro_qty }}"
+                                                           value="{{ (int)$row['qty'] }}"
                                                            min="1"
                                                            step="1"
                                                            style="width:80px;text-align:center;"
-                                                           onchange="onSetQty2({{ $row['id'] }}, this.value); setTimeout(function(){ window.location.reload(); }, 250);"
+                                                           onchange="onSetQty2({{ $row['id'] }}, this.value)"
                                                            oninput="this.value = this.value.replace(/[^0-9]/g,'');" />
 
                                                     <button type="button"
                                                             class="btn btn-sm btn-outline-secondary"
                                                             aria-label="Increase"
-                                                            onclick="onIncreaseQty2({{ $row['id'] }}); setTimeout(function(){ window.location.reload(); }, 250);">+</button>
+                                                            onclick="onIncreaseQty2({{ $row['id'] }})">+</button>
                                                 </div>
                                             </td>
 

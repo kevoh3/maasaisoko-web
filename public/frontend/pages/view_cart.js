@@ -12,6 +12,20 @@ $(function () {
 });
 
 /** ---------- Totals (right column) ---------- */
+// function onViewCartData() {
+//     $.ajax({
+//         type: 'GET',
+//         url: base_url + '/frontend/viewcart_data',
+//         dataType: 'json',
+//         success: function (data) {
+//             $(".viewcart_price_total").text(data.price_total);
+//             $(".viewcart_discount").text?.(data.discount); // in case exists
+//             $(".viewcart_tax").text(data.tax);
+//             $(".viewcart_sub_total").text(data.sub_total);
+//             $(".viewcart_total").text(data.total);
+//         }
+//     });
+// }
 function onViewCartData() {
     $.ajax({
         type: 'GET',
@@ -19,14 +33,15 @@ function onViewCartData() {
         dataType: 'json',
         success: function (data) {
             $(".viewcart_price_total").text(data.price_total);
-            $(".viewcart_discount").text?.(data.discount); // in case exists
+            if ($(".viewcart_discount").length) {
+                $(".viewcart_discount").text(data.discount);
+            }
             $(".viewcart_tax").text(data.tax);
             $(".viewcart_sub_total").text(data.sub_total);
             $(".viewcart_total").text(data.total);
         }
     });
 }
-
 /** ---------- Helpers (line total & inputs) ---------- */
 function _qtyInput(id) {
     // Find the qty <input> in this row
