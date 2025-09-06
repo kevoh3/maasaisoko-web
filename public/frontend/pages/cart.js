@@ -227,6 +227,7 @@ function onIncreaseQty(id) {
     });
 }
 
+
 // Optional: set exact quantity from an <input>
 function onSetQty(id, qty) {
     qty = parseInt(qty, 10);

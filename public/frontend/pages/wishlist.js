@@ -12,6 +12,7 @@ function wlQty(id){
     return (v && v > 0) ? v : 1;
 }
 
+
 function onRemoveToWishlist(id) {
     var rowid = $("#removetowishlist_"+id).data('id');
 

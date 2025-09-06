@@ -96,6 +96,7 @@ $(function () {
 
     });
 
+
     $(".shipping_method").on("click", function () {
 		var totalWithComma = $(this).data('total');
 		var shipping_fee = $(this).data('shippingfee');

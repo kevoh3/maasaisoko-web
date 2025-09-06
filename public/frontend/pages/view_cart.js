@@ -8,9 +8,10 @@ $(function () {
 			'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 		}
 	});
-	
+
 	onViewCartData();
 });
+
 
 function onViewCartData() {
 
@@ -37,7 +38,7 @@ function onRemoveToCart(id) {
 		url: base_url + '/frontend/remove_to_cart/'+rowid,
 		dataType:"json",
 		success: function (response) {
-			
+
 			var msgType = response.msgType;
 			var msg = response.msg;
 
@@ -47,7 +48,7 @@ function onRemoveToCart(id) {
 			} else {
 				onErrorMsg(msg);
 			}
-			
+
 			onViewCartData();
 			onViewCart();
 		}
