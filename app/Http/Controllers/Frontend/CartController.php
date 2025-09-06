@@ -193,7 +193,6 @@ class CartController extends Controller
 			$datalist['total'] = $GrandTotal.$gtext['currency_icon'];
 			$datalist['discount'] = $discount.$gtext['currency_icon'];
 		}
-
 		return response()->json($datalist);
     }
 

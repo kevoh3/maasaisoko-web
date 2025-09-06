@@ -131,13 +131,13 @@
                                                            min="1"
                                                            step="1"
                                                            style="width:80px;text-align:center;"
-                                                           onchange="onSetQty({{ $row['id'] }}, this.value); setTimeout(function(){ window.location.reload(); }, 250);"
+                                                           onchange="onSetQty2({{ $row['id'] }}, this.value); setTimeout(function(){ window.location.reload(); }, 250);"
                                                            oninput="this.value = this.value.replace(/[^0-9]/g,'');" />
 
                                                     <button type="button"
                                                             class="btn btn-sm btn-outline-secondary"
                                                             aria-label="Increase"
-                                                            onclick="onIncreaseQty({{ $row['id'] }}); setTimeout(function(){ window.location.reload(); }, 250);">+</button>
+                                                            onclick="onIncreaseQty2({{ $row['id'] }}); setTimeout(function(){ window.location.reload(); }, 250);">+</button>
                                                 </div>
                                             </td>
 
@@ -195,6 +195,5 @@
 @endsection
 
 @push('scripts')
-
     <script src="{{ asset('public/frontend/pages/view_cart.js') }}"></script>
 @endpush

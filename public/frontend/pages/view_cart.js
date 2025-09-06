@@ -103,7 +103,7 @@ function onDecreaseQty(id) {
     });
 }
 
-function onIncreaseQty(id) {
+function onIncreaseQty2(id) {
     $.ajax({
         type: 'GET',
         url: base_url + '/frontend/increase_to_cart/' + id,
@@ -128,7 +128,7 @@ function onIncreaseQty(id) {
 }
 
 // Set exact quantity from an <input>
-function onSetQty(id, qty) {
+function onSetQty2(id, qty) {
     qty = parseInt(qty, 10);
     if (!qty || qty < 1) {
         onErrorMsg(TEXT['Please enter quantity.']);
