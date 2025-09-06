@@ -30,11 +30,9 @@
     <meta name="twitter:description" content="{{ $gtext['og_description'] }}">
     <meta name="twitter:image" content="{{ asset('public/media/'.$gtext['og_image']) }}">
 @endsection
-
 @section('header')
     @include('frontend.partials.header')
 @endsection
-
 @section('content')
     <main class="main">
         <!-- Page Breadcrumb -->
@@ -195,7 +193,6 @@
     </main>
 
 @endsection
-
 
 @push('scripts')
     <script src="{{ asset('public/frontend/pages/view_cart.js') }}"></script>
