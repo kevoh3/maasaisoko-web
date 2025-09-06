@@ -488,10 +488,8 @@ $tax_rate = $gtax['percentage'];
                                     {{ __('Details:') }}
                                 </button>
                             </div>
-
                             <div id="rateCardBody" class="collapse show">
                                 <div class="card-body">
-
                                     {{-- A) Parcel Delivery within Nairobi --}}
                                     <h6 class="mb-2">{{ __('A. Parcel Delivery within Nairobi') }}</h6>
                                     <div class="table-responsive mb-3">
