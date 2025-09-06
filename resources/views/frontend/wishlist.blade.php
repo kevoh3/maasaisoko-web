@@ -113,7 +113,6 @@
                                                        value="1" min="1" step="1"
                                                        style="width:80px;text-align:center;">
                                             </td>
-
                                             <!-- Actions -->
                                             <td class="text-center" data-title="{{ __('Actions') }}:">
                                                 <div class="d-inline-flex gap-2 flex-wrap justify-content-center">

@@ -195,5 +195,6 @@
 @endsection
 
 @push('scripts')
+
     <script src="{{ asset('public/frontend/pages/view_cart.js') }}"></script>
 @endpush
