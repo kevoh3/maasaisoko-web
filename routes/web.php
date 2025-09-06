@@ -66,7 +66,6 @@ Route::get('/frontend/update_cart_qty/{rowid}/{qty}', [App\Http\Controllers\Fron
 // Move one wishlist item to cart (qty optional, defaults to 1)
 Route::get('/frontend/move_wishlist_to_cart/{id}/{qty?}', [App\Http\Controllers\Frontend\CartController::class, 'MoveWishlistToCart'])->name('frontend.move_wishlist_to_cart');
 
-
 //Customer Authentication
 Route::get('/user/login', [App\Http\Controllers\Backend\CustomerAuthController::class, 'LoadLogin'])->name('frontend.login');
 Route::post('/user/customer-login', [App\Http\Controllers\Backend\CustomerAuthController::class, 'CustomerLogin'])->name('frontend.customer-login');
