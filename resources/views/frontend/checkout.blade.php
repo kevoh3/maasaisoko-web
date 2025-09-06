@@ -469,7 +469,112 @@ $tax_rate = $gtax['percentage'];
 							@endif
 							</div>
 						</div>
-					</div>
+{{--                       rate card for delivery--}}
+                        {{-- Courier / Shipping Services Rate Card (below Order Summary) --}}
+                        @php
+                            $KES = function ($n) use ($gtext) {
+                                $n = NumberFormat($n);
+                                return $gtext['currency_position'] === 'left'
+                                    ? ($gtext['currency_icon'].$n)
+                                    : ($n.$gtext['currency_icon']);
+                            };
+                            $USD = fn($n) => '$'.number_format((float)$n, 2);
+                        @endphp
+
+                        <div class="card mt-3" id="shipping-rate-card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span>{{ __('Courier / Shipping Services Rate Card') }}</span>
+                                <button class="btn theme-btn" type="button" data-bs-toggle="collapse" data-bs-target="#rateCardBody" aria-expanded="true">
+                                    {{ __('Details:') }}
+                                </button>
+                            </div>
+
+                            <div id="rateCardBody" class="collapse show">
+                                <div class="card-body">
+
+                                    {{-- A) Parcel Delivery within Nairobi --}}
+                                    <h6 class="mb-2">{{ __('A. Parcel Delivery within Nairobi') }}</h6>
+                                    <div class="table-responsive mb-3">
+                                        <table class="table table-sm align-middle">
+                                            <thead>
+                                            <tr>
+                                                <th style="width:50%">{{ __('Parcel Weight') }}</th>
+                                                <th class="text-end">{{ __('Cost') }}</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr><td>{{ __('Below 2kg') }}</td><td class="text-end">{{ $KES(250) }}</td></tr>
+                                            <tr><td>{{ __('2kg – 3kg') }}</td><td class="text-end">{{ $KES(350) }}</td></tr>
+                                            <tr><td>{{ __('3kg – 4kg') }}</td><td class="text-end">{{ $KES(450) }}</td></tr>
+                                            <tr><td>{{ __('4kg – 5kg') }}</td><td class="text-end">{{ $KES(550) }}</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="table-responsive mb-3">
+                                        <table class="table table-sm align-middle">
+                                            <thead>
+                                            <tr>
+                                                <th style="width:50%">{{ __('Medium Parcels (5kg–10kg)') }}</th>
+                                                <th class="text-end">{{ __('Cost') }}</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr><td>{{ __('5kg – 6kg') }}</td> <td class="text-end">{{ $KES(650) }}</td></tr>
+                                            <tr><td>{{ __('6kg – 7kg') }}</td> <td class="text-end">{{ $KES(750) }}</td></tr>
+                                            <tr><td>{{ __('7kg – 8kg') }}</td> <td class="text-end">{{ $KES(850) }}</td></tr>
+                                            <tr><td>{{ __('8kg – 9kg') }}</td> <td class="text-end">{{ $KES(950) }}</td></tr>
+                                            <tr><td>{{ __('9kg – 10kg') }}</td><td class="text-end">{{ $KES(1050) }}</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="alert alert-light border mb-3">
+                                        <strong>{{ __('Large Parcels (Over 10kg – 25kg):') }}</strong>
+                                        {{ __('Start at') }} {{ $KES(1050) }} {{ __('(at 10kg) then +') }} {{ $KES(150) }} {{ __('per additional kg up to 25kg.') }}
+                                        <br>
+                                        <small class="text-muted">{{ __('Note: Consult the merchant/seller for items above 10kg with respect to packaging.') }}</small>
+                                    </div>
+
+                                    {{-- B) Outside Nairobi --}}
+                                    <h6 class="mb-2">{{ __('B. Parcel Delivery Outside Nairobi') }}</h6>
+                                    <p class="mb-3">
+                                        {{ __('Add') }} {{ $KES(100) }} {{ __('for every 100 kilometres travelled (rounded up).') }}
+                                    </p>
+
+                                    {{-- C) International Cargo --}}
+                                    <h6 class="mb-2">{{ __('C. International Cargo (Handling)') }}</h6>
+                                    <div class="table-responsive mb-3">
+                                        <table class="table table-sm align-middle">
+                                            <thead>
+                                            <tr>
+                                                <th style="width:50%">{{ __('Parcel Weight') }}</th>
+                                                <th class="text-end">{{ __('Handling (USD)') }}</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr><td>{{ __('Small cargo below 5kg') }}</td>       <td class="text-end">{{ $USD(2) }}</td></tr>
+                                            <tr><td>{{ __('Medium cargo 5kg – 10kg') }}</td>     <td class="text-end">{{ $USD('5.00 – 10.00') }}</td></tr>
+                                            <tr><td>{{ __('Large cargo above 10kg – 25kg') }}</td><td class="text-end">{{ $USD('10.00 – 30.00') }}</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <small class="text-muted d-block mb-3">
+                                        {{ __('Specialized international freight companies will handle cross-border logistics. Handling is charged as above; freight, customs and import taxes are billed separately.') }}
+                                    </small>
+
+                                    {{-- D) Additional factors --}}
+                                    <h6 class="mb-2">{{ __('D. Additional Factors Affecting Rates') }}</h6>
+                                    <ul class="mb-0">
+                                        <li><strong>{{ __('Insurance:') }}</strong> {{ __('Fragile/ high-liability items may require insurance at the buyer’s expense.') }}</li>
+                                        <li><strong>{{ __('Special Services:') }}</strong> {{ __('Express, overnight, gift/special handling may attract extra fees by arrangement with the seller.') }}</li>
+                                        <li><strong>{{ __('Customs & Import Taxes:') }}</strong> {{ __('Not included; payable by the buyer.') }}</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
 				</div>
 			</form>
 		</div>
