@@ -178,6 +178,19 @@ class HomeFrontendController extends Controller
 
 			//Product Category
 			$pro_category = Pro_category::where('is_publish', '=', 1)->where('lan', '=', $lan)->orderBy('id', 'desc')->get();
+            // Category bar data (parents + children-by-parent)
+            $parents = Pro_category::where('is_publish', 1)
+                ->where('lan', $lan)
+                ->where(function ($q) { $q->whereNull('parent_id')->orWhere('parent_id', 0); })
+                ->orderBy('name')
+                ->get();
+
+            $childrenByParent = Pro_category::where('is_publish', 1)
+                ->where('lan', $lan)
+                ->whereIn('parent_id', $parents->pluck('id'))
+                ->orderBy('name')
+                ->get()
+                ->groupBy('parent_id');
 
 			//Offer & Ads - Position 1 (For Homepage 1)
 			$offer_ad_position1 = Offer_ad::where('is_publish', '=', 1)->where('offer_ad_type', '=', 'position1_home1')->orderBy('id', 'desc')->get();
@@ -323,7 +336,8 @@ class HomeFrontendController extends Controller
 			}
 
 		//Home Page 2
-		}elseif($PageVariation['home_variation'] == 'home_2'){
+		}
+        elseif($PageVariation['home_variation'] == 'home_2'){
 			//Home Page Section 1
 			$section1 = Section_manage::where('manage_type', '=', 'home_2')->where('section', '=', 'section_1')->where('is_publish', '=', 1)->first();
 			if($section1 ==''){
@@ -624,7 +638,8 @@ class HomeFrontendController extends Controller
 			}
 
 		//Home Page 3
-		}elseif($PageVariation['home_variation'] == 'home_3'){
+		}
+        elseif($PageVariation['home_variation'] == 'home_3'){
 			//Home Page Section 1
 			$section1 = Section_manage::where('manage_type', '=', 'home_3')->where('section', '=', 'section_1')->where('is_publish', '=', 1)->first();
 			if($section1 ==''){
@@ -1252,7 +1267,8 @@ class HomeFrontendController extends Controller
 			'top_selling',
 			'trending_products',
 			'top_rated',
-			'deals_products'
+			'deals_products','parents',
+            'childrenByParent',
 		));
     }
 }

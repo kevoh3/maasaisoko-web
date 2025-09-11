@@ -3,11 +3,12 @@
 		<thead>
 			<tr>
 				<th class="checkboxlist text-center" style="width:5%"><input class="tp-check-all checkAll" type="checkbox"></th>
-				<th class="text-left" style="width:40%">{{ __('Name') }}</th>
+				<th class="text-left" style="width:30%">{{ __('Name') }}</th>
+				<th class="text-left" style="width:10%">{{ __('Level') }}</th>
 				<th class="text-left" style="width:10%">{{ __('Language') }}</th>
-				<th class="text-center" style="width:10%">{{ __('Image') }} </th>
+				<th class="text-center" style="width:15%">{{ __('Image') }} </th>
 				<th class="text-center" style="width:10%">{{ __('Subheader') }}</th>
-				<th class="text-center" style="width:15%">{{ __('Status') }}</th>
+				<th class="text-center" style="width:10%">{{ __('Status') }}</th>
 				<th class="text-center" style="width:10%">{{ __('Action') }}</th>
 			</tr>
 		</thead>
@@ -15,22 +16,30 @@
 			@if (count($datalist)>0)
 			@foreach($datalist as $row)
 			<tr>
-				<td class="checkboxlist text-center"><input name="item_ids[]" value="{{ $row->id }}" class="tp-checkbox selected_item" type="checkbox"></td> 
-				<td class="text-left">{{ $row->name }}</td> 
-				<td class="text-left">{{ $row->language_name }}</td> 
+				<td class="checkboxlist text-center"><input name="item_ids[]" value="{{ $row->id }}" class="tp-checkbox selected_item" type="checkbox"></td>
+				<td class="text-left">{{ $row->name }}</td>
+                <td>
+                    @if(!empty($row->parent_name))
+                        <small class="text-muted">Child of: {{ $row->parent_name }}</small>
+                    @else
+                        <small class="text-muted">Top level</small>
+                    @endif
+                </td>
+
+				<td class="text-left">{{ $row->language_name }}</td>
 
 				@if ($row->thumbnail != '')
 				<td class="text-center"><div class="table_col_image"><img src="{{ asset('public') }}/media/{{ $row->thumbnail }}" /></div></td>
 				@else
 				<td class="text-center"><div class="table_col_image"><img src="{{ asset('public') }}/backend/images/album_icon.png" /></div></td>
 				@endif
-				
+
 				@if ($row->is_subheader == 1)
 				<td class="text-center"><span class="enable_btn">{{ __('YES') }}</span></td>
 				@else
 				<td class="text-center"><span class="disable_btn">{{ __('NO') }}</span></td>
 				@endif
-				
+
 				@if ($row->is_publish == 1)
 				<td class="text-center"><span class="enable_btn">{{ $row->status }}</span></td>
 				@else

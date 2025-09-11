@@ -39,141 +39,443 @@ class SellerController extends Controller
     {
         $groups=Group::where('status','active')->get();
      //   dd($groups);
-        return view('frontend.seller-register',compact('groups'));
+        // Kenya by default (change if multi-country)
+        $countryId = (int) \App\Models\Country::where('country_name','Kenya')->value('id');
+
+        $countyLevelId = (int) DB::table('geo_levels')
+            ->whereIn('name', ['county','County'])
+            ->value('id');
+
+        $counties = DB::table('geo_units')
+            ->where('country_id', $countryId)
+            ->where('level_id', $countyLevelId)
+            ->orderBy('name')
+            ->get(['id','name']);
+
+        // Use your top-level product categories as "Store Category"
+        $storeCategories = DB::table('pro_categories')
+            ->where('is_publish',1)
+            ->whereNull('parent_id')
+            ->orderBy('name')
+            ->get(['id','name']);
+        return view('frontend.seller-register',compact('groups','counties','storeCategories','countryId'));
     }
 
+//    public function SellerRegister(Request $request)
+//    {
+//
+//		$gtext = gtext();
+//
+//		$secretkey = $gtext['secretkey'];
+//		$recaptcha = $gtext['is_recaptcha'];
+//		if($recaptcha == 1){
+//			$request->validate([
+//				'g-recaptcha-response' => 'required',
+//				'name' => 'required',
+//				'email' => 'required|email|unique:users',
+//				'password' => 'required|confirmed|min:6',
+//				'shop_name' => 'required',
+////				'shop_url' => 'required',
+//				'shop_phone' => 'required',
+//                'classification' => 'required|in:individual,company',             // NEW
+//                'document_number' => 'required|string|max:191',                  // NEW
+//                'group_option' => 'nullable|in:group',                           // NEW
+//                'group_id' => 'required_if:group_option,group|exists:groups,id', // NEW
+//			]);
+//
+//			$captcha = $request->input('g-recaptcha-response');
+//
+//			$ip = $_SERVER['REMOTE_ADDR'];
+//			$url = 'https://www.google.com/recaptcha/api/siteverify?secret='.urlencode($secretkey).'&response='.urlencode($captcha).'&remoteip'.$ip;
+//			$response = file_get_contents($url);
+//			$responseKeys = json_decode($response, true);
+//			if($responseKeys["success"] == false) {
+//				return redirect("seller/register")->withFail(__('The recaptcha field is required'));
+//			}
+//		}else{
+//			$request->validate([
+//				'name' => 'required',
+//				'email' => 'required|email|unique:users',
+//				'password' => 'required|confirmed|min:6',
+//				'shop_name' => 'required',
+////				'shop_url' => 'required',
+//				'shop_phone' => 'required',
+//                'classification' => 'required|in:individual,company',             // NEW
+//                'document_number' => 'required|string|max:191',                  // NEW
+//                'group_option' => 'nullable|in:group',                           // NEW
+//                'group_id' => 'required_if:group_option,group|exists:groups,id', // NEW
+//            ]);
+//		}
+//
+//		$SellerSettings = gSellerSettings();
+//		if($SellerSettings['seller_auto_active'] == 1){
+//			$status_id = 1;
+//		}else{
+//			$status_id = 2;
+//		}
+//
+//		$data = array(
+//			'name' => $request->input('name'),
+//			'email' => $request->input('email'),
+//			'password' => Hash::make($request->input('password')),
+//			'bactive' => base64_encode($request->input('password')),
+//			'shop_name' => $request->input('shop_name'),
+//			'shop_url' => $request->input('shop_name'),
+//			'phone' => $request->input('shop_phone'),
+//			'status_id' => $status_id,
+//			'role_id' => 3,
+//            'classification'  => $request->input('classification'),   // <-- new
+//            'document_number' => $request->input('document_number'),  // <-- new
+//		);
+//
+//        if ($request->filled('group_option') && $request->input('group_option') === 'group' && $request->filled('group_id')) {
+//            $data['group_id'] = (int) $request->input('group_id');
+//        }
+//
+//		$response = User::create($data);
+//
+//		if($response){
+//            //call propel here-------
+//            $data = [
+//                'name' => $request->input('shop_name'),
+//                'mobile_no' =>$request->input('shop_phone'),
+//                'request_id' => $request->input('email'),
+//            ];
+//
+//           // $response = WaaSService::createWallet($data);
+//            $this->waasService->addBeneficiary($data,$response->id);
+//            // already has an active subscription?
+//            if ($response->currentSubscription()->exists()) return;
+//
+//            $free = Package::where('name', 'Free')->first(); // or by id
+//            if (!$free) return;
+//
+//            $now = now();
+//            UserSubscription::create([
+//                'user_id'      => $response->id,
+//                'package_id'   => $free->id,
+//                'billing_cycle'=> 'monthly',
+//                'price'        => 0,
+//                'currency'     => 'KES',
+//                'status'       => 'active',
+//                'starts_at'    => $now,
+//                'expires_at'   => null,        // keep free open-ended, or set $now->copy()->addMonths(1)
+//                'next_due_at'  => null,
+//            ]);
+//
+//			if($gtext['is_mailchimp'] == 1){
+//				$name = $request->input('name');
+//				$email_address = $request->input('email');
+//
+//				$HTTP_Status = self::MailChimpSubscriber($name, $email_address);
+//				if($HTTP_Status == 200){
+//					$SubscriberCount = Subscriber::where('email_address', '=', $email_address)->count();
+//					if($SubscriberCount == 0){
+//						$data = array(
+//							'email_address' => $email_address,
+//							'first_name' => $name,
+//							'last_name' => $name,
+//							'status' => 'subscribed'
+//						);
+//						Subscriber::create($data);
+//					}
+//				}
+//			}
+//
+//			if($status_id == 1){
+//				return redirect()->back()->withSuccess(__('Thanks! You have register successfully. Please login.'));
+//			}else{
+//				return redirect()->back()->withSuccess(__('Thanks! You have register successfully. Your account is pending for review.'));
+//			}
+//
+//		}else{
+//			return redirect()->back()->withFail(__('Oops! You are failed registration. Please try again.'));
+//		}
+//    }
     public function SellerRegister(Request $request)
     {
+        $gtext       = gtext();
+        $recaptchaOn = (int) $gtext['is_recaptcha'] === 1;
+        $saveMode    = $request->input('save_mode', 'submit'); // 'draft' | 'submit'
+        $isDraft     = $saveMode === 'draft';
 
-		$gtext = gtext();
-
-		$secretkey = $gtext['secretkey'];
-		$recaptcha = $gtext['is_recaptcha'];
-		if($recaptcha == 1){
-			$request->validate([
-				'g-recaptcha-response' => 'required',
-				'name' => 'required',
-				'email' => 'required|email|unique:users',
-				'password' => 'required|confirmed|min:6',
-				'shop_name' => 'required',
-//				'shop_url' => 'required',
-				'shop_phone' => 'required',
-                'classification' => 'required|in:individual,company',             // NEW
-                'document_number' => 'required|string|max:191',                  // NEW
-                'group_option' => 'nullable|in:group',                           // NEW
-                'group_id' => 'required_if:group_option,group|exists:groups,id', // NEW
-			]);
-
-			$captcha = $request->input('g-recaptcha-response');
-
-			$ip = $_SERVER['REMOTE_ADDR'];
-			$url = 'https://www.google.com/recaptcha/api/siteverify?secret='.urlencode($secretkey).'&response='.urlencode($captcha).'&remoteip'.$ip;
-			$response = file_get_contents($url);
-			$responseKeys = json_decode($response, true);
-			if($responseKeys["success"] == false) {
-				return redirect("seller/register")->withFail(__('The recaptcha field is required'));
-			}
-		}else{
-			$request->validate([
-				'name' => 'required',
-				'email' => 'required|email|unique:users',
-				'password' => 'required|confirmed|min:6',
-				'shop_name' => 'required',
-//				'shop_url' => 'required',
-				'shop_phone' => 'required',
-                'classification' => 'required|in:individual,company',             // NEW
-                'document_number' => 'required|string|max:191',                  // NEW
-                'group_option' => 'nullable|in:group',                           // NEW
-                'group_id' => 'required_if:group_option,group|exists:groups,id', // NEW
-            ]);
-		}
-
-		$SellerSettings = gSellerSettings();
-		if($SellerSettings['seller_auto_active'] == 1){
-			$status_id = 1;
-		}else{
-			$status_id = 2;
-		}
-
-		$data = array(
-			'name' => $request->input('name'),
-			'email' => $request->input('email'),
-			'password' => Hash::make($request->input('password')),
-			'bactive' => base64_encode($request->input('password')),
-			'shop_name' => $request->input('shop_name'),
-			'shop_url' => $request->input('shop_name'),
-			'phone' => $request->input('shop_phone'),
-			'status_id' => $status_id,
-			'role_id' => 3,
-            'classification'  => $request->input('classification'),   // <-- new
-            'document_number' => $request->input('document_number'),  // <-- new
-		);
-
-        if ($request->filled('group_option') && $request->input('group_option') === 'group' && $request->filled('group_id')) {
-            $data['group_id'] = (int) $request->input('group_id');
+        // If you want captcha only on final submission:
+        if ($recaptchaOn && !$isDraft) {
+            $request->validate(['g-recaptcha-response' => 'required']);
+            $captcha   = $request->input('g-recaptcha-response');
+            $secretkey = $gtext['secretkey'] ?? '';
+            $ip        = $request->ip();
+            $url = 'https://www.google.com/recaptcha/api/siteverify?secret='
+                .urlencode($secretkey).'&response='.urlencode($captcha).'&remoteip='.$ip;
+            $resp = @file_get_contents($url);
+            $ok   = $resp ? json_decode($resp, true) : ['success' => false];
+            if (empty($ok['success'])) {
+                return back()->withFail(__('The recaptcha field is required'))->withInput();
+            }
         }
 
-		$response = User::create($data);
+        // Build validation rules dynamically
+        $rulesBase = [
+            'name'        => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+            'email'       => $isDraft ? 'nullable|email' : 'required|email',
+            'password'    => $isDraft ? 'nullable|confirmed|min:6' : 'required|confirmed|min:6',
+            'shop_name'   => $isDraft ? 'nullable|string|max:200' : 'required|string|max:200',
+            'shop_phone'  => $isDraft ? 'nullable|string|max:20' : 'required|string|max:20',
+            'geo_unit_id' => $isDraft ? 'nullable|integer|exists:geo_units,id' : 'required|integer|exists:geo_units,id',
+            'address_line'=> $isDraft ? 'nullable|string|max:255' : 'required|string|max:255',
 
-		if($response){
-            //call propel here-------
-            $data = [
-                'name' => $request->input('shop_name'),
-                'mobile_no' =>$request->input('shop_phone'),
-                'request_id' => $request->input('email'),
-            ];
+            'classification'  => $isDraft ? 'nullable|in:individual,company' : 'required|in:individual,company',
+            'group_option'    => 'nullable|in:group',
+            'group_id'        => 'nullable|integer|exists:groups,id',
 
-           // $response = WaaSService::createWallet($data);
-            $this->waasService->addBeneficiary($data,$response->id);
-            // already has an active subscription?
-            if ($response->currentSubscription()->exists()) return;
+            // Step 2 (only enforce on submit)
+            'document_number'        => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+            'document_file'          => $isDraft ? 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096' : 'required|file|mimes:pdf,jpg,jpeg,png|max:4096',
+            'business_license_file'  => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+            'kra_pin'                => 'nullable|string|max:20',
+            'brand_auth_file'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+            'contact_person_name'    => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+            'contact_person_phone'   => $isDraft ? 'nullable|regex:/^\+2547\d{8}$/' : 'required|regex:/^\+2547\d{8}$/',
 
-            $free = Package::where('name', 'Free')->first(); // or by id
-            if (!$free) return;
+            // Step 3
+            'bank_name'      => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+            'bank_branch'    => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+            'account_name'   => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+            'account_number' => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+            'swift_code'     => 'nullable|string|max:50',
+            'mobile_money'   => 'nullable|regex:/^\+2547\d{8}$/',
 
-            $now = now();
-            UserSubscription::create([
-                'user_id'      => $response->id,
-                'package_id'   => $free->id,
-                'billing_cycle'=> 'monthly',
-                'price'        => 0,
-                'currency'     => 'KES',
-                'status'       => 'active',
-                'starts_at'    => $now,
-                'expires_at'   => null,        // keep free open-ended, or set $now->copy()->addMonths(1)
-                'next_due_at'  => null,
-            ]);
+            // Step 4
+            'store_category_id' => $isDraft ? 'nullable|integer|exists:pro_categories,id' : 'required|integer|exists:pro_categories,id',
+            'store_description' => $isDraft ? 'nullable|string' : 'required|string',
+            'shipping_methods'  => 'nullable|array',
+            'shipping_methods.*'=> 'in:local_pickup,within_county,nationwide',
+            'store_logo'        => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
+            'store_banner'      => 'nullable|image|mimes:jpg,jpeg,png|max:8192',
+        ];
 
-			if($gtext['is_mailchimp'] == 1){
-				$name = $request->input('name');
-				$email_address = $request->input('email');
+        // Email uniqueness rules:
+        $existingUser = $request->filled('email')
+            ? User::where('email', $request->input('email'))->first()
+            : null;
+        if (!$existingUser) {
+            $rulesBase['email'] = ($isDraft ? 'nullable' : 'required').'|email|unique:users,email';
+        } else {
+            // allow the same email to resume draft
+            $rulesBase['email'] = ($isDraft ? 'nullable' : 'required').'|email';
+        }
 
-				$HTTP_Status = self::MailChimpSubscriber($name, $email_address);
-				if($HTTP_Status == 200){
-					$SubscriberCount = Subscriber::where('email_address', '=', $email_address)->count();
-					if($SubscriberCount == 0){
-						$data = array(
-							'email_address' => $email_address,
-							'first_name' => $name,
-							'last_name' => $name,
-							'status' => 'subscribed'
-						);
-						Subscriber::create($data);
-					}
-				}
-			}
+        // When group option is chosen, group_id required
+        if ($request->input('group_option') === 'group') {
+            $rulesBase['group_id'] = 'required|integer|exists:groups,id';
+        }
 
-			if($status_id == 1){
-				return redirect()->back()->withSuccess(__('Thanks! You have register successfully. Please login.'));
-			}else{
-				return redirect()->back()->withSuccess(__('Thanks! You have register successfully. Your account is pending for review.'));
-			}
+        $validated = $request->validate($rulesBase);
 
-		}else{
-			return redirect()->back()->withFail(__('Oops! You are failed registration. Please try again.'));
-		}
+        // Seller auto active toggle (from your settings)
+        $sellerSettings = gSellerSettings();
+        $autoActive = (int)($sellerSettings['seller_auto_active'] ?? 0) === 1;
+
+        DB::beginTransaction();
+        try {
+            // CREATE or UPDATE user (draft resume supported)
+            if (!$existingUser) {
+                // brand new user (even in draft we’ll create for resume)
+                $user = new User();
+                $user->email = $validated['email'] ?? null;
+                $user->password = $request->filled('password') ? Hash::make($request->input('password')) : Hash::make(Str::random(12));
+                $user->bactive  = $request->filled('password') ? base64_encode($request->input('password')) : null;
+                $user->role_id  = 3; // seller
+            } else {
+                $user = $existingUser;
+                // if they changed password in a later attempt
+                if ($request->filled('password')) {
+                    $user->password = Hash::make($request->input('password'));
+                    $user->bactive  = base64_encode($request->input('password'));
+                }
+                // ensure role is seller
+                if ((int)$user->role_id !== 3) $user->role_id = 3;
+            }
+
+            // core info
+            if ($request->filled('name'))       $user->name       = $request->input('name');
+            if ($request->filled('shop_name'))  $user->shop_name  = $request->input('shop_name');
+            if ($request->filled('shop_phone')) $user->phone      = $request->input('shop_phone');
+            if ($request->filled('address_line')) $user->address  = $request->input('address_line');
+            if ($request->filled('geo_unit_id')) $user->geo_unit_id = (int)$request->input('geo_unit_id');
+
+            // shop_url (unique slug)
+            if ($request->filled('shop_name')) {
+                $user->shop_url = $this->uniqueShopSlug($request->input('shop_name'), $user->id ?? null);
+            }
+
+            // business meta
+            if ($request->filled('classification'))  $user->classification  = $request->input('classification');
+            if ($request->filled('document_number')) $user->document_number = $request->input('document_number');
+            if ($request->filled('group_option') && $request->input('group_option') === 'group' && $request->filled('group_id')) {
+                $user->group_id = (int)$request->input('group_id');
+            } else {
+                // keep previous or null-out on draft if they removed
+                if ($isDraft && !$request->filled('group_id')) $user->group_id = null;
+            }
+
+            // status & kyc state
+            if ($isDraft) {
+                $user->status_id  = 2; // pending/inactive until submission
+                $user->kyc_status = 'not_submitted';
+            } else {
+                $user->status_id  = $autoActive ? 1 : 2;
+                $user->kyc_status = 'pending';
+                $user->kyc_submitted_at = now();
+            }
+
+            $user->save();
+
+            // --- Documents table (1:1) ---
+            $docs = SellerDocument::firstOrNew(['user_id' => $user->id]);
+            if ($request->filled('document_number')) $docs->document_number = $request->input('document_number');
+            if ($request->filled('kra_pin'))         $docs->kra_pin         = $request->input('kra_pin');
+
+            if ($request->hasFile('document_file')) {
+                $docs->document_file_path = $request->file('document_file')->store('seller_docs', 'public');
+            }
+            if ($request->hasFile('business_license_file')) {
+                $docs->business_license_file_path = $request->file('business_license_file')->store('seller_docs', 'public');
+            }
+            if ($request->hasFile('brand_auth_file')) {
+                $docs->brand_auth_file_path = $request->file('brand_auth_file')->store('seller_docs', 'public');
+            }
+            $docs->user_id = $user->id;
+            $docs->save();
+
+            // --- Settlement table (1:1) ---
+            $settle = SellerSettlement::firstOrNew(['user_id' => $user->id]);
+            foreach (['bank_name','bank_branch','account_name','account_number','swift_code','mobile_money'] as $f) {
+                if ($request->filled($f)) $settle->{$f} = $request->input($f);
+                elseif ($isDraft && !$request->filled($f)) ; // keep old on draft if absent
+            }
+            $settle->user_id = $user->id;
+            $settle->save();
+
+            // --- Store table (1:1) ---
+            $store = SellerStore::firstOrNew(['user_id' => $user->id]);
+            if ($request->filled('store_category_id')) $store->store_category_id = (int)$request->input('store_category_id');
+            if ($request->filled('store_description')) $store->store_description = $request->input('store_description');
+
+            // shipping methods -> json
+            if ($request->has('shipping_methods')) {
+                $store->shipping_methods = array_values(array_unique(array_filter((array)$request->input('shipping_methods'))));
+            } elseif ($isDraft) {
+                // keep previous on draft if not sent
+            } else {
+                $store->shipping_methods = []; // submit with none selected
+            }
+
+            if ($request->hasFile('store_logo')) {
+                $store->store_logo_path = $request->file('store_logo')->store('seller_stores', 'public');
+            }
+            if ($request->hasFile('store_banner')) {
+                $store->store_banner_path = $request->file('store_banner')->store('seller_stores', 'public');
+            }
+            $store->user_id = $user->id;
+            $store->save();
+
+            // Optional: store progress step (if you posted it)
+            if ($request->filled('progress_step')) {
+                // If you added this field to users, you can persist:
+                // $user->progress_step = (int)$request->input('progress_step');
+                // $user->save();
+            }
+
+            // Create wallet + Free subscription only on final submission
+            if (!$isDraft) {
+                // ---- WAAS / BENEFICIARY ----
+                if (isset($this->waasService)) {
+                    $payload = [
+                        'name'       => $user->shop_name ?: $user->name,
+                        'mobile_no'  => $user->phone,
+                        'request_id' => $user->email,
+                    ];
+                    try {
+                        $this->waasService->addBeneficiary($payload, $user->id);
+                    } catch (\Throwable $e) {
+                        // log and continue — don’t break onboarding
+                        \Log::warning('waasService addBeneficiary failed: '.$e->getMessage());
+                    }
+                }
+
+                // ---- Free package ----
+                if (!$user->currentSubscription()->exists()) {
+                    $free = Package::where('name', 'Free')->first();
+                    if ($free) {
+                        UserSubscription::create([
+                            'user_id'       => $user->id,
+                            'package_id'    => $free->id,
+                            'billing_cycle' => 'monthly',
+                            'price'         => 0,
+                            'currency'      => 'KES',
+                            'status'        => 'active',
+                            'starts_at'     => now(),
+                            'expires_at'    => null,
+                            'next_due_at'   => null,
+                        ]);
+                    }
+                }
+
+                // ---- Mailchimp (optional) ----
+                if ((int)$gtext['is_mailchimp'] === 1 && $user->email) {
+                    try {
+                        $HTTP_Status = self::MailChimpSubscriber($user->name, $user->email);
+                        if ($HTTP_Status == 200) {
+                            $exists = Subscriber::where('email_address', $user->email)->exists();
+                            if (!$exists) {
+                                Subscriber::create([
+                                    'email_address' => $user->email,
+                                    'first_name'    => $user->name,
+                                    'last_name'     => $user->name,
+                                    'status'        => 'subscribed'
+                                ]);
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                        \Log::warning('MailChimp subscribe failed: '.$e->getMessage());
+                    }
+                }
+            }
+
+            DB::commit();
+
+            if ($isDraft) {
+                return back()->withSuccess(__('Draft saved. You can resume later from your account.'));
+            }
+
+            if ((int)$user->status_id === 1) {
+                return back()->withSuccess(__('Thanks! You have registered successfully. Please login.'));
+            }
+            return back()->withSuccess(__('Thanks! Registration submitted. Your account is pending review.'));
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            \Log::error('SellerRegister failed: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return back()->withFail(__('Oops! Registration could not be completed. Please try again.'))->withInput();
+        }
     }
 
+    /** Generate a unique shop_url from a name. */
+    private function uniqueShopSlug(string $name = null, $excludeUserId = null): string
+    {
+        $base = Str::slug($name ?? '') ?: 'shop';
+        $slug = $base;
+        $i = 2;
+        while (
+        DB::table('users')
+            ->where('shop_url', $slug)
+            ->when($excludeUserId, fn($q) => $q->where('id', '!=', $excludeUserId))
+            ->exists()
+        ) {
+            $slug = $base . '-' . $i++;
+        }
+        return $slug;
+    }
 	//MailChimp Subscriber
     public function MailChimpSubscriber($name, $email){
 		$gtext = gtext();

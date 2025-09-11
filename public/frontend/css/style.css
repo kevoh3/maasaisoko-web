@@ -4354,3 +4354,15 @@ ul.errors-list li {
 	left: 0;
 	right: auto;
 }
+/* Theme the wizard progress bar */
+.progress.theme-progress .progress-bar{
+    /* Bootstrap 5 way */
+    --bs-progress-bar-bg: var(--theme-color);
+    /* If not using BS5 vars, the fallback still works */
+    background-color: var(--theme-color);
+}
+
+/* (optional) make the track subtle and on-brand */
+.progress.theme-progress{
+    --bs-progress-bg: var(--color-light-green);
+}

@@ -7,7 +7,7 @@
 <div class="main-body">
 	<div class="container-fluid">
 		@php $vipc = vipc(); @endphp
-		@if($vipc['bkey'] == 0) 
+		@if($vipc['bkey'] == 0)
 		@include('backend.partials.vipc')
 		@else
 		<div class="row mt-25">
@@ -44,7 +44,7 @@
 							</div>
 							<div class="col-md-9"></div>
 						</div>
-						
+
 						<div class="row">
 							<div class="col-lg-4">
 								<div class="form-group bulk-box">
@@ -74,20 +74,31 @@
 					<div id="form-panel" class="card-body dnone">
 						<form novalidate="" data-validate="parsley" id="DataEntry_formId">
 							<div class="row">
-								<div class="col-md-6">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="parent_id">{{ __('Parent Category') }}</label>
+                                        <select name="parent_id" id="parent_id" class="chosen-select form-control">
+                                            <option value="">{{ __('— None (Top Level) —') }}</option>
+                                            @foreach($allCategories as $opt)
+                                                <option value="{{ $opt['id'] }}">{{ $opt['indent'] }}{{ $opt['name'] }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+								<div class="col-md-4">
 									<div class="form-group">
 										<label for="name">{{ __('Category Name') }}<span class="red">*</span></label>
 										<input type="text" name="name" id="name" class="form-control parsley-validated" data-required="true">
 									</div>
 								</div>
-								<div class="col-md-6">
+								<div class="col-md-4">
 									<div class="form-group">
 										<label for="slug">{{ __('Slug') }}<span class="red">*</span></label>
 										<input type="text" name="slug" id="slug" class="form-control parsley-validated" data-required="true">
 									</div>
 								</div>
 							</div>
-							
+
 							<div class="row">
 								<div class="col-md-6">
 									<div class="form-group">
@@ -170,7 +181,7 @@
 								</div>
 								<div class="col-md-6"></div>
 							</div>
-							
+
 							<div class="divider_heading">{{ __('SEO') }}</div>
 							<div class="row">
 								<div class="col-md-12">

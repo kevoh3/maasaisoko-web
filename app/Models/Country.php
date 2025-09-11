@@ -8,11 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 class Country extends Model
 {
     use HasFactory;
-	
+
 	protected $table = 'countries';
-	
+
     protected $fillable = [
 	  'country_name',
 	  'is_publish'
-    ];	
+    ];
+    public function levels()
+    {
+        return $this->hasMany(\App\Models\GeoLevel::class);
+    }
+
+    public function units()
+    {
+        return $this->hasMany(\App\Models\GeoUnit::class);
+    }
 }

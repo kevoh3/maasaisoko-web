@@ -1223,58 +1223,58 @@ function vipc(){
 
 function verifyPurchase($code) {
 
-	$itemCode = 39645166; //Item Code for organis
-
-	$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ? "https" : "http";
-	$domain = $_SERVER['HTTP_HOST'];
-	$url = $protocol . "://" . $domain;
-
-	$data = [
-		"pcode" => $code,
-		"itemcode" => $itemCode,
-		"domain" => $url
-	];
-
-	$url = 'https://themeposh.net/api/verifycode';
-
-	$ch = curl_init($url);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_POST, true);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-	curl_setopt($ch, CURLOPT_HTTPHEADER, [
-		'Accept: application/json',
-		'Content-Type: application/json',
-		'Content-Length: ' . strlen(json_encode($data))
-	]);
-
-	$response = curl_exec($ch);
-
-	curl_close($ch);
-
-	return $response;
+//	$itemCode = 39645166; //Item Code for organis
+//
+//	$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ? "https" : "http";
+//	$domain = $_SERVER['HTTP_HOST'];
+//	$url = $protocol . "://" . $domain;
+//
+//	$data = [
+//		"pcode" => $code,
+//		"itemcode" => $itemCode,
+//		"domain" => $url
+//	];
+//
+//	$url = 'https://themeposh.net/api/verifycode';
+//
+//	$ch = curl_init($url);
+//	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+//	curl_setopt($ch, CURLOPT_POST, true);
+//	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+//	curl_setopt($ch, CURLOPT_HTTPHEADER, [
+//		'Accept: application/json',
+//		'Content-Type: application/json',
+//		'Content-Length: ' . strlen(json_encode($data))
+//	]);
+//
+//	$response = curl_exec($ch);
+//
+//	curl_close($ch);
+//
+//	return $response;
 }
 
 function deleteLog($id, $pcode) {
 
-	$data = ["id" => $id, "pcode" => $pcode];
-
-	$url = 'https://themeposh.net/api/deletelog';
-
-	$ch = curl_init($url);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_POST, true);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-	curl_setopt($ch, CURLOPT_HTTPHEADER, [
-		'Accept: application/json',
-		'Content-Type: application/json',
-		'Content-Length: ' . strlen(json_encode($data))
-	]);
-
-	$response = curl_exec($ch);
-
-	curl_close($ch);
-
-	return $response;
+//	$data = ["id" => $id, "pcode" => $pcode];
+//
+//	$url = 'https://themeposh.net/api/deletelog';
+//
+//	$ch = curl_init($url);
+//	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+//	curl_setopt($ch, CURLOPT_POST, true);
+//	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+//	curl_setopt($ch, CURLOPT_HTTPHEADER, [
+//		'Accept: application/json',
+//		'Content-Type: application/json',
+//		'Content-Length: ' . strlen(json_encode($data))
+//	]);
+//
+//	$response = curl_exec($ch);
+//
+//	curl_close($ch);
+//
+//	return $response;
 }
 
 //Get data for Language
@@ -1555,4 +1555,155 @@ function FooterSection(){
 
 	return $section15;
 }
+// Category tree for sidebar filter (parents + children, with counts)
+// Parent "count" includes all its descendants; child "count" is direct-only.
+// Pass current language automatically via glan() if not provided.
+//function CategoryTreeForFilter(?string $lan = null): array
+//{
+//    $lan = $lan ?? glan();
+//
+//    // all published categories for this language
+//    $cats = \App\Models\Pro_category::select('id','name','slug','thumbnail','parent_id')
+//        ->where('is_publish', 1)
+//        ->where('lan', $lan)
+//        ->orderBy('name')
+//        ->get();
+//
+//    // children grouped by parent (treat null/0 as root)
+//    $byParent = $cats->groupBy(fn($c) => $c->parent_id ?: 0);
+//
+//    // direct product counts per category
+//    $allCatIds = $cats->pluck('id')->all();
+//    $directCounts = \Illuminate\Support\Facades\DB::table('products')
+//        ->join('users', 'products.user_id', '=', 'users.id')
+//        ->where('products.is_publish', 1)
+//        ->where('users.status_id', 1)
+//        ->whereIn('products.cat_id', $allCatIds)
+//        ->groupBy('products.cat_id')
+//        ->pluck(\Illuminate\Support\Facades\DB::raw('COUNT(products.id)'), 'products.cat_id'); // id => count
+//
+//    // recursive descendants collector
+//    $descendants = function(int $id) use (&$descendants, $byParent): array {
+//        $out = [$id];
+//        foreach (($byParent[$id] ?? []) as $row) {
+//            $out = array_merge($out, $descendants($row->id));
+//        }
+//        return $out;
+//    };
+//
+//    // build tree for top-level parents
+//    $tree = [];
+//    foreach ($byParent[0] ?? [] as $p) {
+//        // sum counts across parent + all descendants
+//        $sum = 0;
+//        foreach ($descendants($p->id) as $cid) {
+//            $sum += (int)($directCounts[$cid] ?? 0);
+//        }
+//
+//        // 1-level children with direct counts
+//        $children = [];
+//        foreach ($byParent[$p->id] ?? [] as $c) {
+//            $children[] = [
+//                'id'        => $c->id,
+//                'name'      => $c->name,
+//                'slug'      => $c->slug,
+//                'thumbnail' => $c->thumbnail,
+//                'count'     => (int)($directCounts[$c->id] ?? 0),
+//            ];
+//        }
+//
+//        $tree[] = [
+//            'id'        => $p->id,
+//            'name'      => $p->name,
+//            'slug'      => $p->slug,
+//            'thumbnail' => $p->thumbnail,
+//            'count'     => $sum,          // parent includes descendants
+//            'children'  => $children,     // direct children only
+//        ];
+//    }
+//
+//    return $tree;
+//}
+function CategoryTreeForFilter(?string $lan = null): array
+{
+    $lan = $lan ?? glan();
+
+    // All published categories for this language
+    $cats = \App\Models\Pro_category::select('id','name','slug','thumbnail','parent_id')
+        ->where('is_publish', 1)
+        ->where('lan', $lan)
+        ->orderBy('name')
+        ->get();
+
+    // Children grouped by parent (treat null/0 as root=0)
+    $byParent = $cats->groupBy(function ($c) {
+        return (int)($c->parent_id ?? 0);
+    });
+
+    // Direct product counts per category (keyed by cat_id)
+    $allCatIds = $cats->pluck('id')->all();
+    $directCounts = \Illuminate\Support\Facades\DB::table('products')
+        ->join('users', 'products.user_id', '=', 'users.id')
+        ->where('products.is_publish', 1)
+        ->where('users.status_id', 1)
+        ->whereIn('products.cat_id', $allCatIds)
+        ->select('products.cat_id', \Illuminate\Support\Facades\DB::raw('COUNT(products.id) AS total'))
+        ->groupBy('products.cat_id')
+        ->pluck('total', 'products.cat_id'); // cat_id => total
+
+    // Recursive descendants collector
+    $descendants = function (int $id) use (&$descendants, $byParent): array {
+        $out = [$id];
+        foreach ($byParent->get($id, collect()) as $row) {   // <-- use get()
+            $out = array_merge($out, $descendants($row->id));
+        }
+        return $out;
+    };
+
+    // Build tree for top-level parents (parent_id = 0 or null)
+    $tree = [];
+    foreach ($byParent->get(0, collect()) as $p) {            // <-- use get()
+        // Sum counts across parent + all descendants
+        $sum = 0;
+        foreach ($descendants($p->id) as $cid) {
+            $sum += (int)($directCounts[$cid] ?? 0);
+        }
+
+        // 1-level children with direct counts
+        $children = [];
+        foreach ($byParent->get($p->id, collect()) as $c) {   // <-- use get()
+            $children[] = [
+                'id'        => $c->id,
+                'name'      => $c->name,
+                'slug'      => $c->slug,
+                'thumbnail' => $c->thumbnail,
+                'count'     => (int)($directCounts[$c->id] ?? 0),
+            ];
+        }
+
+        $tree[] = [
+            'id'        => $p->id,
+            'name'      => $p->name,
+            'slug'      => $p->slug,
+            'thumbnail' => $p->thumbnail,
+            'count'     => $sum,         // parent includes descendants
+            'children'  => $children,    // direct children only
+        ];
+    }
+
+    return $tree;
+}
+
+function CategoryDescendantIds(int $rootId): array {
+    $ids = [$rootId]; $q = [$rootId];
+    while ($q) {
+        $pid = array_shift($q);
+        $kids = \App\Models\Pro_category::where('parent_id', $pid)->pluck('id')->all();
+        foreach ($kids as $cid) {
+            if (!in_array($cid, $ids, true)) { $ids[] = $cid; $q[] = $cid; }
+        }
+    }
+    return $ids;
+}
+
 

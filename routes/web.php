@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Backend\AccountingController;
 use App\Http\Controllers\Seller\SubscriptionController;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,7 +33,14 @@ Route::get('/page/{id}/{title}', [App\Http\Controllers\Frontend\PageController::
 //Product category
 Route::get('/product-category/{id}/{title}', [App\Http\Controllers\Frontend\ProductCategoryController::class, 'getProductCategoryPage'])->name('frontend.product-category');
 Route::get('/frontend/getProductCategoryGrid', [App\Http\Controllers\Frontend\ProductCategoryController::class, 'getProductCategoryGrid'])->name('frontend.getProductCategoryGrid');
-
+Route::get('/geo/{id}/children', function($id){
+    return DB::table('geo_units')
+        ->where('parent_id', $id)
+        ->orderBy('name')
+        ->get(['id','name']);
+})->name('geo.children');
+Route::get('/geo/children', [App\Http\Controllers\Frontend\ProductCategoryController::class, 'geoChildren'])
+    ->name('geo.children');
 //Blog
 Route::get('/blog', [App\Http\Controllers\Frontend\BlogController::class, 'getBlogPage'])->name('frontend.blog');
 Route::get('/blog-category/{id}/{title}', [App\Http\Controllers\Frontend\BlogController::class, 'getBlogCategoryPage'])->name('frontend.blog-category');
