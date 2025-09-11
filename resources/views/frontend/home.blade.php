@@ -1,7 +1,7 @@
 @extends('layouts.frontend')
 
 @section('title', __('Home'))
-@php 
+@php
 $PageVariation = PageVariation();
 $gtext = gtext();
 @endphp
@@ -39,11 +39,11 @@ $gtext = gtext();
 
 @if($PageVariation['home_variation'] == 'home_1')
 @include('frontend.partials.homepage1')
-@elseif($PageVariation['home_variation'] == 'home_2') 
+@elseif($PageVariation['home_variation'] == 'home_2')
 @include('frontend.partials.homepage2')
-@elseif($PageVariation['home_variation'] == 'home_3') 
+@elseif($PageVariation['home_variation'] == 'home_3')
 @include('frontend.partials.homepage3')
-@elseif($PageVariation['home_variation'] == 'home_4') 
+@elseif($PageVariation['home_variation'] == 'home_4')
 @include('frontend.partials.homepage4')
 @endif
 
@@ -52,7 +52,7 @@ $gtext = gtext();
 	<div class="modal-dialog modal-dialog-centered">
 		<div class="modal-content" style="background-image: url({{ asset('public/media/'.$gtext['bg_image_popup']) }});">
 			<button onclick="popup_modal_close()" type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close"><i class="bi bi-x-lg"></i></button>
-			
+
 			<div class="modal-body">
 				<div class="newsletter-card">
 					<h2>{{ $gtext['subscribe_title'] }}</h2>
@@ -84,26 +84,26 @@ $gtext = gtext();
 		var subscribePopupModal = new bootstrap.Modal(document.getElementById('subscribe_popup'), {
 		  keyboard: false
 		});
-		
+
 		subscribePopupModal.show();
-		
+
 		//Subscribe for page
 		$(document).on("click", ".newsletter_btn", function(event) {
 			event.preventDefault();
-			
+
 			var newsletterEmail = $("#newsletter_email").val();
 			var status = 'subscribed';
-			
+
 			var nletter_btn = $('.nletter_btn').html();
 			var newsletter_recordid = '';
-			
+
 			var newsletter_email = newsletterEmail.trim();
-			
+
 			if(newsletter_email == ''){
 				$('.newsletter_msg').html('<p class="text-danger">The email address field is required.</p>');
 				return;
 			}
-			
+
 			$.ajax({
 				type : 'POST',
 				url: base_url + '/frontend/saveSubscriber',
@@ -112,7 +112,7 @@ $gtext = gtext();
 					$('.newsletter_msg').html('');
 					$('.nletter_btn').html('<span class="spinner-border spinner-border-sm"></span> Please Wait...');
 				},
-				success: function (response) {			
+				success: function (response) {
 					var msgType = response.msgType;
 					var msg = response.msg;
 
@@ -123,7 +123,7 @@ $gtext = gtext();
 					} else {
 						$('.newsletter_msg').html('<p class="text-danger">'+msg+'</p>');
 					}
-					
+
 					$('.nletter_btn').html(nletter_btn);
 				}
 			});
@@ -142,4 +142,5 @@ $gtext = gtext();
 	@endif
 @endif
 
-@endpush	
+@endpush
+

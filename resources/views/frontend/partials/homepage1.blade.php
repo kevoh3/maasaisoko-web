@@ -16,11 +16,11 @@
 									@if($aRow->sub_title != '')
 									<p class="relative">{{ $aRow->sub_title }}</p>
 									@endif
-									
+
 									@if($aRow->button_text != '')
 									<a href="{{ $row->url }}" class="btn theme-btn" {{ $aRow->target =='' ? '' : "target=".$aRow->target }}>{{ $aRow->button_text }}</a>
 									@endif
-									
+
 									@if($aRow->layer_image_1 != '')
 									<div class="h1-layer2 layer-bounce2">
 										<img src="{{ asset('public/media/'.$aRow->layer_image_1) }}" alt="{{ $row->title }}" />
@@ -53,7 +53,7 @@
 	</section>
 	@endif
 	<!-- /Home Slider/ -->
-	
+
 	<!-- Featured Categories -->
 	@if($section2->is_publish == 1)
 	<section class="section">
@@ -64,7 +64,7 @@
 						@if($section2->desc !='')
 						<h5>{{ $section2->desc }}</h5>
 						@endif
-						
+
 						@if($section2->title !='')
 						<h2>{{ $section2->title }}</h2>
 						@endif
@@ -89,7 +89,7 @@
 	</section>
 	@endif
 	<!-- /Featured Categories/ -->
-		
+
 	<!-- Popular Products -->
 	@if($section3->is_publish == 1)
 	<section class="section product-section">
@@ -100,7 +100,7 @@
 						@if($section3->desc !='')
 						<h5>{{ $section3->desc }}</h5>
 						@endif
-						
+
 						@if($section3->title !='')
 						<h2>{{ $section3->title }}</h2>
 						@endif
@@ -108,13 +108,13 @@
 				</div>
 			</div>
 			<div class="row owl-carousel caro-common category-carousel">
-			
+
 				@foreach ($popular_products as $row)
 				<div class="col-lg-12">
 					<div class="item-card">
 						<div class="item-image">
 							@if(($row->is_discount == 1) && ($row->old_price !=''))
-								@php 
+								@php
 									$discount = number_format((($row->old_price - $row->sale_price)*100)/$row->old_price);
 								@endphp
 							<span class="item-label">{{ $discount }}% {{ __('Off') }}</span>
@@ -166,7 +166,7 @@
 	</section>
 	@endif
 	<!-- /Popular Products/ -->
-	
+
 	<!-- Offer Section -->
 	@if($section4->is_publish == 1)
 	@if(count($offer_ad_position1)>0)
@@ -178,7 +178,7 @@
 						@if($section4->desc !='')
 						<h5>{{ $section4->desc }}</h5>
 						@endif
-						
+
 						@if($section4->title !='')
 						<h2>{{ $section4->title }}</h2>
 						@endif
@@ -229,14 +229,14 @@
 						@if($section5->desc !='')
 						<h5>{{ $section5->desc }}</h5>
 						@endif
-						
+
 						@if($section5->title !='')
 						<h2>{{ $section5->title }}</h2>
 						@endif
 					</div>
 				</div>
 			</div>
-		
+
 			<div class="row mb25">
 				<div class="col-lg-12">
 					<ul class="nav nav-pills tp-tabs" id="pills-tab" role="tablist">
@@ -263,7 +263,7 @@
 					</ul>
 				</div>
 			</div>
-			
+
 			<div class="row">
 				<div class="col-lg-12">
 					<div class="tab-content" id="pills-tabContent">
@@ -276,7 +276,7 @@
 									<div class="item-card">
 										<div class="item-image">
 											@if(($row->is_discount == 1) && ($row->old_price !=''))
-												@php 
+												@php
 													$discount = number_format((($row->old_price - $row->sale_price)*100)/$row->old_price);
 												@endphp
 											<span class="item-label">{{ $discount }}% {{ __('Off') }}</span>
@@ -327,7 +327,7 @@
 						</div>
 						@endif
 						<!--/New Products/-->
-					
+
 						<!--Top Selling-->
 						@if($section9->is_publish == 1)
 						<div class="tab-pane fade" id="pills-topSelling" role="tabpanel" aria-labelledby="pills-topSelling-tab">
@@ -337,7 +337,7 @@
 									<div class="item-card">
 										<div class="item-image">
 											@if(($row->is_discount == 1) && ($row->old_price !=''))
-												@php 
+												@php
 													$discount = number_format((($row->old_price - $row->sale_price)*100)/$row->old_price);
 												@endphp
 											<span class="item-label">{{ $discount }}% {{ __('Off') }}</span>
@@ -388,7 +388,7 @@
 						</div>
 						@endif
 						<!--/Top Selling/-->
-						
+
 						<!--Trending Products-->
 						@if($section10->is_publish == 1)
 						<div class="tab-pane fade" id="pills-trendingProducts" role="tabpanel" aria-labelledby="pills-trendingProducts-tab">
@@ -398,7 +398,7 @@
 									<div class="item-card">
 										<div class="item-image">
 											@if(($row->is_discount == 1) && ($row->old_price !=''))
-												@php 
+												@php
 													$discount = number_format((($row->old_price - $row->sale_price)*100)/$row->old_price);
 												@endphp
 											<span class="item-label">{{ $discount }}% {{ __('Off') }}</span>
@@ -449,7 +449,7 @@
 						</div>
 						@endif
 						<!--/Trending Products/-->
-						
+
 						<!--Top Rated-->
 						@if($section11->is_publish == 1)
 						<div class="tab-pane fade" id="pills-topRated" role="tabpanel" aria-labelledby="pills-topRated-tab">
@@ -459,7 +459,7 @@
 									<div class="item-card">
 										<div class="item-image">
 											@if(($row->is_discount == 1) && ($row->old_price !=''))
-												@php 
+												@php
 													$discount = number_format((($row->old_price - $row->sale_price)*100)/$row->old_price);
 												@endphp
 											<span class="item-label">{{ $discount }}% {{ __('Off') }}</span>
@@ -517,7 +517,7 @@
 	</section>
 	@endif
 	<!-- /Products Section/ -->
-	
+
 	<!-- Video Section -->
 	@if($home_video['is_publish'] == 1)
 	<section class="section video-section" style="background-image: url({{ asset('public/media/'.$home_video['image']) }});">
@@ -544,7 +544,7 @@
 	</section>
 	@endif
 	<!-- /Video Section/ -->
-	
+
 	<!-- Deals Section -->
 	@if($section6->is_publish == 1)
 	<section class="section deals-section">
@@ -555,7 +555,7 @@
 						@if($section6->desc !='')
 						<h5>{{ $section6->desc }}</h5>
 						@endif
-						
+
 						@if($section6->title !='')
 						<h2>{{ $section6->title }}</h2>
 						@endif
@@ -590,7 +590,7 @@
 							<div class="item-card">
 								<div class="item-image">
 									@if(($row->is_discount == 1) && ($row->old_price !=''))
-										@php 
+										@php
 											$discount = number_format((($row->old_price - $row->sale_price)*100)/$row->old_price);
 										@endphp
 									<span class="item-label">{{ $discount }}% {{ __('Off') }}</span>
@@ -650,3 +650,6 @@
 	@endif
 	<!-- /Deals Section/ -->
 </main>
+
+
+

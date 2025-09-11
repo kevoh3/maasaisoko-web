@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Backend\AccountingController;
+use App\Http\Controllers\Backend\CartAuditController;
+use App\Http\Controllers\Backend\WishlistAuditController;
 use App\Http\Controllers\Seller\SubscriptionController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -148,6 +150,11 @@ Route::prefix('backend')->group(function () {
 
     //Orders
     Route::get('/orders', [App\Http\Controllers\Backend\OrdersController::class, 'getOrdersPageLoad'])->name('backend.orders')->middleware(['auth', 'is_admin']);
+    Route::get('/carts', [CartAuditController::class, 'index'])->name('backend.carts.index');
+    Route::get('/carts/{cart}', [CartAuditController::class, 'show'])->name('backend.carts.show');
+
+    Route::get('/wishlists', [WishlistAuditController::class, 'index'])->name('backend.wishlists.index');
+    Route::get('/wishlists/{wishlist}', [WishlistAuditController::class, 'show'])->name('backend.wishlists.show');
     Route::get('/getOrdersTableData', [App\Http\Controllers\Backend\OrdersController::class, 'getOrdersTableData'])->name('backend.getOrdersTableData')->middleware(['auth', 'is_admin']);
     Route::post('/bulkActionOrders', [App\Http\Controllers\Backend\OrdersController::class, 'bulkActionOrders'])->name('backend.bulkActionOrders')->middleware(['auth', 'is_admin']);
     Route::get('/order/{id}', [App\Http\Controllers\Backend\OrdersController::class, 'getOrderData'])->name('backend.order')->middleware(['auth', 'is_admin']);
