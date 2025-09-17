@@ -175,7 +175,7 @@ class HomeFrontendController extends Controller
 
 			//Slider
 			$slider = Slider::where('slider_type', '=', 'home_1')->where('is_publish', '=', 1)->orderBy('id', 'desc')->get();
-            $pro_main_category = Pro_category::where('is_publish', '=', 1)->where('lan', '=', $lan)->whereNull->orderBy('id', 'desc')->get();
+            $pro_main_category = Pro_category::where('is_publish', '=', 1)->where('lan', '=', $lan)->whereNull('parent_id')->orderBy('id', 'desc')->get();
 
 			//Product Category
 			$pro_category = Pro_category::where('is_publish', '=', 1)->where('lan', '=', $lan)->orderBy('id', 'desc')->get();
