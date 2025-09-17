@@ -175,9 +175,10 @@ class HomeFrontendController extends Controller
 
 			//Slider
 			$slider = Slider::where('slider_type', '=', 'home_1')->where('is_publish', '=', 1)->orderBy('id', 'desc')->get();
+            $pro_main_category = Pro_category::where('is_publish', '=', 1)->where('lan', '=', $lan)->whereNull->orderBy('id', 'desc')->get();
 
 			//Product Category
-			$pro_category = Pro_category::where('is_publish', '=', 1)->where('lan', '=', $lan)->orderBy('id', 'desc')->get();
+			//$pro_category = Pro_category::where('is_publish', '=', 1)->where('lan', '=', $lan)->orderBy('id', 'desc')->get();
             // Category bar data (parents + children-by-parent)
             $parents = Pro_category::where('is_publish', 1)
                 ->where('lan', $lan)
@@ -1258,6 +1259,7 @@ class HomeFrontendController extends Controller
 			'section14',
 			'slider',
 			'pro_category',
+            'pro_main_category',
 			'offer_ad_position1',
 			'offer_ad_position2',
 			'home_video',

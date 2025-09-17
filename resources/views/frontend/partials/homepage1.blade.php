@@ -72,7 +72,7 @@
 				</div>
 			</div>
 			<div class="row owl-carousel caro-common featured-categories">
-				@foreach ($pro_category as $row)
+				@foreach ($parents as $row)
 				<div class="col-lg-12">
 					<div class="featured-card">
 						<div class="featured-image">
