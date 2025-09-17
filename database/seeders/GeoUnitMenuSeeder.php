@@ -18,32 +18,32 @@ class GeoUnitMenuSeeder extends Seeder
     public function run(): void
     {
         DB::transaction(function () {
-//            $geoUnits = GeoUnit::where('country_id', 117)
-//                ->where('level_id', 1)
-//                ->where('is_publish', 1)
-//                ->orderByRaw('CAST(code AS UNSIGNED)')
-//                ->get();
-//
-//            $sort = 0;
-//            foreach ($geoUnits as $d) {
-//                Menu_child::firstOrCreate(
-//                    [
-//                        'menu_id'        => 120,
-//                        'menu_parent_id' => 996,
-//                        'menu_type'      => 'geo_unit',
-//                        'item_id'        => $d->id,
-//                    ],
-//                    [
-//                        'mega_menu_id'   => null,
-//                        'item_label'     => $d->name,
-//                        'custom_url'     => $d->slug,
-//                        'target_window'  => '_self',
-//                        'css_class'      => '',
-//                        'lan'            => 'en',
-//                        'sort_order'     => $sort++,
-//                    ]
-//                );
-//            }
+            $geoUnits = GeoUnit::where('country_id', 117)
+                ->where('level_id', 1)
+                ->where('is_publish', 1)
+                ->orderByRaw('CAST(code AS UNSIGNED)')
+                ->get();
+
+            $sort = 0;
+            foreach ($geoUnits as $d) {
+                Menu_child::firstOrCreate(
+                    [
+                        'menu_id'        => 120,
+                        'menu_parent_id' => 1018,
+                        'menu_type'      => 'geo_unit',
+                        'item_id'        => $d->id,
+                    ],
+                    [
+                        'mega_menu_id'   => null,
+                        'item_label'     => $d->name,
+                        'custom_url'     => $d->slug,
+                        'target_window'  => '_self',
+                        'css_class'      => '',
+                        'lan'            => 'en',
+                        'sort_order'     => $sort++,
+                    ]
+                );
+            }
             $sellers = User::where('role_id', 3)
                 ->where('status_id', 1)
 //                ->where('is_publish', 1)
@@ -55,7 +55,7 @@ class GeoUnitMenuSeeder extends Seeder
                 Menu_child::firstOrCreate(
                     [
                         'menu_id'        => 120,
-                        'menu_parent_id' => 997,
+                        'menu_parent_id' => 1019,
                         'menu_type'      => 'shop',
                         'item_id'        => $d->id,
                     ],
