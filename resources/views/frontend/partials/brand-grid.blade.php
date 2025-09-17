@@ -1,3 +1,4 @@
+{{--brand-grid--}}
 @php $gtext = gtext(); @endphp
 <div class="row">
 	@if(count($datalist)>0)
@@ -10,7 +11,7 @@
 			<div class="item-card">
 				<div class="item-image">
 					@if(($row->is_discount == 1) && ($row->old_price !=''))
-						@php 
+						@php
 							$discount = number_format((($row->old_price - $row->sale_price)*100)/$row->old_price);
 						@endphp
 					<span class="item-label">{{ $discount }}% {{ __('Off') }}</span>

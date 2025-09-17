@@ -41,6 +41,7 @@ Route::get('/geo/{id}/children', function($id){
         ->orderBy('name')
         ->get(['id','name']);
 })->name('geo.children');
+
 Route::get('/geo/children', [App\Http\Controllers\Frontend\ProductCategoryController::class, 'geoChildren'])
     ->name('geo.children');
 //Blog
@@ -51,6 +52,13 @@ Route::get('/article/{id}/{title}', [App\Http\Controllers\Frontend\BlogControlle
 //Brand
 Route::get('/brand/{id}/{title}', [App\Http\Controllers\Frontend\BrandController::class, 'getBrandPage'])->name('frontend.brand');
 Route::get('/frontend/getBrandGrid', [App\Http\Controllers\Frontend\BrandController::class, 'getBrandGrid'])->name('frontend.getBrandGrid');
+//counties
+Route::get('/county/{id}/{title}', [App\Http\Controllers\Frontend\ProductGeoController::class, 'getProductByGeoPage'])->name('frontend.county');
+Route::get('/frontend/getCountyGrid', [App\Http\Controllers\Frontend\ProductGeoController::class, 'getProductByGeoGrid'])->name('frontend.getCountyGrid');
+//vendor
+// Seller/Vendor
+Route::get('/seller/{id}/{title}', [App\Http\Controllers\Frontend\ProductVendorController::class, 'getProductByVenderdPage'])->name('frontend.vendor');
+Route::get('/frontend/getVendorGrid', [App\Http\Controllers\Frontend\ProductVendorController::class, 'getProductByVenderdGrid'])->name('frontend.getVendorGrid');
 
 //Product
 Route::get('/product/{id}/{title}', [App\Http\Controllers\Frontend\ProductController::class, 'getProductPage'])->name('frontend.product');

@@ -61,7 +61,7 @@ function glan(){
 function CategoryMenuList(){
 	$lan = glan();
 
-	$datalist = Pro_category::where('lan', '=', $lan)->where('is_publish', '=', 1)->orderBy('id', 'ASC')->get();
+	$datalist = Pro_category::where('lan', '=', $lan)->where('is_publish', '=', 1)->whereNull('parent_id')  ->orderBy('id', 'ASC')->get();
 	$li_List = '';
 	$Path = asset('public/media');
 	$count = 1;
@@ -128,6 +128,7 @@ function HeaderMenuList($MenuType){
 	AND a.status_id  = 1
 	ORDER BY sort_order ASC;";
 	$datalist = DB::select($sql);
+    //dd($datalist);
 	$MenuList = '';
 	$MegaDropdownMenuList = '';
 	$full_width = '';
@@ -389,10 +390,21 @@ function makeDropdownMenu($menu_id, $menu_parent_id, $MenuType){
 		if($row->menu_type == 'page'){
 			$li_List .= '<li><a'.$target_window.' href="'.route('frontend.page', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
 
-		}elseif($row->menu_type == 'brand'){
-			$li_List .= '<li><a'.$target_window.' href="'.route('frontend.brand', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+		}
+        elseif($row->menu_type == 'brand'){
+            $li_List .= '<li><a'.$target_window.' href="'.route('frontend.brand', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
 
-		}elseif($row->menu_type == 'custom_link'){
+        }
+        elseif($row->menu_type == 'geo_unit'){
+			$li_List .= '<li><a'.$target_window.' href="'.route('frontend.county', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+
+		}
+        elseif($row->menu_type == 'shop'){
+            $li_List .= '<li><a'.$target_window.' href="'.route('frontend.vendor', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+
+        }
+
+        elseif($row->menu_type == 'custom_link'){
 			$li_List .= '<li><a'.$target_window.' href="'.$custom_url.'">'.$row->item_label.'</a></li>';
 
 		}elseif($row->menu_type == 'product'){
