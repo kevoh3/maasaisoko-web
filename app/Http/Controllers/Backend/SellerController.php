@@ -66,271 +66,6 @@ class SellerController extends Controller
         return view('frontend.seller-register',compact('groups','counties','storeCategories','countryId'));
     }
 
-    /** Normalize Kenyan phone to +2547XXXXXXXX */
-//    private function normalizeKEPhone(?string $raw): ?string {
-//        if (!$raw) return null;
-//        $s = trim($raw);
-//        // keep leading + for +254, drop other non-digits
-//        $s = preg_replace('/(?!^\+)[^\d]/', '', $s);
-//
-//        // Already +2547XXXXXXXX
-//        if (preg_match('/^\+2547\d{8}$/', $s)) return $s;
-//
-//        // 2547XXXXXXXX
-//        if (preg_match('/^2547\d{8}$/', $s)) return '+'.$s;
-//
-//        // 07XXXXXXXX -> +2547XXXXXXXX
-//        if (preg_match('/^07\d{8}$/', $s)) return '+254'.substr($s,1);
-//
-//        // 7XXXXXXXXX (9 digits) -> +2547XXXXXXXX
-//        if (preg_match('/^7\d{8}$/', $s)) return '+254'.$s;
-//
-//        return $s; // fallback (shouldn’t happen if validated, but safe)
-//    }
-
-//    public function SellerRegister(Request $request)
-//    {
-//        $gtext       = gtext();
-//        $recaptchaOn = (int) $gtext['is_recaptcha'] === 1;
-//        $saveMode    = $request->input('save_mode', 'submit'); // 'draft' | 'submit'
-//        $isDraft     = $saveMode === 'draft';
-//
-//        if ($recaptchaOn && !$isDraft) {
-//            $request->validate(['g-recaptcha-response' => 'required']);
-//            $captcha   = $request->input('g-recaptcha-response');
-//            $secretkey = $gtext['secretkey'] ?? '';
-//            $ip        = $request->ip();
-//            $url = 'https://www.google.com/recaptcha/api/siteverify?secret='
-//                .urlencode($secretkey).'&response='.urlencode($captcha).'&remoteip='.$ip;
-//            $resp = @file_get_contents($url);
-//            $ok   = $resp ? json_decode($resp, true) : ['success' => false];
-//            if (empty($ok['success'])) {
-//                return back()->withFail(__('The recaptcha field is required'))->withInput();
-//            }
-//        }
-//
-//        // Accept +2547XXXXXXXX OR 07XXXXXXXX OR 7XXXXXXXX (with optional spaces/dashes)
-////        $kePhoneRegex = 'regex:/^(?:\+254|0)?\s?7\d(?:[\s-]?\d){7}$/';
-//
-//        // In SellerRegister() — build rules using the constant correctly:
-//        $rulesBase = [
-//            'name'        => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
-//            'email'       => $isDraft ? 'nullable|email' : 'required|email',
-//            'password'    => $isDraft ? 'nullable|confirmed|min:6' : 'required|confirmed|min:6',
-//            'shop_name'   => $isDraft ? 'nullable|string|max:200' : 'required|string|max:200',
-//
-//            // ✅ Use "regex:{$pattern}" (string) — NOT the raw pattern
-//            'shop_phone'  => [$isDraft ? 'nullable' : 'required', 'regex:'.self::KE_PHONE_PCRE],
-//
-//            'geo_unit_id' => $isDraft ? 'nullable|integer|exists:geo_units,id' : 'required|integer|exists:geo_units,id',
-//            'address_line'=> $isDraft ? 'nullable|string|max:255' : 'required|string|max:255',
-//            'classification'  => $isDraft ? 'nullable|in:individual,company' : 'required|in:individual,company',
-//            'group_option'    => 'nullable|in:group',
-//            'group_id'        => 'nullable|integer|exists:groups,id',
-//
-//            // Step 2
-//            'document_number'        => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
-//            'document_file'          => $isDraft ? 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096' : 'required|file|mimes:pdf,jpg,jpeg,png|max:4096',
-//            'business_license_file'  => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
-//            'kra_pin'                => 'nullable|string|max:20',
-//            'brand_auth_file'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
-//            'contact_person_name'    => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
-//            'contact_person_phone'   => [$isDraft ? 'nullable' : 'required', 'regex:'.self::KE_PHONE_PCRE],
-//
-//            // Step 3
-//            'bank_name'      => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
-//            'bank_branch'    => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
-//            'account_name'   => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
-//            'account_number' => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
-//            'swift_code'     => 'nullable|string|max:50',
-//            'mobile_money'   => ['nullable', 'regex:'.self::KE_PHONE_PCRE],
-//
-//            // Step 4
-//            'store_category_id' => $isDraft ? 'nullable|integer|exists:pro_categories,id' : 'required|integer|exists:pro_categories,id',
-//            'store_description' => $isDraft ? 'nullable|string' : 'required|string',
-//            'shipping_methods'  => 'nullable|array',
-//            'shipping_methods.*'=> 'in:local_pickup,within_county,nationwide',
-//            'store_logo'        => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
-//            'store_banner'      => 'nullable|image|mimes:jpg,jpeg,png|max:8192',
-//        ];
-//
-//        // Email uniqueness logic
-//        $existingUser = $request->filled('email')
-//            ? User::where('email', $request->input('email'))->first()
-//            : null;
-//        if (!$existingUser) {
-//            $rulesBase['email'] = ($isDraft ? 'nullable' : 'required').'|email|unique:users,email';
-//        } else {
-//            $rulesBase['email'] = ($isDraft ? 'nullable' : 'required').'|email';
-//        }
-//
-//        if ($request->input('group_option') === 'group') {
-//            $rulesBase['group_id'] = 'required|integer|exists:groups,id';
-//        }
-//
-//        $validated = $request->validate($rulesBase);
-//
-//        // --- Normalize phones to E.164 (+2547XXXXXXXX) ---
-//        $request->merge([
-//            'shop_phone'           => $this->normalizeKEPhone($request->input('shop_phone')),
-//            'contact_person_phone' => $this->normalizeKEPhone($request->input('contact_person_phone')),
-//            'mobile_money'         => $this->normalizeKEPhone($request->input('mobile_money')),
-//        ]);
-//
-//        // Seller auto-active toggle
-//        $sellerSettings = gSellerSettings();
-//        $autoActive = (int)($sellerSettings['seller_auto_active'] ?? 0) === 1;
-//
-//        DB::beginTransaction();
-//        try {
-//            // CREATE or UPDATE user for draft resume
-//            if (!$existingUser) {
-//                $user = new User();
-//                $user->email = $validated['email'] ?? null;
-//                $user->password = $request->filled('password') ? Hash::make($request->input('password')) : Hash::make(Str::random(12));
-//                $user->bactive  = $request->filled('password') ? base64_encode($request->input('password')) : null;
-//                $user->role_id  = 3; // seller
-//            } else {
-//                $user = $existingUser;
-//                if ($request->filled('password')) {
-//                    $user->password = Hash::make($request->input('password'));
-//                    $user->bactive  = base64_encode($request->input('password'));
-//                }
-//                if ((int)$user->role_id !== 3) $user->role_id = 3;
-//            }
-//
-//            // Core info
-//            if ($request->filled('name'))         $user->name        = $request->input('name');
-//            if ($request->filled('shop_name'))    $user->shop_name   = $request->input('shop_name');
-//            if ($request->filled('shop_phone'))   $user->phone       = $request->input('shop_phone');
-//            if ($request->filled('address_line')) $user->address     = $request->input('address_line');
-//            if ($request->filled('geo_unit_id'))  $user->geo_unit_id = (int)$request->input('geo_unit_id');
-//
-//            if ($request->filled('shop_name')) {
-//                $user->shop_url = $this->uniqueShopSlug($request->input('shop_name'), $user->id ?? null);
-//            }
-//
-//            // Meta
-//            if ($request->filled('classification'))  $user->classification  = $request->input('classification');
-//            if ($request->filled('document_number')) $user->document_number = $request->input('document_number');
-//            if ($request->input('group_option') === 'group' && $request->filled('group_id')) {
-//                $user->group_id = (int)$request->input('group_id');
-//            } else {
-//                if ($isDraft && !$request->filled('group_id')) $user->group_id = null;
-//            }
-//
-//            // Status & KYC
-//            if ($isDraft) {
-//                $user->status_id  = 2;
-//                $user->kyc_status = 'not_submitted';
-//            } else {
-//                $user->status_id  = $autoActive ? 1 : 2;
-//                $user->kyc_status = 'pending';
-//                $user->kyc_submitted_at = now();
-//            }
-//
-//            $user->save();
-//
-//            // Documents
-//            $docs = SellerDocument::firstOrNew(['user_id' => $user->id]);
-//            if ($request->filled('document_number')) $docs->document_number = $request->input('document_number');
-//            if ($request->filled('kra_pin'))         $docs->kra_pin         = $request->input('kra_pin');
-//
-//            if ($request->hasFile('document_file'))         $docs->document_file_path         = $request->file('document_file')->store('seller_docs', 'public');
-//            if ($request->hasFile('business_license_file')) $docs->business_license_file_path = $request->file('business_license_file')->store('seller_docs', 'public');
-//            if ($request->hasFile('brand_auth_file'))       $docs->brand_auth_file_path       = $request->file('brand_auth_file')->store('seller_docs', 'public');
-//
-//            $docs->user_id = $user->id;
-//            $docs->save();
-//
-//            // Settlement
-//            $settle = SellerSettlement::firstOrNew(['user_id' => $user->id]);
-//            foreach (['bank_name','bank_branch','account_name','account_number','swift_code','mobile_money'] as $f) {
-//                if ($request->filled($f)) $settle->{$f} = $request->input($f);
-//            }
-//            $settle->user_id = $user->id;
-//            $settle->save();
-//
-//            // Store
-//            $store = SellerStore::firstOrNew(['user_id' => $user->id]);
-//            if ($request->filled('store_category_id')) $store->store_category_id = (int)$request->input('store_category_id');
-//            if ($request->filled('store_description')) $store->store_description = $request->input('store_description');
-//            if ($request->has('shipping_methods')) {
-//                $store->shipping_methods = array_values(array_unique(array_filter((array)$request->input('shipping_methods'))));
-//            } else {
-//                $store->shipping_methods = $isDraft ? ($store->shipping_methods ?? []) : [];
-//            }
-//            if ($request->hasFile('store_logo'))   $store->store_logo_path   = $request->file('store_logo')->store('seller_stores', 'public');
-//            if ($request->hasFile('store_banner')) $store->store_banner_path = $request->file('store_banner')->store('seller_stores', 'public');
-//            $store->user_id = $user->id;
-//            $store->save();
-//
-//            // Post-submit hooks
-//            if (!$isDraft) {
-//                if (isset($this->waasService)) {
-//                    $payload = [
-//                        'name'       => $user->shop_name ?: $user->name,
-//                        'mobile_no'  => $user->phone,
-//                        'request_id' => $user->email,
-//                    ];
-//                    try { $this->waasService->addBeneficiary($payload, $user->id); }
-//                    catch (\Throwable $e) { \Log::warning('waasService addBeneficiary failed: '.$e->getMessage()); }
-//                }
-//
-//                if (!$user->currentSubscription()->exists()) {
-//                    $free = Package::where('name', 'Free')->first();
-//                    if ($free) {
-//                        UserSubscription::create([
-//                            'user_id'       => $user->id,
-//                            'package_id'    => $free->id,
-//                            'billing_cycle' => 'monthly',
-//                            'price'         => 0,
-//                            'currency'      => 'KES',
-//                            'status'        => 'active',
-//                            'starts_at'     => now(),
-//                            'expires_at'    => null,
-//                            'next_due_at'   => null,
-//                        ]);
-//                    }
-//                }
-//
-//                if ((int)$gtext['is_mailchimp'] === 1 && $user->email) {
-//                    try {
-//                        $HTTP_Status = self::MailChimpSubscriber($user->name, $user->email);
-//                        if ($HTTP_Status == 200) {
-//                            $exists = Subscriber::where('email_address', $user->email)->exists();
-//                            if (!$exists) {
-//                                Subscriber::create([
-//                                    'email_address' => $user->email,
-//                                    'first_name'    => $user->name,
-//                                    'last_name'     => $user->name,
-//                                    'status'        => 'subscribed'
-//                                ]);
-//                            }
-//                        }
-//                    } catch (\Throwable $e) {
-//                        \Log::warning('MailChimp subscribe failed: '.$e->getMessage());
-//                    }
-//                }
-//            }
-//
-//            DB::commit();
-//
-//            if ($isDraft) {
-//                return back()->withSuccess(__('Draft saved. You can resume later from your account.'));
-//            }
-//
-//            if ((int)$user->status_id === 1) {
-//                return back()->withSuccess(__('Thanks! You have registered successfully. Please login.'));
-//            }
-//            return back()->withSuccess(__('Thanks! Registration submitted. Your account is pending review.'));
-//        } catch (\Throwable $e) {
-//            DB::rollBack();
-//            \Log::error('SellerRegister failed: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
-//            return back()->withFail(__('Oops! Registration could not be completed. Please try again.'))->withInput();
-//        }
-//    }
-
     /** Generate a unique shop_url from a name. */
     private function uniqueShopSlug(string $name = null, $excludeUserId = null): string
     {
@@ -759,6 +494,8 @@ class SellerController extends Controller
     }
 
     /** Step-aware register (draft OR submit) with OTP enforcement on Step 1 when submitting */
+
+    /** Step-aware register (draft OR submit) with OTP enforcement on Step 1 when submitting) */
     public function SellerRegister(Request $request)
     {
         $gtext       = gtext();
@@ -782,14 +519,14 @@ class SellerController extends Controller
             }
         }
 
-        // Build rules per step
+        // Build rules per step (NO phone regex; treat as string)
         $rules = match ($step) {
             1 => [
                 'name'          => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
                 'email'         => $isDraft ? 'nullable|email' : 'required|email',
                 'password'      => $isDraft ? 'nullable|confirmed|min:6' : 'required|confirmed|min:6',
                 'shop_name'     => $isDraft ? 'nullable|string|max:200' : 'required|string|max:200',
-                'shop_phone'    => [$isDraft ? 'nullable' : 'required', 'regex:'.self::KE_PHONE_PCRE],
+                'shop_phone'    => $isDraft ? 'nullable|string|max:30' : 'required|string|max:30',
                 'geo_unit_id'   => $isDraft ? 'nullable|integer|exists:geo_units,id' : 'required|integer|exists:geo_units,id',
                 'address_line'  => $isDraft ? 'nullable|string|max:255' : 'required|string|max:255',
                 'classification'=> $isDraft ? 'nullable|in:individual,company' : 'required|in:individual,company',
@@ -803,7 +540,7 @@ class SellerController extends Controller
                 'kra_pin'               => 'nullable|string|max:20',
                 'brand_auth_file'       => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
                 'contact_person_name'   => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
-                'contact_person_phone'  => [$isDraft ? 'nullable' : 'required', 'regex:'.self::KE_PHONE_PCRE],
+                'contact_person_phone'  => $isDraft ? 'nullable|string|max:30' : 'required|string|max:30',
             ],
             3 => [
                 'bank_name'      => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
@@ -811,7 +548,7 @@ class SellerController extends Controller
                 'account_name'   => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
                 'account_number' => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
                 'swift_code'     => 'nullable|string|max:50',
-                'mobile_money'   => ['nullable', 'regex:'.self::KE_PHONE_PCRE],
+                'mobile_money'   => 'nullable|string|max:30',
             ],
             4 => [
                 'store_category_id' => $isDraft ? 'nullable|integer|exists:pro_categories,id' : 'required|integer|exists:pro_categories,id',
@@ -824,15 +561,15 @@ class SellerController extends Controller
             default => [],
         };
 
-        // Unique email only when first time entering email (Step 1)
+        // Unique email on step 1 only; enforce OTP (not for drafts)
         if ($step === 1) {
             $existingUser = $request->filled('email')
-                ? \App\Models\User::where('email', $request->input('email'))->first()
+                ? User::where('email', $request->input('email'))->first()
                 : null;
             $rules['email'] = ($isDraft ? 'nullable' : 'required').'|email'
                 .($existingUser ? '' : '|unique:users,email');
+
             if (!$isDraft) {
-                // Enforce OTP verified on submit (Step 1)
                 if (!session('seller_otp_verified')) {
                     return back()->withFail(__('Please verify your phone (OTP) before continuing.'))->withInput();
                 }
@@ -841,7 +578,7 @@ class SellerController extends Controller
 
         $validated = $request->validate($rules);
 
-        // Normalize phones
+        // Normalize phones (non-fatal)
         $request->merge([
             'shop_phone'           => $this->normalizeKEPhone($request->input('shop_phone')),
             'contact_person_phone' => $this->normalizeKEPhone($request->input('contact_person_phone')),
@@ -856,19 +593,19 @@ class SellerController extends Controller
         try {
             // CREATE/UPDATE user so draft can be resumed
             $existingUser = $request->filled('email')
-                ? \App\Models\User::where('email', $request->input('email'))->first()
+                ? User::where('email', $request->input('email'))->first()
                 : null;
 
             if (!$existingUser) {
-                $user = new \App\Models\User();
+                $user = new User();
                 $user->email = $validated['email'] ?? null;
-                $user->password = $request->filled('password') ? \Illuminate\Support\Facades\Hash::make($request->input('password')) : \Illuminate\Support\Str::random(12);
+                $user->password = $request->filled('password') ? Hash::make($request->input('password')) : Hash::make(Str::random(12));
                 $user->bactive  = $request->filled('password') ? base64_encode($request->input('password')) : null;
                 $user->role_id  = 3; // seller
             } else {
                 $user = $existingUser;
                 if ($request->filled('password')) {
-                    $user->password = \Illuminate\Support\Facades\Hash::make($request->input('password'));
+                    $user->password = Hash::make($request->input('password'));
                     $user->bactive  = base64_encode($request->input('password'));
                 }
                 if ((int)$user->role_id !== 3) $user->role_id = 3;
@@ -914,7 +651,7 @@ class SellerController extends Controller
 
             // Step-specific persistence
             if ($step >= 2) {
-                $docs = \App\Models\SellerDocument::firstOrNew(['user_id' => $user->id]);
+                $docs = SellerDocument::firstOrNew(['user_id' => $user->id]);
                 if ($request->filled('document_number')) $docs->document_number = $request->input('document_number');
                 if ($request->filled('kra_pin'))         $docs->kra_pin         = $request->input('kra_pin');
 
@@ -927,7 +664,7 @@ class SellerController extends Controller
             }
 
             if ($step >= 3) {
-                $settle = \App\Models\SellerSettlement::firstOrNew(['user_id' => $user->id]);
+                $settle = SellerSettlement::firstOrNew(['user_id' => $user->id]);
                 foreach (['bank_name','bank_branch','account_name','account_number','swift_code','mobile_money'] as $f) {
                     if ($request->filled($f)) $settle->{$f} = $request->input($f);
                 }
@@ -936,7 +673,7 @@ class SellerController extends Controller
             }
 
             if ($step >= 4) {
-                $store = \App\Models\SellerStore::firstOrNew(['user_id' => $user->id]);
+                $store = SellerStore::firstOrNew(['user_id' => $user->id]);
                 if ($request->filled('store_category_id')) $store->store_category_id = (int)$request->input('store_category_id');
                 if ($request->filled('store_description')) $store->store_description = $request->input('store_description');
                 if ($request->has('shipping_methods')) {
@@ -948,10 +685,7 @@ class SellerController extends Controller
                 $store->save();
             }
 
-            // Finalize + optional hooks when fully submitted (step 4, not draft)
-            if (!$isDraft && $step === 4) {
-                // (Your WAAS + Package + Mailchimp logic can stay as in your original method)
-            }
+            // (Optional: your WAAS / Package / Mailchimp hooks here on final submit)
 
             DB::commit();
 
@@ -960,13 +694,11 @@ class SellerController extends Controller
                     ->withInput(['current_step' => $step]);
             }
 
-            // Move to next step or finish
             if ($step < 4) {
                 return back()->withSuccess(__('Saved. Continue to next step.'))
                     ->withInput(['current_step' => $step + 1]);
             }
 
-            // Final message
             if ((int)$user->status_id === 1) {
                 return back()->withSuccess(__('Thanks! You have registered successfully. Please login.'));
             }
@@ -978,34 +710,45 @@ class SellerController extends Controller
         }
     }
 
-    /** OTP: send & verify (session-based simple flow) */
+    /** OTP: send (returns {status:'ok'} on success) */
     public function sendOtp(Request $req)
     {
-        $phone = $this->normalizeKEPhone($req->input('phone'));
-        if (!$phone || !preg_match(self::KE_PHONE_PCRE, $req->input('phone') ?? '')) {
-            return response()->json(['ok'=>false,'msg'=>'invalid'], 422);
+        $raw   = $req->input('phone');
+        $phone = $this->normalizeKEPhone($raw);
+        if (!$phone) {
+            return response()->json(['status'=>'error','message'=>'Phone is required'], 422);
         }
 
-        $code = random_int(100000, 999999);
-        // TODO: integrate your SMS provider here
-        // SMS::send($phone, "Your MaasaiSoko verification code is: {$code}");
-        SmsService::otpVerification($phone,$code);
-        session([
-            'seller_otp_code' => (string)$code,
-            'seller_otp_exp'  => now()->addMinutes(10),
-            'seller_otp_verified' => false,
-        ]);
+        try {
+            $code = random_int(100000, 999999);
+            SmsService::otpVerification($phone, $code);
 
-        return response()->json(['ok'=>true]);
+            session([
+                'seller_otp_code' => (string)$code,
+                'seller_otp_exp'  => now()->addMinutes(10),
+                'seller_otp_verified' => false,
+            ]);
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            \Log::error('sendOtp failed: '.$e->getMessage());
+            return response()->json(['status'=>'error','message'=>'Failed to send code'], 500);
+        }
     }
 
+    /** OTP: verify (returns {status:'ok'} when code matches & not expired) */
     public function verifyOtp(Request $req)
     {
         $code = (string) $req->input('code');
         $ok = session('seller_otp_code') === $code && now()->lt(session('seller_otp_exp'));
+
         if ($ok) {
             session(['seller_otp_verified' => true]);
+            return response()->json(['status' => 'ok']);
         }
-        return response()->json(['ok' => $ok]);
+
+        return response()->json(['status'=>'error','message'=>'invalid'], 422);
     }
+
+
 }
