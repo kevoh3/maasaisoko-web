@@ -149,39 +149,85 @@
     </div>
 
     {{-- Categories --}}
+{{--    <div class="widget-card">--}}
+{{--        <div class="widget-title">{{ __('Categories') }}</div>--}}
+{{--        <div class="widget-body">--}}
+{{--            @php $CategoryTree = CategoryTreeForFilter(glan()); @endphp--}}
+{{--            <ul class="widget-list cats-tree">--}}
+{{--                @foreach ($CategoryTree as $row)--}}
+{{--                    <li class="cat-parent">--}}
+{{--                        <div class="rowitem">--}}
+{{--                            <div class="icon">--}}
+{{--                                <a href="{{ route('frontend.product-category', [$row['id'], $row['slug']]) }}">--}}
+{{--                                    <img src="{{ asset('public/media/'.$row['thumbnail']) }}" alt="{{ $row['name'] }}" />--}}
+{{--                                </a>--}}
+{{--                            </div>--}}
+{{--                            <div class="desc">--}}
+{{--                                <a href="{{ route('frontend.product-category', [$row['id'], $row['slug']]) }}">{{ $row['name'] }}</a>--}}
+{{--                            </div>--}}
+{{--                            <div class="count">{{ $row['count'] }}</div>--}}
+{{--                            @if(count($row['children'])) <i class="bi bi-chevron-right caret"></i> @endif--}}
+{{--                        </div>--}}
+
+{{--                        @if(count($row['children']))--}}
+{{--                            <ul class="children">--}}
+{{--                                @foreach ($row['children'] as $ch)--}}
+{{--                                    <li>--}}
+{{--                                        <a href="{{ route('frontend.product-category', [$ch['id'], $ch['slug']]) }}">{{ $ch['name'] }}</a>--}}
+{{--                                        <span class="count">{{ $ch['count'] }}</span>--}}
+{{--                                    </li>--}}
+{{--                                @endforeach--}}
+{{--                            </ul>--}}
+{{--                        @endif--}}
+{{--                    </li>--}}
+{{--                @endforeach--}}
+{{--            </ul>--}}
+{{--        </div>--}}
+{{--    </div>--}}
     <div class="widget-card">
         <div class="widget-title">{{ __('Categories') }}</div>
         <div class="widget-body">
-            @php $CategoryTree = CategoryTreeForFilter(glan()); @endphp
-            <ul class="widget-list cats-tree">
-                @foreach ($CategoryTree as $row)
-                    <li class="cat-parent">
-                        <div class="rowitem">
-                            <div class="icon">
-                                <a href="{{ route('frontend.product-category', [$row['id'], $row['slug']]) }}">
-                                    <img src="{{ asset('public/media/'.$row['thumbnail']) }}" alt="{{ $row['name'] }}" />
-                                </a>
-                            </div>
-                            <div class="desc">
-                                <a href="{{ route('frontend.product-category', [$row['id'], $row['slug']]) }}">{{ $row['name'] }}</a>
-                            </div>
-                            <div class="count">{{ $row['count'] }}</div>
-                            @if(count($row['children'])) <i class="bi bi-chevron-right caret"></i> @endif
+            <div class="cascader" id="catCascader">
+                <button type="button" class="btn btn-light cascader-trigger">
+                    <i class="bi bi-tags"></i>
+                    <span id="catTriggerText">
+                    {{ isset($metadata['name']) && $metadata['name'] ? $metadata['name'] : __('All Categories (choose)') }}
+                </span>
+                </button>
+
+                <div class="cascader-panel" role="dialog" aria-label="Category picker">
+                    <div class="cascader-cols">
+                        {{-- Parents (top-level) --}}
+                        <div class="cascader-col" id="cat-col-parents" aria-label="Parent categories">
+                            <div class="cascader-head">{{ __('Categories') }}</div>
+                            <ul class="cascader-list" role="menu" id="catParentsList"></ul>
                         </div>
 
-                        @if(count($row['children']))
-                            <ul class="children">
-                                @foreach ($row['children'] as $ch)
-                                    <li>
-                                        <a href="{{ route('frontend.product-category', [$ch['id'], $ch['slug']]) }}">{{ $ch['name'] }}</a>
-                                        <span class="count">{{ $ch['count'] }}</span>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        @endif
-                    </li>
-                @endforeach
-            </ul>
+                        {{-- Children --}}
+                        <div class="cascader-col" id="cat-col-children" aria-label="Subcategories">
+                            <div class="cascader-head">{{ __('Subcategories') }}</div>
+                            <div class="cascader-empty">{{ __('Hover a category…') }}</div>
+                            <ul class="cascader-list d-none" role="menu" id="catChildrenList"></ul>
+                        </div>
+
+                        {{-- Grandchildren (optional) --}}
+                        <div class="cascader-col" id="cat-col-grand" aria-label="More">
+                            <div class="cascader-head">{{ __('More') }}</div>
+                            <div class="cascader-empty">{{ __('Hover a subcategory…') }}</div>
+                            <ul class="cascader-list d-none" role="menu" id="catGrandList"></ul>
+                        </div>
+                    </div>
+
+                    <div class="cascader-footer">
+                        <a href="{{ request()->fullUrlWithQuery(['category_id'=>null,'page'=>null]) }}"
+                           class="btn btn-sm btn-link p-0">{{ __('Clear category') }}</a>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="catShowAll">{{ __('Show all') }}</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="catClose">{{ __('Close') }}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -419,6 +465,187 @@
 
             // (Optional) if you want "Clear location" to also restore the counties list,
             // add: onclick handler to that link to call restoreCountyList() before navigation.
+        })();
+        <script>
+            (function(){
+            const cascader   = document.getElementById('catCascader');
+            const trigger    = cascader.querySelector('.cascader-trigger');
+            const panel      = cascader.querySelector('.cascader-panel');
+            const closeBtn   = document.getElementById('catClose');
+            const showAllBtn = document.getElementById('catShowAll');
+            const triggerTxt = document.getElementById('catTriggerText');
+
+            const parentsCol = document.getElementById('cat-col-parents');
+            const childCol   = document.getElementById('cat-col-children');
+            const grandCol   = document.getElementById('cat-col-grand');
+
+            const parentsUL  = document.getElementById('catParentsList');
+            const childUL    = document.getElementById('catChildrenList');
+            const grandUL    = document.getElementById('catGrandList');
+
+            const CAT_CHILDREN_URL = window.CAT_CHILDREN_URL;
+            const SELECTED_CAT_ID  = parseInt(window.SELECTED_CAT_ID || 0, 10);
+
+            function open(){ cascader.classList.add('show'); }
+            function close(){ cascader.classList.remove('show'); }
+            trigger.addEventListener('click', (e)=>{ e.stopPropagation(); cascader.classList.toggle('show'); });
+            closeBtn.addEventListener('click', ()=> close());
+            document.addEventListener('click', (e)=>{ if (!cascader.contains(e.target)) close(); });
+
+            function setEmpty(colEl, txt){
+            colEl.querySelector('.cascader-empty')?.remove();
+            const ul = colEl.querySelector('.cascader-list');
+            ul.classList.add('d-none');
+            const ph = document.createElement('div');
+            ph.className = 'cascader-empty';
+            ph.textContent = txt;
+            colEl.prepend(ph);
+        }
+            function fillList(ul, colEl, items, itemClass){
+            colEl.querySelector('.cascader-empty')?.remove();
+            ul.classList.remove('d-none');
+            ul.innerHTML = '';
+            items.forEach(it=>{
+            const li = document.createElement('li');
+            li.className = `cascader-item ${itemClass}`;
+            li.dataset.id = it.id;
+            li.dataset.name = it.name;
+            li.dataset.slug = it.slug || '';
+            li.innerHTML = `<span class="name">${it.name}</span>${(it.count!==undefined? `<span class="cascader-count">${it.count}</span>`:'')}`;
+            ul.appendChild(li);
+        });
+        }
+            function setActive(listRoot, el){
+            listRoot.querySelectorAll('.cascader-item.is-active').forEach(x=>x.classList.remove('is-active'));
+            if (el) el.classList.add('is-active');
+        }
+
+            async function fetchKids(parentId, ctrl){
+            const params = new URLSearchParams({ parent_id: parentId });
+            const res = await fetch(`${CAT_CHILDREN_URL}?${params.toString()}`, {
+            headers: { 'X-Requested-With':'XMLHttpRequest' },
+            signal: ctrl?.signal
+        });
+            if(!res.ok) return [];
+            return await res.json();
+        }
+
+            let abortParents = null, abortChild = null;
+            async function loadParents(){
+            if (abortParents) abortParents.abort();
+            abortParents = new AbortController();
+            setEmpty(parentsCol, @json(__('Loading…')));
+            const parents = await fetchKids(0, abortParents);
+            fillList(parentsUL, parentsCol, parents, 'cat-parent');
+        }
+
+            async function loadChildren(parentId, parentLi){
+            if (abortChild) abortChild.abort();
+            abortChild = new AbortController();
+
+            setActive(parentsUL, parentLi);
+            setEmpty(childCol, @json(__('Loading…')));
+            setEmpty(grandCol, @json(__('Hover a subcategory…')));
+
+            const kids = await fetchKids(parentId, abortChild);
+            if (kids.length){
+            fillList(childUL, childCol, kids, 'cat-child');
+        } else {
+            setEmpty(childCol, @json(__('No subcategories')));
+        }
+        }
+
+            async function loadGrand(childId, childLi){
+            setActive(childUL, childLi);
+            setEmpty(grandCol, @json(__('Loading…')));
+            const kids = await fetchKids(childId);
+            if (kids.length){
+            fillList(grandUL, grandCol, kids, 'cat-grand');
+        } else {
+            setEmpty(grandCol, @json(__('No more levels')));
+        }
+        }
+
+            function goToCategory(id, slug){
+            // your category route is /product-category/{id}/{title}
+            const base = @json(url('/product-category'));
+            const s = slug && slug.length ? slug : 'category';
+            window.location.href = `${base}/${id}/${s}`;
+        }
+
+            // Hover → preview next level
+            parentsUL.addEventListener('mouseenter', (e)=>{
+            const li = e.target.closest('.cat-parent');
+            if(!li) return;
+            loadChildren(parseInt(li.dataset.id,10), li);
+        }, true);
+            childUL.addEventListener('mouseenter', (e)=>{
+            const li = e.target.closest('.cat-child');
+            if(!li) return;
+            loadGrand(parseInt(li.dataset.id,10), li);
+        }, true);
+
+            // Click → navigate
+            parentsUL.addEventListener('click', (e)=>{
+            const li = e.target.closest('.cat-parent');
+            if(!li) return;
+            goToCategory(li.dataset.id, li.dataset.slug);
+        });
+            childUL.addEventListener('click', (e)=>{
+            const li = e.target.closest('.cat-child');
+            if(!li) return;
+            goToCategory(li.dataset.id, li.dataset.slug);
+        });
+            grandUL.addEventListener('click', (e)=>{
+            const li = e.target.closest('.cat-grand');
+            if(!li) return;
+            goToCategory(li.dataset.id, li.dataset.slug);
+        });
+
+            // Show all → reset to parents
+            showAllBtn.addEventListener('click', async ()=>{
+            triggerTxt.textContent = @json(__('All Categories (choose)'));
+            await loadParents();
+        });
+
+            // Focus the panel to the selected category when you are on a category page
+            async function focusToCategory(catId){
+            if (!catId) return;
+            const pl = parentsUL.querySelectorAll('.cat-parent');
+
+            // case A: selected is a top-level category
+            for (const li of pl) {
+            if (parseInt(li.dataset.id,10) === catId) {
+            triggerTxt.textContent = li.dataset.name;
+            await loadChildren(catId, li);
+            return;
+        }
+        }
+
+            // case B: find the parent whose children include the selected id
+            for (const li of pl) {
+            const pid = parseInt(li.dataset.id,10);
+            const kids = await fetchKids(pid);
+            if (kids.find(k=>k.id === catId)) {
+            triggerTxt.textContent = li.dataset.name;
+            fillList(childUL, childCol, kids, 'cat-child');
+            setActive(parentsUL, li);
+            const childLi = Array.from(childUL.children).find(x => parseInt(x.dataset.id,10) === catId);
+            if (childLi) setActive(childUL, childLi);
+            await loadGrand(catId, childLi); // optional pre-load
+            return;
+        }
+        }
+        }
+
+            // INIT
+            (async ()=>{
+            await loadParents();
+            if (SELECTED_CAT_ID) {
+            await focusToCategory(SELECTED_CAT_ID);
+            open(); // auto-open when on a category page
+        }
+        })();
         })();
     </script>
 @endpush

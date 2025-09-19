@@ -276,4 +276,39 @@ class ProductCategoryController extends Controller
         }
         return implode(' / ', array_reverse($path));
     }
+    public function children(Request $request)
+    {
+        $parentId = (int) $request->query('parent_id', 0);
+        $lan      = glan();
+
+        $q = Pro_category::query()
+            ->where('is_publish', 1)
+            ->where('lan', $lan)
+            ->orderBy('name');
+
+        if ($parentId > 0) {
+            $q->where('parent_id', $parentId);
+        } else {
+            $q->whereNull('parent_id');
+        }
+
+        // (Optional) counts for nice UI
+        $cats = $q->get(['id','name','slug']);
+
+        // attach product_count (direct children – keep it light)
+        $ids = $cats->pluck('id');
+        $counts = Product::select('cat_id', DB::raw('COUNT(*) as c'))
+            ->whereIn('cat_id', $ids)
+            ->groupBy('cat_id')
+            ->pluck('c','cat_id');
+
+        $data = $cats->map(fn($c)=>[
+            'id'    => $c->id,
+            'name'  => $c->name,
+            'slug'  => $c->slug,
+            'count' => (int)($counts[$c->id] ?? 0),
+        ]);
+
+        return response()->json($data);
+    }
 }

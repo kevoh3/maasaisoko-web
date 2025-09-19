@@ -35,6 +35,11 @@ Route::get('/page/{id}/{title}', [App\Http\Controllers\Frontend\PageController::
 //Product category
 Route::get('/product-category/{id}/{title}', [App\Http\Controllers\Frontend\ProductCategoryController::class, 'getProductCategoryPage'])->name('frontend.product-category');
 Route::get('/frontend/getProductCategoryGrid', [App\Http\Controllers\Frontend\ProductCategoryController::class, 'getProductCategoryGrid'])->name('frontend.getProductCategoryGrid');
+Route::get(
+    '/category-children',
+    [App\Http\Controllers\Frontend\ProductCategoryController::class, 'children']
+)->name('frontend.category.children');
+
 Route::get('/geo/{id}/children', function($id){
     return DB::table('geo_units')
         ->where('parent_id', $id)
@@ -42,8 +47,8 @@ Route::get('/geo/{id}/children', function($id){
         ->get(['id','name']);
 })->name('geo.children');
 
-Route::get('/geo/children', [App\Http\Controllers\Frontend\ProductCategoryController::class, 'geoChildren'])
-    ->name('geo.children');
+
+
 //Blog
 //Route::get('/geo/children', [App\Http\Controllers\Frontend\ProductGeoController::class, 'children'])
 //    ->name('frontend.geo.children');
