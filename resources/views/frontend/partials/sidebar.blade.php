@@ -274,14 +274,16 @@
     </div>
 </div>
 
-@push('scripts')
-    <script>
+
+        @push('scripts')
+        {{-- GEO cascader (counties → constituencies → wards) --}}
+        <script>
         (function(){
             const cascader   = document.getElementById('geoCascader');
-            const panel      = cascader.querySelector('.cascader-panel');
+            if (!cascader) return;
+
             const trigger    = cascader.querySelector('.cascader-trigger');
             const closeBtn   = document.getElementById('closeCascader');
-            const catId      = cascader.dataset.cat;
             const form       = document.getElementById('geoFilterForm');
             const geoInput   = document.getElementById('geoInput');
             const selectedGeo = parseInt(geoInput.value || '0', 10);
@@ -295,182 +297,165 @@
             function open(){ cascader.classList.add('show'); }
             function close(){ cascader.classList.remove('show'); }
             trigger.addEventListener('click', (e)=>{
-                e.stopPropagation();
-                // If we already have a selected county, keep the panel focused on it
-                if (!cascader.classList.contains('show')) {
-                    open();
-                    if (selectedGeo) collapseToSelectedCounty(selectedGeo);
-                } else {
-                    close();
-                }
-            });
-            closeBtn.addEventListener('click', ()=> close());
+            e.stopPropagation();
+            if (!cascader.classList.contains('show')) {
+            open();
+            if (selectedGeo) collapseToSelectedCounty(selectedGeo);
+        } else {
+            close();
+        }
+        });
+            closeBtn?.addEventListener('click', ()=> close());
             document.addEventListener('click', (e)=>{ if (!cascader.contains(e.target)) close(); });
 
             // ===== Utilities =====
             function clearCol(colEl, placeholder){
-                colEl.querySelectorAll('ul.cascader-list li').forEach(li=>li.remove());
-                colEl.querySelector('.cascader-empty')?.remove();
-                const ul = colEl.querySelector('ul.cascader-list');
-                ul.classList.add('d-none');
-                const ph = document.createElement('div');
-                ph.className = 'cascader-empty';
-                ph.textContent = placeholder;
-                colEl.prepend(ph);
-            }
+            colEl.querySelectorAll('ul.cascader-list li').forEach(li=>li.remove());
+            colEl.querySelector('.cascader-empty')?.remove();
+            const ul = colEl.querySelector('ul.cascader-list');
+            ul.classList.add('d-none');
+            const ph = document.createElement('div');
+            ph.className = 'cascader-empty';
+            ph.textContent = placeholder;
+            colEl.prepend(ph);
+        }
             function fillList(colEl, items, level){
-                colEl.querySelector('.cascader-empty')?.remove();
-                const ul = colEl.querySelector('ul.cascader-list');
-                ul.classList.remove('d-none');
-                ul.innerHTML = '';
-                items.forEach(it=>{
-                    const li = document.createElement('li');
-                    li.className = `cascader-item ${level}`;
-                    li.dataset.id = it.id;
-                    li.dataset.name = it.name;
-                    li.innerHTML = `<span class="name">${it.name}</span>${(it.count!==undefined? `<span class="cascader-count">${it.count}</span>`:'')}`;
-                    ul.appendChild(li);
-                });
-            }
+            colEl.querySelector('.cascader-empty')?.remove();
+            const ul = colEl.querySelector('ul.cascader-list');
+            ul.classList.remove('d-none');
+            ul.innerHTML = '';
+            items.forEach(it=>{
+            const li = document.createElement('li');
+            li.className = `cascader-item ${level}`;
+            li.dataset.id = it.id;
+            li.dataset.name = it.name;
+            li.innerHTML = `<span class="name">${it.name}</span>${(it.count!==undefined? `<span class="cascader-count">${it.count}</span>`:'')}`;
+            ul.appendChild(li);
+        });
+        }
             function setActive(listRoot, el){
-                listRoot.querySelectorAll('.cascader-item.is-active').forEach(x=>x.classList.remove('is-active'));
-                if (el) el.classList.add('is-active');
-            }
+            listRoot.querySelectorAll('.cascader-item.is-active').forEach(x=>x.classList.remove('is-active'));
+            if (el) el.classList.add('is-active');
+        }
 
-            // ===== Fetch with stale-response protection =====
+            // ===== Fetch children =====
             const childrenURL = @json(route('frontend.geo.children'));
             let countyCtrl = null, constCtrl = null;
             let lastCountyId = null, lastConstitId = null;
 
             async function fetchChildren(parentId, abortCtrl){
-                const params = new URLSearchParams({ parent_id: parentId, cat_id: catId });
-                const res = await fetch(`${childrenURL}?${params.toString()}`, {
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                    signal: abortCtrl?.signal
-                });
-                if(!res.ok) return [];
-                return await res.json();
-            }
+            const params = new URLSearchParams({ parent_id: parentId });
+            const res = await fetch(`${childrenURL}?${params.toString()}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            signal: abortCtrl?.signal
+        });
+            if(!res.ok) return [];
+            return await res.json();
+        }
 
             async function loadConstituencies(pid, countyEl){
-                lastCountyId = pid;
-                if (countyCtrl) countyCtrl.abort();
-                countyCtrl = new AbortController();
+            lastCountyId = pid;
+            if (countyCtrl) countyCtrl.abort();
+            countyCtrl = new AbortController();
 
-                // UI: mark active and reset wards; ALSO clear any active constituency
-                setActive(listCounties, countyEl);
-                setActive(listConst, null);
-                clearCol(colConst, @json(__('Loading…')));
-                clearCol(colWards, @json(__('Hover a constituency…')));
+            setActive(listCounties, countyEl);
+            setActive(listConst, null);
+            clearCol(colConst, @json(__('Loading…')));
+            clearCol(colWards, @json(__('Hover a constituency…')));
 
-                try {
-                    const kids = await fetchChildren(pid, countyCtrl);
-                    if (pid !== lastCountyId) return; // ignore stale
-                    if (Array.isArray(kids) && kids.length){
-                        fillList(colConst, kids, 'constituency');
-                    } else {
-                        clearCol(colConst, @json(__('No constituencies')));
-                    }
-                } catch(e) { /* aborted or failed */ }
-            }
+            try {
+            const kids = await fetchChildren(pid, countyCtrl);
+            if (pid !== lastCountyId) return; // stale
+            if (Array.isArray(kids) && kids.length){
+            fillList(colConst, kids, 'constituency');
+        } else {
+            clearCol(colConst, @json(__('No constituencies')));
+        }
+        } catch(e) {}
+        }
 
             async function loadWards(cid, constituEl){
-                lastConstitId = cid;
-                if (constCtrl) constCtrl.abort();
-                constCtrl = new AbortController();
+            lastConstitId = cid;
+            if (constCtrl) constCtrl.abort();
+            constCtrl = new AbortController();
 
-                setActive(listConst, constituEl);
-                clearCol(colWards, @json(__('Loading…')));
-                try {
-                    const kids = await fetchChildren(cid, constCtrl);
-                    if (cid !== lastConstitId) return; // ignore stale
-                    if (Array.isArray(kids) && kids.length){
-                        fillList(colWards, kids, 'ward');
-                    } else {
-                        clearCol(colWards, @json(__('No wards')));
-                    }
-                } catch(e) { /* aborted or failed */ }
-            }
+            setActive(listConst, constituEl);
+            clearCol(colWards, @json(__('Loading…')));
+            try {
+            const kids = await fetchChildren(cid, constCtrl);
+            if (cid !== lastConstitId) return; // stale
+            if (Array.isArray(kids) && kids.length){
+            fillList(colWards, kids, 'ward');
+        } else {
+            clearCol(colWards, @json(__('No wards')));
+        }
+        } catch(e) {}
+        }
 
-            // ===== Focus helpers (new) =====
+            // ===== Focus helpers =====
             function collapseToSelectedCounty(id){
-                // hide all counties except the selected one
-                const lis = Array.from(listCounties.querySelectorAll('.county'));
-                let selectedLi = null;
-                lis.forEach(li=>{
-                    if (parseInt(li.dataset.id,10) === parseInt(id,10)) {
-                        selectedLi = li;
-                        li.style.display = '';
-                        li.classList.add('is-active');
-                    } else {
-                        li.classList.remove('is-active');
-                        li.style.display = 'none';
-                    }
-                });
-                if (selectedLi){
-                    loadConstituencies(id, selectedLi);
-                }
-            }
-            function restoreCountyList(){
-                // show all counties again
-                listCounties.querySelectorAll('.county').forEach(li=>{
-                    li.style.display = '';
-                    li.classList.remove('is-active');
-                });
-                clearCol(colConst, @json(__('Hover a county…')));
-                clearCol(colWards, @json(__('Hover a constituency…')));
-            }
+            const lis = Array.from(listCounties.querySelectorAll('.county'));
+            let selectedLi = null;
+            lis.forEach(li=>{
+            if (parseInt(li.dataset.id,10) === parseInt(id,10)) {
+            selectedLi = li;
+            li.style.display = '';
+            li.classList.add('is-active');
+        } else {
+            li.classList.remove('is-active');
+            li.style.display = 'none';
+        }
+        });
+            if (selectedLi){
+            loadConstituencies(id, selectedLi);
+        }
+        }
 
             // ===== County hover/click =====
             listCounties.querySelectorAll('.county').forEach(li=>{
-                li.addEventListener('mouseenter', ()=>{
-                    // only load on hover if we are not collapsed to a selected county
-                    const collapsed = Array.from(listCounties.querySelectorAll('.county'))
-                        .some(x => x.style.display === 'none');
-                    if (!collapsed) loadConstituencies(li.dataset.id, li);
-                });
-                li.addEventListener('click', ()=>{
-                    // apply filter immediately
-                    geoInput.value = li.dataset.id;
-                    form.submit();
-                });
-            });
+            li.addEventListener('mouseenter', ()=> loadConstituencies(li.dataset.id, li));
+            li.addEventListener('click', ()=>{
+            geoInput.value = li.dataset.id;
+            form.submit();
+        });
+        });
 
             // ===== Constituency hover/click (delegated) =====
             listConst.addEventListener('mouseover', (e)=>{
-                const t = e.target.closest('.constituency');
-                if(!t) return;
-                loadWards(t.dataset.id, t);
-            });
+            const t = e.target.closest('.constituency');
+            if(!t) return;
+            loadWards(t.dataset.id, t);
+        });
             listConst.addEventListener('click', (e)=>{
-                const t = e.target.closest('.constituency');
-                if(!t) return;
-                geoInput.value = t.dataset.id;
-                form.submit();
-            });
+            const t = e.target.closest('.constituency');
+            if(!t) return;
+            geoInput.value = t.dataset.id;
+            form.submit();
+        });
 
             // ===== Ward click =====
             listWards.addEventListener('click', (e)=>{
-                const t = e.target.closest('.ward');
-                if(!t) return;
-                geoInput.value = t.dataset.id;
-                form.submit();
-            });
+            const t = e.target.closest('.ward');
+            if(!t) return;
+            geoInput.value = t.dataset.id;
+            form.submit();
+        });
 
-            // ===== On county page: auto-collapse to that county and show children =====
+            // Auto-open & focus when already filtered to a county
             if (selectedGeo) {
-                open();
-                collapseToSelectedCounty(selectedGeo);
-            }
-
-            // (Optional) if you want "Clear location" to also restore the counties list,
-            // add: onclick handler to that link to call restoreCountyList() before navigation.
+            open();
+            collapseToSelectedCounty(selectedGeo);
+        }
         })();
-        <script>
-            (function(){
+    </script>
+
+    {{-- Category cascader (separate script tag; don’t nest!) --}}
+    <script>
+        (function(){
             const cascader   = document.getElementById('catCascader');
+            if (!cascader) return;
+
             const trigger    = cascader.querySelector('.cascader-trigger');
-            const panel      = cascader.querySelector('.cascader-panel');
             const closeBtn   = document.getElementById('catClose');
             const showAllBtn = document.getElementById('catShowAll');
             const triggerTxt = document.getElementById('catTriggerText');
@@ -489,163 +474,128 @@
             function open(){ cascader.classList.add('show'); }
             function close(){ cascader.classList.remove('show'); }
             trigger.addEventListener('click', (e)=>{ e.stopPropagation(); cascader.classList.toggle('show'); });
-            closeBtn.addEventListener('click', ()=> close());
+            closeBtn?.addEventListener('click', ()=> close());
             document.addEventListener('click', (e)=>{ if (!cascader.contains(e.target)) close(); });
 
             function setEmpty(colEl, txt){
-            colEl.querySelector('.cascader-empty')?.remove();
-            const ul = colEl.querySelector('.cascader-list');
-            ul.classList.add('d-none');
-            const ph = document.createElement('div');
-            ph.className = 'cascader-empty';
-            ph.textContent = txt;
-            colEl.prepend(ph);
-        }
+                colEl.querySelector('.cascader-empty')?.remove();
+                const ul = colEl.querySelector('.cascader-list');
+                ul.classList.add('d-none');
+                const ph = document.createElement('div');
+                ph.className = 'cascader-empty';
+                ph.textContent = txt;
+                colEl.prepend(ph);
+            }
             function fillList(ul, colEl, items, itemClass){
-            colEl.querySelector('.cascader-empty')?.remove();
-            ul.classList.remove('d-none');
-            ul.innerHTML = '';
-            items.forEach(it=>{
-            const li = document.createElement('li');
-            li.className = `cascader-item ${itemClass}`;
-            li.dataset.id = it.id;
-            li.dataset.name = it.name;
-            li.dataset.slug = it.slug || '';
-            li.innerHTML = `<span class="name">${it.name}</span>${(it.count!==undefined? `<span class="cascader-count">${it.count}</span>`:'')}`;
-            ul.appendChild(li);
-        });
-        }
+                colEl.querySelector('.cascader-empty')?.remove();
+                ul.classList.remove('d-none');
+                ul.innerHTML = '';
+                items.forEach(it=>{
+                    const li = document.createElement('li');
+                    li.className = `cascader-item ${itemClass}`;
+                    li.dataset.id = it.id;
+                    li.dataset.name = it.name;
+                    li.dataset.slug = it.slug || '';
+                    li.innerHTML = `<span class="name">${it.name}</span>${(it.count!==undefined? `<span class="cascader-count">${it.count}</span>`:'')}`;
+                    ul.appendChild(li);
+                });
+            }
             function setActive(listRoot, el){
-            listRoot.querySelectorAll('.cascader-item.is-active').forEach(x=>x.classList.remove('is-active'));
-            if (el) el.classList.add('is-active');
-        }
+                listRoot.querySelectorAll('.cascader-item.is-active').forEach(x=>x.classList.remove('is-active'));
+                if (el) el.classList.add('is-active');
+            }
 
             async function fetchKids(parentId, ctrl){
-            const params = new URLSearchParams({ parent_id: parentId });
-            const res = await fetch(`${CAT_CHILDREN_URL}?${params.toString()}`, {
-            headers: { 'X-Requested-With':'XMLHttpRequest' },
-            signal: ctrl?.signal
-        });
-            if(!res.ok) return [];
-            return await res.json();
-        }
+                const params = new URLSearchParams({ parent_id: parentId });
+                const res = await fetch(`${CAT_CHILDREN_URL}?${params.toString()}`, {
+                    headers: { 'X-Requested-With':'XMLHttpRequest' },
+                    signal: ctrl?.signal
+                });
+                if(!res.ok) return [];
+                return await res.json();
+            }
 
             let abortParents = null, abortChild = null;
             async function loadParents(){
-            if (abortParents) abortParents.abort();
-            abortParents = new AbortController();
-            setEmpty(parentsCol, @json(__('Loading…')));
-            const parents = await fetchKids(0, abortParents);
-            fillList(parentsUL, parentsCol, parents, 'cat-parent');
-        }
+                if (abortParents) abortParents.abort();
+                abortParents = new AbortController();
+                setEmpty(parentsCol, @json(__('Loading…')));
+                const parents = await fetchKids(0, abortParents);
+                fillList(parentsUL, parentsCol, parents, 'cat-parent');
+            }
 
             async function loadChildren(parentId, parentLi){
-            if (abortChild) abortChild.abort();
-            abortChild = new AbortController();
+                if (abortChild) abortChild.abort();
+                abortChild = new AbortController();
 
-            setActive(parentsUL, parentLi);
-            setEmpty(childCol, @json(__('Loading…')));
-            setEmpty(grandCol, @json(__('Hover a subcategory…')));
+                setActive(parentsUL, parentLi);
+                setEmpty(childCol, @json(__('Loading…')));
+                setEmpty(grandCol, @json(__('Hover a subcategory…')));
 
-            const kids = await fetchKids(parentId, abortChild);
-            if (kids.length){
-            fillList(childUL, childCol, kids, 'cat-child');
-        } else {
-            setEmpty(childCol, @json(__('No subcategories')));
-        }
-        }
+                const kids = await fetchKids(parentId, abortChild);
+                if (kids.length){
+                    fillList(childUL, childCol, kids, 'cat-child');
+                } else {
+                    setEmpty(childCol, @json(__('No subcategories')));
+                }
+            }
 
             async function loadGrand(childId, childLi){
-            setActive(childUL, childLi);
-            setEmpty(grandCol, @json(__('Loading…')));
-            const kids = await fetchKids(childId);
-            if (kids.length){
-            fillList(grandUL, grandCol, kids, 'cat-grand');
-        } else {
-            setEmpty(grandCol, @json(__('No more levels')));
-        }
-        }
+                setActive(childUL, childLi);
+                setEmpty(grandCol, @json(__('Loading…')));
+                const kids = await fetchKids(childId);
+                if (kids.length){
+                    fillList(grandUL, grandCol, kids, 'cat-grand');
+                } else {
+                    setEmpty(grandCol, @json(__('No more levels')));
+                }
+            }
 
             function goToCategory(id, slug){
-            // your category route is /product-category/{id}/{title}
-            const base = @json(url('/product-category'));
-            const s = slug && slug.length ? slug : 'category';
-            window.location.href = `${base}/${id}/${s}`;
-        }
+                const base = @json(url('/product-category'));
+                const s = slug && slug.length ? slug : 'category';
+                window.location.href = `${base}/${id}/${s}`;
+            }
 
-            // Hover → preview next level
             parentsUL.addEventListener('mouseenter', (e)=>{
-            const li = e.target.closest('.cat-parent');
-            if(!li) return;
-            loadChildren(parseInt(li.dataset.id,10), li);
-        }, true);
+                const li = e.target.closest('.cat-parent');
+                if(!li) return;
+                loadChildren(parseInt(li.dataset.id,10), li);
+            }, true);
             childUL.addEventListener('mouseenter', (e)=>{
-            const li = e.target.closest('.cat-child');
-            if(!li) return;
-            loadGrand(parseInt(li.dataset.id,10), li);
-        }, true);
+                const li = e.target.closest('.cat-child');
+                if(!li) return;
+                loadGrand(parseInt(li.dataset.id,10), li);
+            }, true);
 
-            // Click → navigate
             parentsUL.addEventListener('click', (e)=>{
-            const li = e.target.closest('.cat-parent');
-            if(!li) return;
-            goToCategory(li.dataset.id, li.dataset.slug);
-        });
+                const li = e.target.closest('.cat-parent');
+                if(!li) return;
+                goToCategory(li.dataset.id, li.dataset.slug);
+            });
             childUL.addEventListener('click', (e)=>{
-            const li = e.target.closest('.cat-child');
-            if(!li) return;
-            goToCategory(li.dataset.id, li.dataset.slug);
-        });
+                const li = e.target.closest('.cat-child');
+                if(!li) return;
+                goToCategory(li.dataset.id, li.dataset.slug);
+            });
             grandUL.addEventListener('click', (e)=>{
-            const li = e.target.closest('.cat-grand');
-            if(!li) return;
-            goToCategory(li.dataset.id, li.dataset.slug);
-        });
+                const li = e.target.closest('.cat-grand');
+                if(!li) return;
+                goToCategory(li.dataset.id, li.dataset.slug);
+            });
 
-            // Show all → reset to parents
-            showAllBtn.addEventListener('click', async ()=>{
-            triggerTxt.textContent = @json(__('All Categories (choose)'));
-            await loadParents();
-        });
+            showAllBtn?.addEventListener('click', async ()=>{
+                triggerTxt.textContent = @json(__('All Categories (choose)'));
+                await loadParents();
+            });
 
-            // Focus the panel to the selected category when you are on a category page
-            async function focusToCategory(catId){
-            if (!catId) return;
-            const pl = parentsUL.querySelectorAll('.cat-parent');
-
-            // case A: selected is a top-level category
-            for (const li of pl) {
-            if (parseInt(li.dataset.id,10) === catId) {
-            triggerTxt.textContent = li.dataset.name;
-            await loadChildren(catId, li);
-            return;
-        }
-        }
-
-            // case B: find the parent whose children include the selected id
-            for (const li of pl) {
-            const pid = parseInt(li.dataset.id,10);
-            const kids = await fetchKids(pid);
-            if (kids.find(k=>k.id === catId)) {
-            triggerTxt.textContent = li.dataset.name;
-            fillList(childUL, childCol, kids, 'cat-child');
-            setActive(parentsUL, li);
-            const childLi = Array.from(childUL.children).find(x => parseInt(x.dataset.id,10) === catId);
-            if (childLi) setActive(childUL, childLi);
-            await loadGrand(catId, childLi); // optional pre-load
-            return;
-        }
-        }
-        }
-
-            // INIT
             (async ()=>{
-            await loadParents();
-            if (SELECTED_CAT_ID) {
-            await focusToCategory(SELECTED_CAT_ID);
-            open(); // auto-open when on a category page
-        }
-        })();
+                await loadParents();
+                if (SELECTED_CAT_ID) {
+                    // (optional) focus to selected category if on a category page
+                }
+            })();
         })();
     </script>
-@endpush
+    @endpush
+

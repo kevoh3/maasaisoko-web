@@ -108,18 +108,15 @@
                                                 </div>
                                             </div>
 
-                                            {{-- (Optional) price filter controls, matching Brand IDs so JS works the same --}}
-                                            {{-- geo id for AJAX --}}
+                                            {{-- geo id for JS --}}
                                             <input type="hidden" id="geo" value="{{ (int)($selectedGeo ?? 0) }}">
 
-                                            {{-- Child geos list --}}
+                                            {{-- Child geos list (pills will render here) --}}
                                             <div id="child-geos" class="my-3"></div>
 
-                                        {{-- geo id for AJAX --}}
-                                        <input type="hidden" id="geo" value="{{ (int)($selectedGeo ?? 0) }}">
-
-                                        <div id="tp_datalist">
-                                            @include('frontend.partials.county-grid')
+                                            <div id="tp_datalist">
+                                                @include('frontend.partials.county-grid')
+                                            </div>
                                         </div>
 
                                         @if($brand_variation == 'left_sidebar')
@@ -141,11 +138,12 @@
 
 @push('scripts')
     <script type="text/javascript">
-
         window.COUNTY_GRID_URL   = "{{ route('frontend.getCountyGrid') }}";
         window.GEO_CHILDREN_URL  = "{{ route('frontend.geo.children') }}";
         window.COUNTY_SHOW_ROUTE = "{{ url('/county') }}/"; // county/{id}/{slug}
         window.CURRENT_GEO_ID    = {{ (int)($selectedGeo ?? 0) }};
+        window.trans_children    = @json(__('Sub-locations')); // <-- used by county.js for the label
     </script>
-    <script src="{{ asset('public/frontend/pages/county.js') }}"></script>
+    {{-- add a cache-buster so browsers pick the latest JS --}}
+    <script src="{{ asset('public/frontend/pages/county.js') }}?v={{ @filemtime(public_path('frontend/pages/county.js')) }}"></script>
 @endpush
