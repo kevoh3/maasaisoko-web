@@ -82,7 +82,7 @@ class GeoUnitMenuSeeder extends Seeder
                             Menu_child::firstOrCreate(
                                 [
                                     'menu_id'        => 120,
-                                    'menu_parent_id' => 998,
+                                    'menu_parent_id' => 1020,
                                     'menu_type'      => 'product_category',
                                     'item_id'        => $d->id,
                                     'thumbnail'        => $d->thumbnail,
