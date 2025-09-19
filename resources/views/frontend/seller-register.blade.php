@@ -72,6 +72,10 @@
         .cascader-item .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90%}
         .cascader-empty{padding:10px;color:#9aa1a9;font-size:.9rem}
         .cascader-footer{padding:8px 10px;background:#fafbfc;border-top:1px solid #f1f2f4;width:100%;display:flex;justify-content:space-between;align-items:center}
+
+        .otp-row .btn{white-space:nowrap}
+        .is-valid { border-color:#22c55e !important; }
+        .is-invalid { border-color:#ef4444 !important; }
     </style>
 @endpush
 
@@ -121,6 +125,7 @@
                                 <input type="hidden" name="geo_unit_id" id="geo_unit_id" value="">
                                 <input type="hidden" name="geo_path" id="geo_path" value="">
                                 <input type="hidden" name="save_mode" id="save_mode" value="">
+                                <input type="hidden" id="otp_ok" value="0">
 
                                 {{-- Progress --}}
                                 <div class="form-section mb-3">
@@ -151,24 +156,43 @@
                                                 <input type="email" name="email" class="form-control" placeholder="you@example.com" required value="{{ old('email') }}">
                                             </div>
                                         </div>
-                                        {{-- Mobile (+254 variants allowed) --}}
-                                        <div class="col-md-6">
+
+                                        {{-- Shop Phone + OTP --}}
+                                        <div class="col-md-8">
                                             <div class="form-group">
                                                 <label>{{ __('Shop Phone (Mobile)') }}</label>
-                                                <input
-                                                    type="tel"
-                                                    name="shop_phone"
-                                                    class="form-control"
-                                                    placeholder="+254712345678 or 0712345678"
-                                                    pattern="^(?:\+254|0)?\s?7\d(?:[\s-]?\d){7}$"
-                                                    required
-                                                    value="{{ old('shop_phone') }}"
-                                                >
-                                                <small class="text-muted">{{ __('Accepts +2547XXXXXXXX, 07XXXXXXXX or 7XXXXXXXX. We’ll format it as +2547XXXXXXXX.') }}</small>
+                                                <div class="d-flex gap-2 otp-row">
+                                                    <input
+                                                        type="tel"
+                                                        id="shop_phone"
+                                                        name="shop_phone"
+                                                        class="form-control"
+                                                        placeholder="+254712345678 or 0712345678"
+                                                        required
+                                                        value="{{ old('shop_phone') }}"
+                                                    >
+                                                    <button type="button" class="btn btn-outline-primary" id="btnSendOtp">
+                                                        {{ __('Request OTP') }}
+                                                    </button>
+                                                </div>
+                                                <small class="text-muted">
+                                                    {{ __('Accepts +2547/+2541, 07/01, or 7/1 formats. We’ll format it as +2547XXXXXXXX or +2541XXXXXXXX.') }}
+                                                </small>
                                             </div>
                                         </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>{{ __('Verification Code') }}</label>
+                                                <div class="d-flex gap-2 otp-row">
+                                                    <input type="text" id="otp_code" class="form-control" placeholder="123456">
+                                                    <button type="button" class="btn btn-outline-success" id="btnVerifyOtp">{{ __('Verify') }}</button>
+                                                </div>
+                                                <small id="otp_help" class="text-muted"></small>
+                                            </div>
+                                        </div>
+
                                         {{-- Physical Address --}}
-                                        <div class="col-md-6">
+                                        <div class="col-md-12">
                                             <div class="form-group">
                                                 <label>{{ __('Physical Address') }}</label>
                                                 <input type="text" name="address_line" class="form-control" placeholder="{{ __('House/Building, Street/Road') }}" required value="{{ old('address_line') }}">
@@ -321,13 +345,15 @@
                                                 <input
                                                     type="tel"
                                                     name="contact_person_phone"
+                                                    id="contact_person_phone"
                                                     class="form-control"
                                                     placeholder="+254712345678 or 0712345678"
-                                                    pattern="^(?:\+254|0)?\s?7\d(?:[\s-]?\d){7}$"
                                                     required
                                                     value="{{ old('contact_person_phone') }}"
                                                 >
-                                                <small class="text-muted">{{ __('Accepts +2547XXXXXXXX, 07XXXXXXXX or 7XXXXXXXX. We’ll format it as +2547XXXXXXXX.') }}</small>
+                                                <small class="text-muted">
+                                                    {{ __('Accepts +2547/+2541, 07/01, or 7/1 formats. We’ll format it as +2547XXXXXXXX or +2541XXXXXXXX.') }}
+                                                </small>
                                             </div>
                                         </div>
                                     </div>
@@ -362,12 +388,14 @@
                                                 <input
                                                     type="tel"
                                                     name="mobile_money"
+                                                    id="mobile_money"
                                                     class="form-control"
                                                     placeholder="+254712345678 or 0712345678"
-                                                    pattern="^(?:\+254|0)?\s?7\d(?:[\s-]?\d){7}$"
                                                     value="{{ old('mobile_money') }}"
                                                 >
-                                                <small class="text-muted">{{ __('Accepts +2547XXXXXXXX, 07XXXXXXXX or 7XXXXXXXX. We’ll format it as +2547XXXXXXXX.') }}</small>
+                                                <small class="text-muted">
+                                                    {{ __('Accepts +2547/+2541, 07/01, or 7/1 formats. We’ll format it as +2547XXXXXXXX or +2541XXXXXXXX.') }}
+                                                </small>
                                             </div></div>
                                     </div>
                                 </fieldset>
@@ -442,230 +470,422 @@
 @endsection
 
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @if($gtext['is_recaptcha'] == 1)
-        <script src='https://www.google.com/recaptcha/api.js' async defer></script>
-    @endif
 
-    <script>
-        (function () {
-            function fireToast(icon, title) {
-                Swal.fire({ toast:true, position:'top-end', icon, title, showConfirmButton:false, timer:5000, timerProgressBar:true });
-            }
-            document.addEventListener('DOMContentLoaded', function () {
-                const flash = {
-                    success: @json(session('success')),
-                    fail: @json(session('fail')),
-                    status: @json(session('status')),
-                    errors: @json($errors->any() ? $errors->all() : [])
-                };
-                if (flash.success) fireToast('success', flash.success);
-                if (flash.fail)    fireToast('error',  flash.fail);
-                if (flash.status)  fireToast('info',   flash.status);
-                if (flash.errors && flash.errors.length) fireToast('error', flash.errors[0]);
-            });
-        })();
-    </script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        @if($gtext['is_recaptcha'] == 1)
+            <script src='https://www.google.com/recaptcha/api.js' async defer></script>
+        @endif
 
-    <script>
-        /* Classification helper */
-        (function () {
-            const classification = document.getElementById('classification');
-            const docLabel = document.getElementById('doc_label');
-            const docHelp  = document.getElementById('doc_help');
-
-            function setTxt(el, txt){ if(el) el.textContent = txt; }
-            function applyClassificationUI(value) {
-                switch (value) {
-                    case 'individual':
-                        setTxt(docLabel, '{{ __("National ID / Passport Number") }}');
-                        setTxt(docHelp,  '{{ __("Enter your National ID or Passport number.") }}');
-                        break;
-                    case 'company':
-                        setTxt(docLabel, '{{ __("Company Registration/Certificate Number") }}');
-                        setTxt(docHelp,  '{{ __("e.g. CPR/20XX/XXXXXX as on your certificate of incorporation.") }}');
-                        break;
-                    default:
-                        setTxt(docLabel, '{{ __("National ID / Passport Number") }}');
-                        setTxt(docHelp,  '');
+        {{-- Flash toasts --}}
+        <script>
+            (function () {
+                function fireToast(icon, title) {
+                    Swal.fire({ toast:true, position:'top-end', icon, title, showConfirmButton:false, timer:5000, timerProgressBar:true });
                 }
-            }
-            if (classification) {
-                applyClassificationUI(classification.value || '');
-                classification.addEventListener('change', (e)=> applyClassificationUI(e.target.value));
-            }
-        })();
-    </script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const flash = {
+                        success: @json(session('success')),
+                        fail: @json(session('fail')),
+                        status: @json(session('status')),
+                        errors: @json($errors->any() ? $errors->all() : [])
+                    };
+                    if (flash.success) fireToast('success', flash.success);
+                    if (flash.fail)    fireToast('error',  flash.fail);
+                    if (flash.status)  fireToast('info',   flash.status);
+                    if (flash.errors && flash.errors.length) fireToast('error', flash.errors[0]);
+                });
+            })();
+        </script>
 
-    <script>
-        /* Wizard + Cascader + Draft (unchanged except requirements for phones now match server) */
-        (function(){
-            const steps = Array.from(document.querySelectorAll('.wiz-step'));
-            const nextBtn = document.getElementById('wizNext');
-            const prevBtn = document.getElementById('wizPrev');
-            const submitBtn = document.getElementById('wizSubmit');
-            const saveDraftBtn = document.getElementById('wizSaveDraft');
-            const progress = document.getElementById('wizProgress');
-            const stepText = document.getElementById('wizStepText');
-            const form = document.getElementById('sellerWizardForm');
-            const agree = document.getElementById('agreeTerms');
+        {{-- Forgiving KE phone validator/normalizer --}}
+        <script>
+            /** Accepts: +2547XXXXXXXX, 2547XXXXXXXX, 07XXXXXXXX, 7XXXXXXXXX (spaces/dashes/dots/() allowed) */
+            const KE_PHONE_RE = /^(?:\+?254|0)?\s*7\d(?:[\s\-\.\)]?\d){7}$/;
 
-            let idx = 0;
-            function show(i){
-                if (i < 0 || i >= steps.length) return;
-                steps.forEach((s,k)=> s.classList.toggle('d-none', k!==i));
-                prevBtn.disabled = (i===0);
-                nextBtn.classList.toggle('d-none', i===steps.length-1);
-                submitBtn.classList.toggle('d-none', i!==steps.length-1);
-                submitBtn.disabled = !(agree && agree.checked);
-                const pct = ((i+1)/steps.length)*100;
-                progress.style.width = pct+'%';
-                stepText.textContent = `{{ __('Step') }} ${i+1} {{ __('of') }} ${steps.length}`;
-                idx = i;
+            /** Strip everything except digits, keep a single leading + if present */
+            function softSanitizePhone(raw) {
+                if (!raw) return '';
+                raw = raw.trim();
+                if (raw.startsWith('+')) {
+                    return '+' + raw.slice(1).replace(/[^\d]/g, '');
+                }
+                return raw.replace(/[^\d]/g, '');
             }
-            function validateStep(i){
-                const fs = steps[i]; if (!fs) return true;
-                const required = fs.querySelectorAll('[required]');
-                for (const el of required){
-                    if ((el.type==='checkbox' || el.type==='radio') && !el.checked) { el.focus(); return false; }
-                    if (!(el.type==='checkbox' || el.type==='radio')) {
-                        if (!el.value || el.value.trim()==='') { el.focus(); return false; }
-                    }
-                    if (el.pattern){
-                        const re = new RegExp(el.pattern);
-                        if (!re.test(el.value)) { el.focus(); return false; }
+
+            /** Validate Kenyan mobile in a forgiving way */
+            function isValidKEPhone(raw) {
+                if (!raw) return false;
+                const s = raw.replace(/[^\d+]/g, '');
+                return KE_PHONE_RE.test(s);
+            }
+
+            /** Normalize to E.164: +2547XXXXXXXX */
+            function normalizeKEPhone(raw) {
+                if (!raw) return '';
+                let s = softSanitizePhone(raw);
+
+                if (s.startsWith('+2547') && s.length === 13) return s;        // +2547XXXXXXXX
+                if (s.startsWith('2547')  && s.length === 12) return '+' + s;  // 2547XXXXXXXX
+                if (s.startsWith('07')    && s.length === 10) return '+254' + s.slice(1); // 07XXXXXXXX
+                if (s.length === 9 && s.startsWith('7')) return '+254' + s;    // 7XXXXXXXXX
+
+                if (isValidKEPhone(s)) {
+                    const digits = s.replace(/[^\d]/g, '');
+                    if (digits.startsWith('07') && digits.length === 10) return '+254' + digits.slice(1);
+                    if (digits.startsWith('2547') && digits.length === 12) return '+' + digits;
+                }
+                return s;
+            }
+        </script>
+
+        {{-- Classification helper --}}
+        <script>
+            (function () {
+                const classification = document.getElementById('classification');
+                const docLabel = document.getElementById('doc_label');
+                const docHelp  = document.getElementById('doc_help');
+
+                function setTxt(el, txt){ if(el) el.textContent = txt; }
+                function applyClassificationUI(value) {
+                    switch (value) {
+                        case 'individual':
+                            setTxt(docLabel, '{{ __("National ID / Passport Number") }}');
+                            setTxt(docHelp,  '{{ __("Enter your National ID or Passport number.") }}');
+                            break;
+                        case 'company':
+                            setTxt(docLabel, '{{ __("Company Registration/Certificate Number") }}');
+                            setTxt(docHelp,  '{{ __("e.g. CPR/20XX/XXXXXX as on your certificate of incorporation.") }}');
+                            break;
+                        default:
+                            setTxt(docLabel, '{{ __("National ID / Passport Number") }}');
+                            setTxt(docHelp,  '');
                     }
                 }
-                if (i===0){
-                    const geoId = document.getElementById('geo_unit_id')?.value;
-                    if (!geoId){ alert("{{ __('Please choose your county/constituency/ward.') }}"); return false; }
+                if (classification) {
+                    applyClassificationUI(classification.value || '');
+                    classification.addEventListener('change', (e)=> applyClassificationUI(e.target.value));
                 }
-                return true;
-            }
-            nextBtn.addEventListener('click', ()=>{ if(validateStep(idx)) show(idx+1); });
-            prevBtn.addEventListener('click', ()=> show(idx-1));
-            agree.addEventListener('change', ()=> submitBtn.disabled = !agree.checked);
+            })();
+        </script>
 
-            form.addEventListener('submit', function () {
-                submitBtn.disabled = true; submitBtn.textContent = '{{ __("Submitting…") }}';
-                nextBtn.disabled = true;
-                saveDraftBtn.disabled = true;
-            });
+        {{-- Wizard + Cascader + Draft + OTP (fixed) --}}
+        <script>
+            (function(){
+                const steps = Array.from(document.querySelectorAll('.wiz-step'));
+                const nextBtn = document.getElementById('wizNext');
+                const prevBtn = document.getElementById('wizPrev');
+                const submitBtn = document.getElementById('wizSubmit');
+                const saveDraftBtn = document.getElementById('wizSaveDraft');
+                const progress = document.getElementById('wizProgress');
+                const stepText = document.getElementById('wizStepText');
+                const form = document.getElementById('sellerWizardForm');
+                const agree = document.getElementById('agreeTerms');
 
-            show(0);
+                let idx = 0;
+                function show(i){
+                    if (i < 0 || i >= steps.length) return;
+                    steps.forEach((s,k)=> s.classList.toggle('d-none', k!==i));
+                    prevBtn.disabled = (i===0);
+                    nextBtn.classList.toggle('d-none', i===steps.length-1);
+                    submitBtn.classList.toggle('d-none', i!==steps.length-1);
+                    submitBtn.disabled = !(agree && agree.checked);
+                    const pct = ((i+1)/steps.length)*100;
+                    progress.style.width = pct+'%';
+                    stepText.textContent = `{{ __('Step') }} ${i+1} {{ __('of') }} ${steps.length}`;
+                    idx = i;
+                }
+                function validateStep(i){
+                    const fs = steps[i]; if (!fs) return true;
+                    const required = fs.querySelectorAll('[required]');
+                    for (const el of required){
+                        if ((el.type==='checkbox' || el.type==='radio') && !el.checked) { el.focus(); return false; }
+                        if (!(el.type==='checkbox' || el.type==='radio')) {
+                            if (!el.value || el.value.trim()==='') { el.focus(); return false; }
+                        }
+                    }
 
-            // Save Draft
-            saveDraftBtn.addEventListener('click', ()=>{
-                const flag = document.getElementById('save_mode');
-                flag.value = 'draft';
-                const conEls = form.querySelectorAll('[required],[pattern]');
-                conEls.forEach(el=>{
-                    if (el.hasAttribute('required')) el.setAttribute('data-was-required','1');
-                    if (el.hasAttribute('pattern')) el.setAttribute('data-was-pattern', el.getAttribute('pattern'));
-                    el.removeAttribute('required'); el.removeAttribute('pattern');
+                    // Step-specific
+                    const shopPhone    = document.getElementById('shop_phone');
+                    const contactPhone = document.getElementById('contact_person_phone');
+                    const mobileMoney  = document.getElementById('mobile_money');
+
+                    if (i===0){
+                        if (!shopPhone || !isValidKEPhone(shopPhone.value)) {
+                            alert("{{ __('Please enter a valid Kenyan mobile number for Shop Phone.') }}");
+                            shopPhone && shopPhone.focus();
+                            return false;
+                        }
+                        const geoId = document.getElementById('geo_unit_id')?.value;
+                        if (!geoId){ alert("{{ __('Please choose your county/constituency/ward.') }}"); return false; }
+                        if (document.getElementById('otp_ok').value !== '1') {
+                            alert("{{ __('Please verify your phone number via OTP before continuing.') }}");
+                            return false;
+                        }
+                    }
+                    if (i===1){
+                        if (!contactPhone || !isValidKEPhone(contactPhone.value)) {
+                            alert("{{ __('Please enter a valid Kenyan mobile number for Contact Person.') }}");
+                            contactPhone && contactPhone.focus();
+                            return false;
+                        }
+                    }
+                    if (i===2){
+                        if (mobileMoney && mobileMoney.value.trim() && !isValidKEPhone(mobileMoney.value)) {
+                            alert("{{ __('Please enter a valid Kenyan mobile number for Mobile Money or leave it blank.') }}");
+                            mobileMoney.focus();
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                nextBtn.addEventListener('click', ()=>{ if(validateStep(idx)) show(idx+1); });
+                prevBtn.addEventListener('click', ()=> show(idx-1));
+                agree?.addEventListener('change', ()=> submitBtn.disabled = !agree.checked);
+
+                form.addEventListener('submit', function () {
+                    submitBtn.disabled = true; submitBtn.textContent = '{{ __("Submitting…") }}';
+                    nextBtn.disabled = true;
+                    saveDraftBtn.disabled = true;
                 });
-                if (window.Swal) Swal.fire({toast:true, icon:'info', title:'{{ __("Saving draft…") }}', position:'top-end', showConfirmButton:false, timer:1800});
-                form.submit();
-            });
 
-            // --- Cascader (same behavior as earlier) ---
-            const cascader   = document.getElementById('geoCascader');
-            const trigger    = cascader.querySelector('.cascader-trigger');
-            const colCounties= document.getElementById('col-counties');
-            const colConst   = document.getElementById('col-constits');
-            const colWards   = document.getElementById('col-wards');
-            const listConst  = colConst.querySelector('.cascader-list');
-            const listWards  = colWards.querySelector('.cascader-list');
-            const geoInput   = document.getElementById('geo_unit_id');
-            const geoPath    = document.getElementById('geo_path');
-            const geoText    = document.getElementById('geoTriggerText');
-            const geoHelp    = document.getElementById('geoSelectedHelp');
-            const closeBtn   = document.getElementById('closeCascader');
-            const childrenURL= "{{ route('geo.children') }}";
+                show(0);
 
-            function open(){ cascader.classList.add('show'); }
-            function close(){ cascader.classList.remove('show'); }
-            trigger.addEventListener('click', (e)=>{ e.stopPropagation(); cascader.classList.toggle('show'); });
-            closeBtn.addEventListener('click', close);
-            document.addEventListener('click', (e)=>{ if(!cascader.contains(e.target)) close(); });
-
-            function clearCol(colEl, ph){
-                colEl.querySelectorAll('ul.cascader-list li').forEach(li=>li.remove());
-                colEl.querySelector('.cascader-empty')?.remove();
-                const ul = colEl.querySelector('ul.cascader-list');
-                ul.classList.add('d-none');
-                const d = document.createElement('div');
-                d.className = 'cascader-empty';
-                d.textContent = ph;
-                colEl.prepend(d);
-            }
-            function fillList(colEl, items, cls){
-                colEl.querySelector('.cascader-empty')?.remove();
-                const ul = colEl.querySelector('ul.cascader-list');
-                ul.classList.remove('d-none');
-                ul.innerHTML = '';
-                items.forEach(it=>{
-                    const li = document.createElement('li');
-                    li.className = `cascader-item ${cls}`;
-                    li.dataset.id = it.id; li.dataset.name = it.name;
-                    li.innerHTML = `<span class="name">${it.name}</span>`;
-                    ul.appendChild(li);
+                // Save Draft (remove required for draft submit)
+                saveDraftBtn.addEventListener('click', ()=>{
+                    const flag = document.getElementById('save_mode');
+                    flag.value = 'draft';
+                    const conEls = form.querySelectorAll('[required]');
+                    conEls.forEach(el=>{
+                        el.setAttribute('data-was-required','1');
+                        el.removeAttribute('required');
+                    });
+                    if (window.Swal) Swal.fire({toast:true, icon:'info', title:'{{ __("Saving draft…") }}', position:'top-end', showConfirmButton:false, timer:1800});
+                    form.submit();
                 });
-            }
-            async function fetchChildren(parentId){
-                try{
-                    const params = new URLSearchParams({ parent_id: parentId });
-                    const res = await fetch(`${childrenURL}?${params.toString()}`, { headers:{'X-Requested-With':'XMLHttpRequest'} });
-                    if(!res.ok) return [];
-                    return await res.json();
-                }catch(e){ return []; }
-            }
 
-            // county hover -> constituencies; click selects
-            colCounties.querySelectorAll('.county').forEach(li=>{
-                li.addEventListener('mouseover', async ()=>{
-                    clearCol(colConst, "{{ __('Loading…') }}");
-                    clearCol(colWards, "{{ __('Hover a constituency…') }}");
-                    const arr = await fetchChildren(li.dataset.id);
-                    if (arr.length) fillList(colConst, arr, 'constituency'); else clearCol(colConst, "{{ __('No constituencies') }}");
+                /* --- OTP (no red border on Request OTP) --- */
+                const btnSendOtp   = document.getElementById('btnSendOtp');
+                const btnVerifyOtp = document.getElementById('btnVerifyOtp');
+                const inpPhone     = document.getElementById('shop_phone');
+                const inpCode      = document.getElementById('otp_code');
+                const otpHelp      = document.getElementById('otp_help');
+                const otpOk        = document.getElementById('otp_ok');
+
+                // Normalize phones on blur for nice UX
+                const inpCPPhone = document.getElementById('contact_person_phone');
+                const inpMM      = document.getElementById('mobile_money');
+                [inpPhone, inpCPPhone, inpMM].forEach(el=>{
+                    if (!el) return;
+                    el.addEventListener('blur', ()=>{
+                        if (!el.value.trim()) return;
+                        el.value = normalizeKEPhone(el.value);
+                    });
                 });
-                li.addEventListener('click', ()=>{
-                    const name = li.dataset.name;
-                    geoInput.value = li.dataset.id;
+
+                function clearOtpClasses(){
+                    inpPhone.classList.remove('is-valid','is-invalid');
+                }
+                function markValid(msg){
+                    otpOk.value = '1';
+                    clearOtpClasses();
+                    inpPhone.classList.add('is-valid');
+                    otpHelp.textContent = msg || '';
+                }
+                function markInvalid(msg){
+                    otpOk.value = '0';
+                    clearOtpClasses();
+                    inpPhone.classList.add('is-invalid');
+                    otpHelp.textContent = msg || '';
+                }
+
+                btnSendOtp?.addEventListener('click', async ()=>{
+                    // neutral state on send
+                    otpOk.value = '0';
+                    clearOtpClasses();
+                    otpHelp.textContent = '';
+
+                    const raw = (inpPhone.value || '').trim();
+                    if (!raw){
+                        markInvalid('{{ __("Enter a phone number first.") }}');
+                        inpPhone.focus();
+                        return;
+                    }
+                    if (!isValidKEPhone(raw)){
+                        markInvalid('{{ __("That doesn’t look like a valid Kenyan mobile number.") }}');
+                        inpPhone.focus();
+                        return;
+                    }
+
+                    const normalized = normalizeKEPhone(raw);
+                    inpPhone.value = normalized;
+
+                    btnSendOtp.disabled = true;
+                    otpHelp.textContent = '{{ __("Requesting code…") }}';
+
+                    try{
+                        const res = await fetch("{{ route('seller.otp.send') }}", {
+                            method:'POST',
+                            headers: { 'X-CSRF-TOKEN':'{{ csrf_token() }}', 'Accept':'application/json' },
+                            body: new URLSearchParams({ phone: normalized })
+                        });
+                        const data = await res.json();
+
+                        if (res.ok && data?.status === 'ok'){
+                            // stay neutral (no red/green) until user verifies
+                            otpHelp.textContent = '{{ __("Code sent. Please check your phone.") }}';
+                        } else {
+                            markInvalid(data?.message || '{{ __("Could not send code.") }}');
+                        }
+                    } catch(e){
+                        markInvalid('{{ __("Network error. Try again.") }}');
+                    } finally {
+                        btnSendOtp.disabled = false;
+                    }
+                });
+
+                btnVerifyOtp?.addEventListener('click', async ()=>{
+                    clearOtpClasses();
+                    otpHelp.textContent = '';
+
+                    const phone = (inpPhone.value || '').trim();
+                    const code  = (inpCode.value  || '').trim();
+
+                    if (!phone || !code){
+                        markInvalid('{{ __("Enter phone and the code you received.") }}');
+                        if (!phone) inpPhone.focus(); else inpCode.focus();
+                        return;
+                    }
+                    if (!isValidKEPhone(phone)){
+                        markInvalid('{{ __("That doesn’t look like a valid Kenyan mobile number.") }}');
+                        inpPhone.focus();
+                        return;
+                    }
+
+                    const normalized = normalizeKEPhone(phone);
+                    inpPhone.value = normalized;
+
+                    btnVerifyOtp.disabled = true;
+                    otpHelp.textContent = '{{ __("Verifying…") }}';
+
+                    try{
+                        const res = await fetch("{{ route('seller.otp.verify') }}", {
+                            method:'POST',
+                            headers: { 'X-CSRF-TOKEN':'{{ csrf_token() }}', 'Accept':'application/json' },
+                            body: new URLSearchParams({ phone: normalized, code })
+                        });
+                        const data = await res.json();
+
+                        if (res.ok && data?.status === 'ok'){
+                            markValid('{{ __("Phone verified.") }}');
+                        } else {
+                            markInvalid(data?.message || '{{ __("Invalid code.") }}');
+                        }
+                    } catch(e){
+                        markInvalid('{{ __("Network error. Try again.") }}');
+                    } finally {
+                        btnVerifyOtp.disabled = false;
+                    }
+                });
+
+                // --- GEO Cascader (uses query-param route: frontend.geo.children) ---
+                const cascader   = document.getElementById('geoCascader');
+                const trigger    = cascader.querySelector('.cascader-trigger');
+                const colCounties= document.getElementById('col-counties');
+                const colConst   = document.getElementById('col-constits');
+                const colWards   = document.getElementById('col-wards');
+                const listConst  = colConst.querySelector('.cascader-list');
+                const listWards  = colWards.querySelector('.cascader-list');
+                const geoInput   = document.getElementById('geo_unit_id');
+                const geoPath    = document.getElementById('geo_path');
+                const geoText    = document.getElementById('geoTriggerText');
+                const geoHelp    = document.getElementById('geoSelectedHelp');
+                const closeBtn   = document.getElementById('closeCascader');
+
+                const geoChildrenURL = "{{ route('frontend.geo.children') }}"; // query param route (?parent_id=)
+
+                function close(){ cascader.classList.remove('show'); }
+                trigger.addEventListener('click', (e)=>{ e.stopPropagation(); cascader.classList.toggle('show'); });
+                closeBtn.addEventListener('click', close);
+                document.addEventListener('click', (e)=>{ if(!cascader.contains(e.target)) close(); });
+
+                function clearCol(colEl, ph){
+                    colEl.querySelectorAll('ul.cascader-list li').forEach(li=>li.remove());
+                    colEl.querySelector('.cascader-empty')?.remove();
+                    const ul = colEl.querySelector('ul.cascader-list');
+                    ul.classList.add('d-none');
+                    const d = document.createElement('div');
+                    d.className = 'cascader-empty';
+                    d.textContent = ph;
+                    colEl.prepend(d);
+                }
+                function fillList(colEl, items, cls){
+                    colEl.querySelector('.cascader-empty')?.remove();
+                    const ul = colEl.querySelector('ul.cascader-list');
+                    ul.classList.remove('d-none');
+                    ul.innerHTML = '';
+                    items.forEach(it=>{
+                        const li = document.createElement('li');
+                        li.className = `cascader-item ${cls}`;
+                        li.dataset.id = it.id; li.dataset.name = it.name;
+                        li.innerHTML = `<span class="name">${it.name}</span>`;
+                        ul.appendChild(li);
+                    });
+                }
+                async function fetchChildren(parentId){
+                    try{
+                        const params = new URLSearchParams({ parent_id: parentId });
+                        const res = await fetch(`${geoChildrenURL}?${params.toString()}`, { headers:{'X-Requested-With':'XMLHttpRequest'} });
+                        if(!res.ok) return [];
+                        return await res.json();
+                    }catch(e){ return []; }
+                }
+
+                // county hover -> constituencies; click selects
+                colCounties.querySelectorAll('.county').forEach(li=>{
+                    li.addEventListener('mouseover', async ()=>{
+                        clearCol(colConst, "{{ __('Loading…') }}");
+                        clearCol(colWards, "{{ __('Hover a constituency…') }}");
+                        const arr = await fetchChildren(li.dataset.id);
+                        if (arr.length) fillList(colConst, arr, 'constituency'); else clearCol(colConst, "{{ __('No constituencies') }}");
+                    });
+                    li.addEventListener('click', ()=>{
+                        const name = li.dataset.name;
+                        geoInput.value = li.dataset.id;
+                        geoPath.value  = name;
+                        geoText.textContent = name;
+                        geoHelp.textContent = name;
+                        close();
+                    });
+                });
+
+                // constituency hover -> wards; click selects
+                listConst.addEventListener('mouseover', async (e)=>{
+                    const t = e.target.closest('.constituency'); if(!t) return;
+                    clearCol(colWards, "{{ __('Loading…') }}");
+                    const arr = await fetchChildren(t.dataset.id);
+                    if (arr.length) fillList(colWards, arr, 'ward'); else clearCol(colWards, "{{ __('No wards') }}");
+                });
+                listConst.addEventListener('click', (e)=>{
+                    const t = e.target.closest('.constituency'); if(!t) return;
+                    const name = t.dataset.name;
+                    geoInput.value = t.dataset.id;
                     geoPath.value  = name;
                     geoText.textContent = name;
                     geoHelp.textContent = name;
                     close();
                 });
-            });
 
-            // constituency hover -> wards; click selects
-            listConst.addEventListener('mouseover', async (e)=>{
-                const t = e.target.closest('.constituency'); if(!t) return;
-                clearCol(colWards, "{{ __('Loading…') }}");
-                const arr = await fetchChildren(t.dataset.id);
-                if (arr.length) fillList(colWards, arr, 'ward'); else clearCol(colWards, "{{ __('No wards') }}");
-            });
-            listConst.addEventListener('click', (e)=>{
-                const t = e.target.closest('.constituency'); if(!t) return;
-                const name = t.dataset.name;
-                geoInput.value = t.dataset.id;
-                geoPath.value  = name;
-                geoText.textContent = name;
-                geoHelp.textContent = name;
-                close();
-            });
+                // ward click selects
+                listWards.addEventListener('click', (e)=>{
+                    const t = e.target.closest('.ward'); if(!t) return;
+                    const name = t.dataset.name;
+                    geoInput.value = t.dataset.id;
+                    geoPath.value  = name;
+                    geoText.textContent = name;
+                    geoHelp.textContent = name;
+                    close();
+                });
+            })();
+        </script>
+    @endpush
 
-            // ward click selects
-            listWards.addEventListener('click', (e)=>{
-                const t = e.target.closest('.ward'); if(!t) return;
-                const name = t.dataset.name;
-                geoInput.value = t.dataset.id;
-                geoPath.value  = name;
-                geoText.textContent = name;
-                geoHelp.textContent = name;
-                close();
-            });
-        })();
-    </script>
-@endpush

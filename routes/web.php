@@ -105,6 +105,9 @@ Route::post('/user/resetPasswordUpdate', [App\Http\Controllers\Backend\CustomerA
 //Seller Authentication
 Route::get('/seller/register', [App\Http\Controllers\Backend\SellerController::class, 'LoadSellerRegister'])->name('frontend.seller-register');
 Route::post('/seller/seller-register', [App\Http\Controllers\Backend\SellerController::class, 'SellerRegister'])->name('frontend.sellerRegister');
+// add these (same controller)
+Route::post('/seller/otp/send',   [App\Http\Controllers\Backend\SellerController::class, 'sendOtp'])->name('seller.otp.send');
+Route::post('/seller/otp/verify', [App\Http\Controllers\Backend\SellerController::class, 'verifyOtp'])->name('seller.otp.verify');
 Route::post('/frontend/hasShopSlug', [App\Http\Controllers\Backend\SellerController::class, 'hasShopSlug'])->name('frontend.hasShopSlug');
 
 //My Dashboard
