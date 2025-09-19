@@ -45,6 +45,10 @@ Route::get('/geo/{id}/children', function($id){
 Route::get('/geo/children', [App\Http\Controllers\Frontend\ProductCategoryController::class, 'geoChildren'])
     ->name('geo.children');
 //Blog
+//Route::get('/geo/children', [App\Http\Controllers\Frontend\ProductGeoController::class, 'children'])
+//    ->name('frontend.geo.children');
+Route::get('/geo/children', [App\Http\Controllers\Frontend\ProductGeoController::class, 'children'])
+    ->name('frontend.geo.children'); //
 Route::get('/blog', [App\Http\Controllers\Frontend\BlogController::class, 'getBlogPage'])->name('frontend.blog');
 Route::get('/blog-category/{id}/{title}', [App\Http\Controllers\Frontend\BlogController::class, 'getBlogCategoryPage'])->name('frontend.blog-category');
 Route::get('/article/{id}/{title}', [App\Http\Controllers\Frontend\BlogController::class, 'getArticlePage'])->name('frontend.article');

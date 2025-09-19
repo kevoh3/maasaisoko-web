@@ -177,4 +177,33 @@ class ProductGeoController extends Controller
 
         return view('frontend.partials.county-grid', compact('brand_variation', 'datalist'))->render();
     }
+    public function children(Request $request)
+    {
+        $parentId = (int) $request->query('parent_id', 0);
+        if ($parentId <= 0) {
+            return response()->json([]);
+        }
+
+        // optional filters (match your usage in sidebar/county.js)
+        $catId   = (int) $request->query('cat_id', 0);
+        $brandId = (int) $request->query('brand_id', 0);
+
+        // get child geo units
+        $children = DB::table('geo_units')
+            ->where('parent_id', $parentId)
+            ->orderBy('name')
+            ->get(['id','name','slug']);
+
+        // (optional) include product counts under current filters
+        // remove this block if you don’t need counts
+        $children = $children->map(function($row) use ($catId, $brandId) {
+            $q = DB::table('products')->where('is_publish', 1)->where('geo_unit_id', $row->id);
+            if ($catId > 0)   $q->where('cat_id', $catId);
+            if ($brandId > 0) $q->where('brand_id', $brandId);
+            $row->count = $q->count();
+            return $row;
+        });
+
+        return response()->json($children);
+    }
 }

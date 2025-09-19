@@ -24,7 +24,8 @@
         .cascader-trigger i{opacity:.7}
         .cascader-panel{
             position:absolute; z-index:20; left:0; top:100%;
-            min-width:500px; width:100%; max-width:min(600px,90vw);
+            /* wider panel for long names */
+            min-width: 500px; width:100%; max-width: min(600px, 90vw);
             background:#fff; border:1px solid #e5e7eb; border-radius:10px;
             box-shadow:0 12px 28px rgba(0,0,0,.12);
             display:none; overflow:hidden; margin-top:6px;
@@ -32,7 +33,8 @@
         .cascader.show .cascader-panel{display:flex; flex-direction:column}
 
         .cascader-cols{display:flex; width:100%}
-        .cascader-col{flex:0 0 42%; max-height:320px; overflow:auto; border-right:1px solid #f1f2f4; position:relative}
+        /* Give more space to county names */
+        .cascader-col{flex: 0 0 42%; max-height:320px; overflow:auto; border-right:1px solid #f1f2f4}
         .cascader-col:nth-child(2){flex-basis:33%}
         .cascader-col:nth-child(3){flex-basis:25%}
         .cascader-col:last-child{border-right:none}
@@ -59,6 +61,14 @@
             display:flex; justify-content:space-between; align-items:center
         }
 
+        /* Scroll shadows hint */
+        .cascader-col.scrolling::before,
+        .cascader-col.scrolling::after{
+            content:""; position:absolute; left:0; right:0; height:14px; pointer-events:none;
+        }
+        .cascader-col.scrolling::before{ top:0; box-shadow: inset 0 10px 10px -10px rgba(0,0,0,.25); }
+        .cascader-col.scrolling::after{ bottom:0; box-shadow: inset 0 -10px 10px -10px rgba(0,0,0,.25); }
+
         /* Skeleton shimmer while loading */
         .cascader-skel{ padding:8px 12px; width:100% }
         .cascader-skel .bar{
@@ -68,15 +78,14 @@
         }
         @keyframes skel{ to { background-position:-200% 0; } }
 
-        @media (max-width:420px){
-            .cascader-panel{min-width:100%;}
+        @media (max-width: 420px){
+            .cascader-panel{min-width: 100%;}
             .cascader-cols{flex-direction:column}
             .cascader-col{flex-basis:auto; border-right:none; border-bottom:1px solid #f1f2f4; max-height:240px}
             .cascader-col:last-child{border-bottom:none}
         }
     </style>
 @endpush
-
 <div class="sidebar">
     <div class="widget-card">
         <div class="widget-title">{{ __('Location') }}</div>
@@ -94,6 +103,7 @@
                 @endforeach
                 <input type="hidden" name="geo" id="geoInput" value="{{ (int)($selectedGeo ?? 0) }}">
 
+{{--                <div class="cascader" id="geoCascader" data-cat="{{ (int)$params['category_id'] }}">--}}
                 <div class="cascader" id="geoCascader"
                      data-cat="{{ (int)($params['category_id'] ?? 0) }}"
                      data-brand="{{ (int)($params['brand_id'] ?? 0) }}">
@@ -148,10 +158,25 @@
         </div>
     </div>
 
-    {{-- Categories --}}
-    <div class="widget-card">
-        <div class="widget-title">{{ __('Categories') }}</div>
-        <div class="widget-body">
+	<div class="widget-card">
+		<div class="widget-title">{{ __('Categories') }}</div>
+		<div class="widget-body">
+{{--			<ul class="widget-list">--}}
+{{--				@php $CategoryListForFilter = CategoryListForFilter(); @endphp--}}
+{{--				@foreach ($CategoryListForFilter as $row)--}}
+{{--				<li>--}}
+{{--					<div class="icon">--}}
+{{--						<a href="{{ route('frontend.product-category', [$row->id, $row->slug]) }}">--}}
+{{--							<img src="{{ asset('public/media/'.$row->thumbnail) }}" alt="{{ $row->name }}" />--}}
+{{--						</a>--}}
+{{--					</div>--}}
+{{--					<div class="desc">--}}
+{{--						<a href="{{ route('frontend.product-category', [$row->id, $row->slug]) }}">{{ $row->name }}</a>--}}
+{{--					</div>--}}
+{{--					<div class="count">{{ $row->TotalProduct }}</div>--}}
+{{--				</li>--}}
+{{--				@endforeach--}}
+{{--			</ul>--}}
             @php $CategoryTree = CategoryTreeForFilter(glan()); @endphp
             <ul class="widget-list cats-tree">
                 @foreach ($CategoryTree as $row)
@@ -182,52 +207,47 @@
                     </li>
                 @endforeach
             </ul>
-        </div>
-    </div>
 
-    {{-- Price --}}
-    <div class="widget-card">
-        <div class="widget-title">{{ __('Filter by Price') }}</div>
-        <div class="widget-body">
-            <div class="slider-range">
-                <div id="slider-range"></div>
-                <div class="price-range">
-                    <div class="price-label">{{ __('Price Range') }}:</div>
-                    <div class="price" id="amount"></div>
-                </div>
-                <input id="filter_min_price" type="hidden" value="0" />
-                <input id="filter_max_price" type="hidden" />
-                <a id="FilterByPrice" href="javascript:void(0);" class="btn theme-btn filter-btn">
-                    <i class="bi bi-funnel"></i> {{ __('Filter') }}
-                </a>
-            </div>
         </div>
-    </div>
+	</div>
 
-    {{-- Brands --}}
-    <div class="widget-card">
-        <div class="widget-title">{{ __('Brands') }}</div>
-        <div class="widget-body">
-            <ul class="widget-list">
-                @php $BrandListForFilter = BrandListForFilter(); @endphp
-                @foreach ($BrandListForFilter as $row)
-                    <li>
-                        <div class="icon">
-                            <a href="{{ route('frontend.brand', [$row->id, str_slug($row->name)]) }}">
-                                <img src="{{ asset('public/media/'.$row->thumbnail) }}" alt="{{ $row->name }}" />
-                            </a>
-                        </div>
-                        <div class="desc">
-                            <a href="{{ route('frontend.brand', [$row->id, str_slug($row->name)]) }}">{{ $row->name }}</a>
-                        </div>
-                        <div class="count">{{ $row->TotalProduct }}</div>
-                    </li>
-                @endforeach
-            </ul>
-        </div>
-    </div>
+	<div class="widget-card">
+		<div class="widget-title">{{ __('Filter by Price') }}</div>
+		<div class="widget-body">
+			<div class="slider-range">
+				<div id="slider-range"></div>
+				<div class="price-range">
+					<div class="price-label">{{ __('Price Range') }}:</div>
+					<div class="price" id="amount"></div>
+				</div>
+				<input id="filter_min_price" type="hidden" value="0" />
+				<input id="filter_max_price" type="hidden" />
+				<a id="FilterByPrice" href="javascript:void(0);" class="btn theme-btn filter-btn"><i class="bi bi-funnel"></i> {{ __('Filter') }}</a>
+			</div>
+		</div>
+	</div>
+	<div class="widget-card">
+		<div class="widget-title">{{ __('Brands') }}</div>
+		<div class="widget-body">
+			<ul class="widget-list">
+				@php $BrandListForFilter = BrandListForFilter(); @endphp
+				@foreach ($BrandListForFilter as $row)
+				<li>
+					<div class="icon">
+						<a href="{{ route('frontend.brand', [$row->id, str_slug($row->name)]) }}">
+							<img src="{{ asset('public/media/'.$row->thumbnail) }}" alt="{{ $row->name }}" />
+						</a>
+					</div>
+					<div class="desc">
+						<a href="{{ route('frontend.brand', [$row->id, str_slug($row->name)]) }}">{{ $row->name }}</a>
+					</div>
+					<div class="count">{{ $row->TotalProduct }}</div>
+				</li>
+				@endforeach
+			</ul>
+		</div>
+	</div>
 </div>
-
 @push('scripts')
     <script>
         (function(){
@@ -238,26 +258,15 @@
             const catId      = cascader.dataset.cat;
             const form       = document.getElementById('geoFilterForm');
             const geoInput   = document.getElementById('geoInput');
-            const selectedGeo = parseInt(geoInput.value || '0', 10);
 
             const colConst   = document.getElementById('col-constits');
             const colWards   = document.getElementById('col-wards');
-            const listCounties = document.querySelector('#col-counties .cascader-list');
             const listConst  = colConst.querySelector('.cascader-list');
             const listWards  = colWards.querySelector('.cascader-list');
 
             function open(){ cascader.classList.add('show'); }
             function close(){ cascader.classList.remove('show'); }
-            trigger.addEventListener('click', (e)=>{
-                e.stopPropagation();
-                // If we already have a selected county, keep the panel focused on it
-                if (!cascader.classList.contains('show')) {
-                    open();
-                    if (selectedGeo) collapseToSelectedCounty(selectedGeo);
-                } else {
-                    close();
-                }
-            });
+            trigger.addEventListener('click', (e)=>{ e.stopPropagation(); cascader.classList.toggle('show'); });
             closeBtn.addEventListener('click', ()=> close());
             document.addEventListener('click', (e)=>{ if (!cascader.contains(e.target)) close(); });
 
@@ -311,21 +320,24 @@
                 if (countyCtrl) countyCtrl.abort();
                 countyCtrl = new AbortController();
 
-                // UI: mark active and reset wards; ALSO clear any active constituency
-                setActive(listCounties, countyEl);
-                setActive(listConst, null);
+                // UI: mark active and reset wards
+                setActive(cascader, countyEl);
                 clearCol(colConst, @json(__('Loading…')));
                 clearCol(colWards, @json(__('Hover a constituency…')));
 
                 try {
                     const kids = await fetchChildren(pid, countyCtrl);
-                    if (pid !== lastCountyId) return; // ignore stale
+                    // Ignore if user already hovered another county
+                    if (pid !== lastCountyId) return;
+
                     if (Array.isArray(kids) && kids.length){
                         fillList(colConst, kids, 'constituency');
                     } else {
                         clearCol(colConst, @json(__('No constituencies')));
                     }
-                } catch(e) { /* aborted or failed */ }
+                } catch(e) {
+                    // aborted or failed
+                }
             }
 
             async function loadWards(cid, constituEl){
@@ -337,65 +349,33 @@
                 clearCol(colWards, @json(__('Loading…')));
                 try {
                     const kids = await fetchChildren(cid, constCtrl);
-                    if (cid !== lastConstitId) return; // ignore stale
+                    if (cid !== lastConstitId) return;
                     if (Array.isArray(kids) && kids.length){
                         fillList(colWards, kids, 'ward');
                     } else {
                         clearCol(colWards, @json(__('No wards')));
                     }
-                } catch(e) { /* aborted or failed */ }
-            }
-
-            // ===== Focus helpers (new) =====
-            function collapseToSelectedCounty(id){
-                // hide all counties except the selected one
-                const lis = Array.from(listCounties.querySelectorAll('.county'));
-                let selectedLi = null;
-                lis.forEach(li=>{
-                    if (parseInt(li.dataset.id,10) === parseInt(id,10)) {
-                        selectedLi = li;
-                        li.style.display = '';
-                        li.classList.add('is-active');
-                    } else {
-                        li.classList.remove('is-active');
-                        li.style.display = 'none';
-                    }
-                });
-                if (selectedLi){
-                    loadConstituencies(id, selectedLi);
+                } catch(e) {
+                    // aborted or failed
                 }
-            }
-            function restoreCountyList(){
-                // show all counties again
-                listCounties.querySelectorAll('.county').forEach(li=>{
-                    li.style.display = '';
-                    li.classList.remove('is-active');
-                });
-                clearCol(colConst, @json(__('Hover a county…')));
-                clearCol(colWards, @json(__('Hover a constituency…')));
             }
 
             // ===== County hover/click =====
-            listCounties.querySelectorAll('.county').forEach(li=>{
-                li.addEventListener('mouseenter', ()=>{
-                    // only load on hover if we are not collapsed to a selected county
-                    const collapsed = Array.from(listCounties.querySelectorAll('.county'))
-                        .some(x => x.style.display === 'none');
-                    if (!collapsed) loadConstituencies(li.dataset.id, li);
-                });
+            cascader.querySelectorAll('.county').forEach(li=>{
+                li.addEventListener('mouseenter', ()=> loadConstituencies(li.dataset.id, li));
                 li.addEventListener('click', ()=>{
-                    // apply filter immediately
                     geoInput.value = li.dataset.id;
                     form.submit();
                 });
             });
 
             // ===== Constituency hover/click (delegated) =====
-            listConst.addEventListener('mouseover', (e)=>{
+            listConst.addEventListener('mouseenter', (e)=>{
                 const t = e.target.closest('.constituency');
                 if(!t) return;
                 loadWards(t.dataset.id, t);
-            });
+            }, true);
+
             listConst.addEventListener('click', (e)=>{
                 const t = e.target.closest('.constituency');
                 if(!t) return;
@@ -411,14 +391,10 @@
                 form.submit();
             });
 
-            // ===== On county page: auto-collapse to that county and show children =====
-            if (selectedGeo) {
-                open();
-                collapseToSelectedCounty(selectedGeo);
-            }
-
-            // (Optional) if you want "Clear location" to also restore the counties list,
-            // add: onclick handler to that link to call restoreCountyList() before navigation.
+            // Optional: auto-open when a geo is already selected
+            @if(!empty($selectedGeo))
+            open();
+            @endif
         })();
     </script>
 @endpush

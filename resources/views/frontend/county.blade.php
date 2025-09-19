@@ -109,18 +109,11 @@
                                             </div>
 
                                             {{-- (Optional) price filter controls, matching Brand IDs so JS works the same --}}
-                                            <div class="row mt-2">
-                                                <div class="col-6">
-                                                    <input type="number" id="filter_min_price" class="form-control form-control-sm" placeholder="{{ __('Min price') }}">
-                                                </div>
-                                                <div class="col-6">
-                                                    <div class="d-flex gap-2">
-                                                        <input type="number" id="filter_max_price" class="form-control form-control-sm" placeholder="{{ __('Max price') }}">
-                                                        <button id="FilterByPrice" class="btn btn-sm btn-primary">{{ __('Filter') }}</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                            {{-- geo id for AJAX --}}
+                                            <input type="hidden" id="geo" value="{{ (int)($selectedGeo ?? 0) }}">
+
+                                            {{-- Child geos list --}}
+                                            <div id="child-geos" class="my-3"></div>
 
                                         {{-- geo id for AJAX --}}
                                         <input type="hidden" id="geo" value="{{ (int)($selectedGeo ?? 0) }}">
@@ -148,9 +141,11 @@
 
 @push('scripts')
     <script type="text/javascript">
-        // provide the grid URL & geo for county.js
-        var geo = "{{ (int)($selectedGeo ?? 0) }}";
-        window.COUNTY_GRID_URL = "{{ route('frontend.getCountyGrid') }}";
+
+        window.COUNTY_GRID_URL   = "{{ route('frontend.getCountyGrid') }}";
+        window.GEO_CHILDREN_URL  = "{{ route('frontend.geo.children') }}";
+        window.COUNTY_SHOW_ROUTE = "{{ url('/county') }}/"; // county/{id}/{slug}
+        window.CURRENT_GEO_ID    = {{ (int)($selectedGeo ?? 0) }};
     </script>
     <script src="{{ asset('public/frontend/pages/county.js') }}"></script>
 @endpush

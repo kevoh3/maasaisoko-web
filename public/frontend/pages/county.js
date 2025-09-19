@@ -1,115 +1,67 @@
-// public/frontend/pages/county.js
-var $ = jQuery.noConflict();
-var num = '';
-var sortby = '';
-var min_price = '';
-var max_price = '';
-
-$(function () {
+/* public/frontend/pages/county.js */
+(function () {
     "use strict";
 
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    // const geoId  = parseInt(document.getElementById('geo')?.value || "0", 10) || 0;
+    // const gridURL = window.COUNTY_GRID_URL;       // you already use for product grid reloads
+    // const kidsURL = window.GEO_CHILDREN_URL;      // new
+    const routeBase = (window.COUNTY_SHOW_ROUTE || "/county/"); // /county/{id}/{slug}
+    const geoId   = window.CURRENT_GEO_ID || 0;
+    const gridURL = window.COUNTY_GRID_URL;
+    const kidsURL = window.GEO_CHILDREN_URL;
+
+    // ---- render children as pills ----
+    function renderChildren(list) {
+        const host = document.getElementById('child-geos');
+        if (!host) return;
+
+        if (!Array.isArray(list) || !list.length) {
+            host.innerHTML = ""; // hide/empty if none
+            return;
         }
-    });
 
-    // Resolve grid URL (prefer blade-provided constant; fallback to base_url)
-    var GRID_URL = (typeof window.COUNTY_GRID_URL !== 'undefined' && window.COUNTY_GRID_URL)
-        ? window.COUNTY_GRID_URL
-        : (typeof base_url !== 'undefined' ? (base_url + "/frontend/getCountyGrid") : "/frontend/getCountyGrid");
+        const wrap = document.createElement('div');
+        wrap.className = "d-flex flex-wrap gap-2";
 
-    var $list     = $('#tp_datalist');
-    var $geo      = $('#geo'); // hidden input set in county.blade
-    var $num      = $('#num');
-    var $sortby   = $('#sortby');
+        list.forEach(item => {
+            const a = document.createElement('a');
+            a.className = "badge bg-light text-dark border";
+            a.href = routeBase + encodeURIComponent(item.id) + "/" + encodeURIComponent(item.slug);
+            a.textContent = item.name;
+            wrap.appendChild(a);
+        });
 
-    // Price inputs (support both sets of IDs)
-    var $minA = $('#min_price');
-    var $maxA = $('#max_price');
-    var $minB = $('#filter_min_price');
-    var $maxB = $('#filter_max_price');
-    var $btnB = $('#FilterByPrice');
-
-    // defaults
-    if ($minB.length) $minB.val(0);
-    if ($maxB.length) $maxB.val('');
-
-    // pagination (delegate inside the container)
-    $(document).on('click', '#tp_datalist .pagination a', function (e) {
-        e.preventDefault();
-        var href = $(this).attr('href');
-        if (!href) return;
-
-        var page = (href.indexOf('page=') >= 0) ? href.split('page=')[1] : '';
-        onPaginationDataLoad(GRID_URL, page);
-    });
-
-    $num.on('change', function () {
-        num = $num.val();
-        onRefreshData(GRID_URL);
-    });
-
-    $sortby.on('change', function () {
-        sortby = $sortby.val();
-        onRefreshData(GRID_URL);
-    });
-
-    // live change on A inputs
-    $minA.on('change', function () { onRefreshData(GRID_URL); });
-    $maxA.on('change', function () { onRefreshData(GRID_URL); });
-
-    // button click for B inputs (brand-style)
-    $btnB.on('click', function () { onRefreshData(GRID_URL); });
-
-    // helpers
-    function readPrices() {
-        // prefer A ids if present, else fall back to B ids
-        var min = $minA.length ? $minA.val() : ($minB.length ? $minB.val() : '');
-        var max = $maxA.length ? $maxA.val() : ($maxB.length ? $maxB.val() : '');
-        return { min: min, max: max };
+        host.innerHTML = `
+      <div class="mb-2 fw-semibold">${window.trans_children_of ?? 'Sub-locations'}</div>
+    `;
+        host.appendChild(wrap);
     }
 
-    function paramsBase() {
-        var prices = readPrices();
-        return {
-            geo: $geo.val() || 0,
-            num: num || $num.val() || '',
-            sortby: (sortby || $sortby.val() || ''),
-            min_price: prices.min,
-            max_price: prices.max
-        };
+    // ---- fetch children for current geo ----
+    async function loadChildren(parentId){
+        const res = await fetch(`${kidsURL}?parent_id=${encodeURIComponent(parentId)}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        if(!res.ok) return [];
+        return await res.json();
     }
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (!geoId) return;
+        const kids = await loadChildren(geoId);
+        const cont = document.getElementById('child-geos');
+        if (!cont) return;
 
-    // ajax calls
-    window.onPaginationDataLoad = function (url, page) {
-        var data = paramsBase();
-        if (page) data.page = page;
+        if (!kids.length) { cont.innerHTML = ''; return; }
 
-        $.ajax({
-            url: url,
-            data: data,
-            beforeSend: function(){ $list.addClass('opacity-50'); },
-            complete: function(){ $list.removeClass('opacity-50'); },
-            success: function (html) { $list.html(html); },
-            error: function () {
-                $list.html('<div class="alert alert-danger">{{ __("Failed to load products.") }}</div>');
-            }
-        });
-    };
-
-    window.onRefreshData = function (url) {
-        var data = paramsBase();
-
-        $.ajax({
-            url: url,
-            data: data,
-            beforeSend: function(){ $list.addClass('opacity-50'); },
-            complete: function(){ $list.removeClass('opacity-50'); },
-            success: function (html) { $list.html(html); },
-            error: function () {
-                $list.html('<div class="alert alert-danger">{{ __("Failed to load products.") }}</div>');
-            }
-        });
-    };
-});
+        // simple pill list (linking to /county/{id}/{slug})
+        cont.innerHTML = `
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      <strong>{{ __('Sub-locations') }}:</strong>
+      ${kids.map(k => {
+            const url = `${window.COUNTY_SHOW_ROUTE}${k.id}/${encodeURIComponent(k.slug || k.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'))}`;
+            return `<a class="badge bg-light text-dark border" href="${url}">${k.name}${k.count !== undefined ? ` (${k.count})` : ''}</a>`;
+        }).join('')}
+    </div>
+  `;
+    });
+})();
