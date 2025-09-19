@@ -7,7 +7,7 @@
 <div class="main-body">
 	<div class="container-fluid">
 		@php $vipc = vipc(); @endphp
-		@if($vipc['bkey'] == 0) 
+		@if($vipc['bkey'] == 0)
 		@include('seller.partials.vipc')
 		@else
 		<div class="row mt-25">
@@ -54,13 +54,13 @@
 										}else{
 											$color = 'Color: '.$row->variation_color.'&nbsp;';
 										}
-				
+
 										if($row->variation_size == '0'){
 											$size = '&nbsp;';
 										}else{
 											$size = 'Size: '.$row->variation_size;
 										}
-										
+
 									@endphp
 									<tr>
 										<td>
@@ -71,10 +71,10 @@
 										<td class="text-right">{{ $total_price }}</td>
 									</tr>
 									@endforeach
-									
+
 									@php
 										$total_amount_shipping_fee = $mdata->total_amount+$mdata->shipping_fee+$mdata->tax;
-										
+
 										if($gtext['currency_position'] == 'left'){
 											$shipping_fee = $gtext['currency_icon'].NumberFormat($mdata->shipping_fee);
 											$tax = $gtext['currency_icon'].NumberFormat($mdata->tax);
@@ -89,7 +89,7 @@
 											$total_amount = NumberFormat($total_amount_shipping_fee).$gtext['currency_icon'];
 										}
 									@endphp
-										
+
 									<tr>
 										<td>{{ $mdata->shipping_title }}</td>
 										<td><strong>{{ __('Shipping Fee') }}</strong></td>
@@ -110,11 +110,11 @@
 										<td><strong>{{ __('Total') }}</strong></td>
 										<td class="text-right"><strong>{{ $total_amount }}</strong></td>
 									</tr>
-									
+
 								</tbody>
 							</table>
 						</div>
-						
+
 						<form novalidate="" data-validate="parsley" id="DataEntry_formId">
 						<div class="row mt-25">
 							<div class="col-lg-4">
@@ -145,7 +145,7 @@
 								<input class="dnone" id="order_master_id" name="order_master_id" type="text" value="{{ $mdata->id }}" />
 								<a id="submit-form" href="javascript:void(0);" class="btn btn-theme mr-10 update_btn">{{ __('Update') }}</a>
 								<a href="{{ route('frontend.order-invoice', [$mdata->id, $mdata->order_no]) }}" class="btn btn-theme mr-10">{{ __('Invoice Download') }}</a>
-								<a href="{{ route('seller.orders') }}" class="btn warning-btn"><i class="fa fa-reply"></i> {{ __('Back to List') }}</a>
+								<a href="{{ route('seller-manage.orders') }}" class="btn warning-btn"><i class="fa fa-reply"></i> {{ __('Back to List') }}</a>
 							</div>
 						</div>
 						</form>
@@ -169,31 +169,31 @@
 						@if ($mdata->customer_name != '')
 						<p><strong>{{ __('Name') }}</strong>: {{ $mdata->customer_name }}</p>
 						@endif
-						
+
 						@if ($mdata->customer_email != '')
 						<p><strong>{{ __('Email') }}</strong>: {{ $mdata->customer_email }}</p>
 						@endif
-						
+
 						@if ($mdata->customer_phone != '')
 						<p><strong>{{ __('Phone') }}</strong>: {{ $mdata->customer_phone }}</p>
 						@endif
-						
+
 						@if ($mdata->country != '')
 						<p><strong>{{ __('Country') }}</strong>: {{ $mdata->country }}</p>
 						@endif
-						
+
 						@if ($mdata->state != '')
 						<p><strong>{{ __('State') }}</strong>: {{ $mdata->state }}</p>
 						@endif
-						
+
 						@if ($mdata->zip_code != '')
 						<p><strong>{{ __('Zip Code') }}</strong>: {{ $mdata->zip_code }}</p>
 						@endif
-						
+
 						@if ($mdata->city != '')
 						<p><strong>{{ __('City') }}</strong>: {{ $mdata->city }}</p>
 						@endif
-						
+
 						@if ($mdata->customer_address != '')
 						<p><strong>{{ __('Address') }}</strong>: {{ $mdata->customer_address }}</p>
 						@endif

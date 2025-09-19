@@ -4366,3 +4366,19 @@ ul.errors-list li {
 .progress.theme-progress{
     --bs-progress-bg: var(--color-light-green);
 }
+
+/*s*/
+.product-category-item {
+    display: flex;
+    align-items: center;
+    gap: 1px; /* space between image and label */
+}
+
+.product-category-item .icon img {
+    width: 40px;
+    height: auto;
+    object-fit: contain;
+    border-radius: 50%;
+
+}
+

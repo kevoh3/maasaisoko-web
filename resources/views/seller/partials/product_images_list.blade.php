@@ -1,4 +1,4 @@
-
+seller.
 <div class="row image_list">
 	<div class="col-md-12">
 		@if(count($imagelist)>0)

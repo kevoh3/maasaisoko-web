@@ -306,7 +306,6 @@
                 if(!res.ok) return [];
                 return await res.json();
             }
-
             // Hover: County -> load Constituencies
             cascader.querySelectorAll('.county').forEach(li=>{
                 li.addEventListener('mouseenter', async ()=>{
@@ -326,7 +325,6 @@
                     form.submit();
                 });
             });
-
             // Delegate: hover constituency -> load wards; click -> submit
             listConst.addEventListener('mouseenter', (e)=>{
                 const t = e.target.closest('.constituency');
@@ -349,7 +347,6 @@
                 geoInput.value = t.dataset.id;
                 form.submit();
             });
-
             listWards.addEventListener('click', (e)=>{
                 const t = e.target.closest('.ward');
                 if(!t) return;

@@ -8,6 +8,7 @@ class CheckPackageLimits
 {
     public function handle($request, Closure $next)
     {
+        return $next($request);
         $user = auth()->user();
         if (!$user) return redirect()->route('login');
 

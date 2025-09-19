@@ -7,7 +7,7 @@
 <div class="main-body">
 	<div class="container-fluid">
 		@php $vipc = vipc(); @endphp
-		@if($vipc['bkey'] == 0) 
+		@if($vipc['bkey'] == 0)
 		@include('seller.partials.vipc')
 		@else
 		<div class="row mt-25">
@@ -20,7 +20,7 @@
 							</div>
 							<div class="col-lg-6">
 								<div class="float-right">
-									<a href="{{ route('seller.products') }}" class="btn warning-btn"><i class="fa fa-reply"></i> {{ __('Back to List') }}</a>
+									<a href="{{ route('seller-manage.products') }}" class="btn warning-btn"><i class="fa fa-reply"></i> {{ __('Back to List') }}</a>
 								</div>
 							</div>
 						</div>

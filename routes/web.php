@@ -618,101 +618,100 @@ Route::prefix('backend')->group(function () {
 
 });
 
-Route::prefix('seller')->group(function () {
-
+Route::prefix('seller-manage')->group(function () {
     //Dashboard
-    Route::get('/dashboard', [App\Http\Controllers\Seller\DashboardController::class, 'getDashboardData'])->name('seller.dashboard')->middleware(['auth', 'is_seller']);
+    Route::get('/dashboard', [App\Http\Controllers\Seller\DashboardController::class, 'getDashboardData'])->name('seller-manage.dashboard')->middleware(['auth', 'is_seller']);
 
     //Withdrawals
-    Route::get('/withdrawals', [App\Http\Controllers\Seller\WithdrawalController::class, 'getWithdrawalsPageLoad'])->name('seller.withdrawals')->middleware(['auth', 'is_seller']);
-    Route::get('/transactions', [App\Http\Controllers\Seller\WithdrawalController::class, 'showTransactions'])->name('seller.transactions')->middleware(['auth', 'is_seller']);
+    Route::get('/withdrawals', [App\Http\Controllers\Seller\WithdrawalController::class, 'getWithdrawalsPageLoad'])->name('seller-manage.withdrawals')->middleware(['auth', 'is_seller']);
+    Route::get('/transactions', [App\Http\Controllers\Seller\WithdrawalController::class, 'showTransactions'])->name('seller-manage.transactions')->middleware(['auth', 'is_seller']);
 
-    Route::get('/getWithdrawalsTableData', [App\Http\Controllers\Seller\WithdrawalController::class, 'getWithdrawalsTableData'])->name('seller.getWithdrawalsTableData')->middleware(['auth', 'is_seller']);
-    Route::post('/saveWithdrawalsData', [App\Http\Controllers\Seller\WithdrawalController::class, 'saveWithdrawalsData'])->name('seller.saveWithdrawalsData')->middleware(['auth', 'is_seller']);
-    Route::post('/getWithdrawalById', [App\Http\Controllers\Seller\WithdrawalController::class, 'getWithdrawalById'])->name('seller.getWithdrawalById')->middleware(['auth', 'is_seller']);
-    Route::post('/getCurrentBalanceBySellerId', [App\Http\Controllers\Seller\WithdrawalController::class, 'getCurrentBalanceBySellerId'])->name('seller.getCurrentBalanceBySellerId')->middleware(['auth', 'is_seller']);
-    Route::post('/getScreenshotById', [App\Http\Controllers\Seller\WithdrawalController::class, 'getScreenshotById'])->name('seller.getScreenshotById')->middleware(['auth', 'is_seller']);
+    Route::get('/getWithdrawalsTableData', [App\Http\Controllers\Seller\WithdrawalController::class, 'getWithdrawalsTableData'])->name('seller-manage.getWithdrawalsTableData')->middleware(['auth', 'is_seller']);
+    Route::post('/saveWithdrawalsData', [App\Http\Controllers\Seller\WithdrawalController::class, 'saveWithdrawalsData'])->name('seller-manage.saveWithdrawalsData')->middleware(['auth', 'is_seller']);
+    Route::post('/getWithdrawalById', [App\Http\Controllers\Seller\WithdrawalController::class, 'getWithdrawalById'])->name('seller-manage.getWithdrawalById')->middleware(['auth', 'is_seller']);
+    Route::post('/getCurrentBalanceBySellerId', [App\Http\Controllers\Seller\WithdrawalController::class, 'getCurrentBalanceBySellerId'])->name('seller-manage.getCurrentBalanceBySellerId')->middleware(['auth', 'is_seller']);
+    Route::post('/getScreenshotById', [App\Http\Controllers\Seller\WithdrawalController::class, 'getScreenshotById'])->name('seller-manage.getScreenshotById')->middleware(['auth', 'is_seller']);
 
     //Settings Page
-    Route::get('/settings', [App\Http\Controllers\Seller\SellerSettingsController::class, 'getSellerSettingsPageLoad'])->name('seller.settings')->middleware(['auth', 'is_seller']);
-    Route::post('/saveSellersData', [App\Http\Controllers\Seller\SellerSettingsController::class, 'saveSellersData'])->name('seller.saveSellersData')->middleware(['auth', 'is_seller']);
-    Route::post('/saveBankInformationData', [App\Http\Controllers\Seller\SellerSettingsController::class, 'saveBankInformationData'])->name('seller.saveBankInformationData')->middleware(['auth', 'is_seller']);
-    Route::post('/hasShopSlug', [App\Http\Controllers\Seller\SellerSettingsController::class, 'hasShopSlug'])->name('seller.hasShopSlug')->middleware(['auth', 'is_seller']);
+    Route::get('/settings', [App\Http\Controllers\Seller\SellerSettingsController::class, 'getSellerSettingsPageLoad'])->name('seller-manage.settings')->middleware(['auth', 'is_seller']);
+    Route::post('/saveSellersData', [App\Http\Controllers\Seller\SellerSettingsController::class, 'saveSellersData'])->name('seller-manage.saveSellersData')->middleware(['auth', 'is_seller']);
+    Route::post('/saveBankInformationData', [App\Http\Controllers\Seller\SellerSettingsController::class, 'saveBankInformationData'])->name('seller-manage.saveBankInformationData')->middleware(['auth', 'is_seller']);
+    Route::post('/hasShopSlug', [App\Http\Controllers\Seller\SellerSettingsController::class, 'hasShopSlug'])->name('seller-manage.hasShopSlug')->middleware(['auth', 'is_seller']);
 
     //Review & Ratings
-    Route::get('/review', [App\Http\Controllers\Seller\ReviewsSellerController::class, 'getReviewRatingsPageLoad'])->name('seller.review')->middleware(['auth', 'is_seller']);
-    Route::get('/getReviewRatingsTableData', [App\Http\Controllers\Seller\ReviewsSellerController::class, 'getReviewRatingsTableData'])->name('seller.getReviewRatingsTableData')->middleware(['auth', 'is_seller']);
-    Route::post('/deleteReviewRatings', [App\Http\Controllers\Seller\ReviewsSellerController::class, 'deleteReviewRatings'])->name('seller.deleteReviewRatings')->middleware(['auth', 'is_seller']);
-    Route::post('/bulkActionReviewRatings', [App\Http\Controllers\Seller\ReviewsSellerController::class, 'bulkActionReviewRatings'])->name('seller.bulkActionReviewRatings')->middleware(['auth', 'is_seller']);
+    Route::get('/review', [App\Http\Controllers\Seller\ReviewsSellerController::class, 'getReviewRatingsPageLoad'])->name('seller-manage.review')->middleware(['auth', 'is_seller']);
+    Route::get('/getReviewRatingsTableData', [App\Http\Controllers\Seller\ReviewsSellerController::class, 'getReviewRatingsTableData'])->name('seller-manage.getReviewRatingsTableData')->middleware(['auth', 'is_seller']);
+    Route::post('/deleteReviewRatings', [App\Http\Controllers\Seller\ReviewsSellerController::class, 'deleteReviewRatings'])->name('seller-manage.deleteReviewRatings')->middleware(['auth', 'is_seller']);
+    Route::post('/bulkActionReviewRatings', [App\Http\Controllers\Seller\ReviewsSellerController::class, 'bulkActionReviewRatings'])->name('seller-manage.bulkActionReviewRatings')->middleware(['auth', 'is_seller']);
 
     //Orders
-    Route::get('/orders', [App\Http\Controllers\Seller\OrdersSellerController::class, 'getOrdersPageLoad'])->name('seller.orders')->middleware(['auth', 'is_seller']);
+    Route::get('/orders', [App\Http\Controllers\Seller\OrdersSellerController::class, 'getOrdersPageLoad'])->name('seller-manage.orders')->middleware(['auth', 'is_seller']);
     Route::get('/getOrdersTableData', [App\Http\Controllers\Seller\OrdersSellerController::class, 'getOrdersTableData'])->name('seller.getOrdersTableData')->middleware(['auth', 'is_seller']);
-    Route::get('/order/{id}', [App\Http\Controllers\Seller\OrdersSellerController::class, 'getOrderData'])->name('seller.order')->middleware(['auth', 'is_seller']);
-    Route::post('/updateOrderStatus', [App\Http\Controllers\Seller\OrdersSellerController::class, 'updateOrderStatus'])->name('seller.updateOrderStatus')->middleware(['auth', 'is_seller']);
+    Route::get('/order/{id}', [App\Http\Controllers\Seller\OrdersSellerController::class, 'getOrderData'])->name('seller-manage.order')->middleware(['auth', 'is_seller']);
+    Route::post('/updateOrderStatus', [App\Http\Controllers\Seller\OrdersSellerController::class, 'updateOrderStatus'])->name('seller-manage.updateOrderStatus')->middleware(['auth', 'is_seller']);
     Route::get('/getPaymentOrderStatusData', [App\Http\Controllers\Seller\OrdersSellerController::class, 'getPaymentOrderStatusData'])->name('seller.getPaymentOrderStatusData')->middleware(['auth', 'is_seller']);
-    Route::post('/deleteOrder', [App\Http\Controllers\Seller\OrdersSellerController::class, 'deleteOrder'])->name('seller.deleteOrder')->middleware(['auth', 'is_seller']);
+    Route::post('/deleteOrder', [App\Http\Controllers\Seller\OrdersSellerController::class, 'deleteOrder'])->name('seller-manage.deleteOrder')->middleware(['auth', 'is_seller']);
 
     //Orders Excel/CSV Export
-    Route::get('/orders-excel-export', [App\Http\Controllers\Seller\OrdersSellerExportController::class, 'OrdersExcelExport'])->name('seller.orders-excel-export')->middleware(['auth', 'is_seller']);
-    Route::get('/orders-csv-export', [App\Http\Controllers\Seller\OrdersSellerExportController::class, 'OrdersCSVExport'])->name('seller.orders-csv-export')->middleware(['auth', 'is_seller']);
+    Route::get('/orders-excel-export', [App\Http\Controllers\Seller\OrdersSellerExportController::class, 'OrdersExcelExport'])->name('seller-manage.orders-excel-export')->middleware(['auth', 'is_seller']);
+    Route::get('/orders-csv-export', [App\Http\Controllers\Seller\OrdersSellerExportController::class, 'OrdersCSVExport'])->name('seller-manage.orders-csv-export')->middleware(['auth', 'is_seller']);
 
     //Products
-    Route::get('/products', [App\Http\Controllers\Seller\ProductsController::class, 'getProductsPageLoad'])->name('seller.products')->middleware(['auth', 'is_seller']);
-    Route::get('/getProductsTableData', [App\Http\Controllers\Seller\ProductsController::class, 'getProductsTableData'])->name('seller.getProductsTableData')->middleware(['auth', 'is_seller']);
-    Route::post('/saveProductsData', [App\Http\Controllers\Seller\ProductsController::class, 'saveProductsData'])->name('seller.saveProductsData')->middleware(['auth', 'is_seller']);
-    Route::post('/deleteProducts', [App\Http\Controllers\Seller\ProductsController::class, 'deleteProducts'])->name('seller.deleteProducts')->middleware(['auth', 'is_seller']);
-    Route::post('/bulkActionProducts', [App\Http\Controllers\Seller\ProductsController::class, 'bulkActionProducts'])->name('seller.bulkActionProducts')->middleware(['auth', 'is_seller']);
-    Route::post('/hasProductSlug', [App\Http\Controllers\Seller\ProductsController::class, 'hasProductSlug'])->name('seller.hasProductSlug')->middleware(['auth', 'is_seller']);
+    Route::get('/products', [App\Http\Controllers\Seller\ProductsController::class, 'getProductsPageLoad'])->name('seller-manage.products')->middleware(['auth', 'is_seller']);
+    Route::get('/getProductsTableData', [App\Http\Controllers\Seller\ProductsController::class, 'getProductsTableData'])->name('seller-manage.getProductsTableData')->middleware(['auth', 'is_seller']);
+    Route::post('/saveProductsData', [App\Http\Controllers\Seller\ProductsController::class, 'saveProductsData'])->name('seller-manage.saveProductsData')->middleware(['auth', 'is_seller']);
+    Route::post('/deleteProducts', [App\Http\Controllers\Seller\ProductsController::class, 'deleteProducts'])->name('seller-manage.deleteProducts')->middleware(['auth', 'is_seller']);
+    Route::post('/bulkActionProducts', [App\Http\Controllers\Seller\ProductsController::class, 'bulkActionProducts'])->name('seller-manage.bulkActionProducts')->middleware(['auth', 'is_seller']);
+    Route::post('/hasProductSlug', [App\Http\Controllers\Seller\ProductsController::class, 'hasProductSlug'])->name('seller-manage.hasProductSlug')->middleware(['auth', 'is_seller']);
     //Update
-    Route::get('/product/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getProductPageData'])->name('seller.product')->middleware(['auth', 'is_seller']);
-    Route::post('/updateProductsData', [App\Http\Controllers\Seller\ProductsController::class, 'updateProductsData'])->name('seller.updateProductsData')->middleware(['auth', 'is_seller']);
 
-    //Price
-    Route::get('/price/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getPricePageData'])->name('seller.price')->middleware(['auth', 'is_seller']);
-    Route::post('/savePriceData', [App\Http\Controllers\Seller\ProductsController::class, 'savePriceData'])->name('seller.savePriceData')->middleware(['auth', 'is_seller']);
+    Route::post('/updateProductsData', [App\Http\Controllers\Seller\ProductsController::class, 'updateProductsData'])->name('seller-manage.updateProductsData')->middleware(['auth', 'is_seller']);
 
+    //Price Route::get('/product-manage/{id}', [App\Http\Controllers\Sell
+    Route::get('/price/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getPricePageData'])->name('seller-manage.price')->middleware(['auth', 'is_seller']);
+    Route::post('/savePriceData', [App\Http\Controllers\Seller\ProductsController::class, 'savePriceData'])->name('seller-manage.savePriceData')->middleware(['auth', 'is_seller']);
     //Inventory
-    Route::get('/inventory/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getInventoryPageData'])->name('seller.inventory')->middleware(['auth', 'is_seller']);
-    Route::post('/saveInventoryData', [App\Http\Controllers\Seller\ProductsController::class, 'saveInventoryData'])->name('seller.saveInventoryData')->middleware(['auth', 'is_seller']);
+    Route::get('/inventory/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getInventoryPageData'])->name('seller-manage.inventory')->middleware(['auth', 'is_seller']);
+    Route::post('/saveInventoryData', [App\Http\Controllers\Seller\ProductsController::class, 'saveInventoryData'])->name('seller-manage.saveInventoryData')->middleware(['auth', 'is_seller']);
 
     //Product Images
-    Route::get('/product-images/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getProductImagesPageData'])->name('seller.product-images')->middleware(['auth', 'is_seller']);
-    Route::get('/getProductImagesTableData', [App\Http\Controllers\Seller\ProductsController::class, 'getProductImagesTableData'])->name('seller.getProductImagesTableData')->middleware(['auth', 'is_seller']);
-    Route::post('/saveProductImagesData', [App\Http\Controllers\Seller\ProductsController::class, 'saveProductImagesData'])->name('seller.saveProductImagesData')->middleware(['auth', 'is_seller']);
-    Route::post('/deleteProductImages', [App\Http\Controllers\Seller\ProductsController::class, 'deleteProductImages'])->name('seller.deleteProductImages')->middleware(['auth', 'is_seller']);
-
+    Route::get('/product-images/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getProductImagesPageData'])->name('seller-manage.product-images')->middleware(['auth', 'is_seller']);
+    Route::get('/getProductImagesTableData', [App\Http\Controllers\Seller\ProductsController::class, 'getProductImagesTableData'])->name('seller-manage.getProductImagesTableData')->middleware(['auth', 'is_seller']);
+    Route::post('/saveProductImagesData', [App\Http\Controllers\Seller\ProductsController::class, 'saveProductImagesData'])->name('seller-manage.saveProductImagesData')->middleware(['auth', 'is_seller']);
+    Route::post('/deleteProductImages', [App\Http\Controllers\Seller\ProductsController::class, 'deleteProductImages'])->name('seller-manage.deleteProductImages')->middleware(['auth', 'is_seller']);
     //Variations
-    Route::get('/variations/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getVariationsPageData'])->name('seller.variations')->middleware(['auth', 'is_seller']);
-    Route::post('/saveVariationsData', [App\Http\Controllers\Seller\ProductsController::class, 'saveVariationsData'])->name('seller.saveVariationsData')->middleware(['auth', 'is_seller']);
+    Route::get('/variations/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getVariationsPageData'])->name('seller-manage.variations')->middleware(['auth', 'is_seller']);
+    Route::post('/saveVariationsData', [App\Http\Controllers\Seller\ProductsController::class, 'saveVariationsData'])->name('seller-manage.saveVariationsData')->middleware(['auth', 'is_seller']);
 
     //Related Products
-    Route::get('/related-products/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getRelatedProductsPageData'])->name('seller.related-products')->middleware(['auth', 'is_seller']);
-    Route::get('/getProductListForRelatedTableData', [App\Http\Controllers\Seller\ProductsController::class, 'getProductListForRelatedTableData'])->name('seller.getProductListForRelatedTableData')->middleware(['auth', 'is_seller']);
-    Route::get('/getRelatedProductTableData', [App\Http\Controllers\Seller\ProductsController::class, 'getRelatedProductTableData'])->name('seller.getRelatedProductTableData')->middleware(['auth', 'is_seller']);
-    Route::post('/saveRelatedProductsData', [App\Http\Controllers\Seller\ProductsController::class, 'saveRelatedProductsData'])->name('seller.saveRelatedProductsData')->middleware(['auth', 'is_seller']);
-    Route::post('/deleteRelatedProduct', [App\Http\Controllers\Seller\ProductsController::class, 'deleteRelatedProduct'])->name('seller.deleteRelatedProduct')->middleware(['auth', 'is_seller']);
+    Route::get('/related-products/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getRelatedProductsPageData'])->name('seller-manage.related-products')->middleware(['auth', 'is_seller']);
+    Route::get('/getProductListForRelatedTableData', [App\Http\Controllers\Seller\ProductsController::class, 'getProductListForRelatedTableData'])->name('seller-manage.getProductListForRelatedTableData')->middleware(['auth', 'is_seller']);
+    Route::get('/getRelatedProductTableData', [App\Http\Controllers\Seller\ProductsController::class, 'getRelatedProductTableData'])->name('seller-manage.getRelatedProductTableData')->middleware(['auth', 'is_seller']);
+    Route::post('/saveRelatedProductsData', [App\Http\Controllers\Seller\ProductsController::class, 'saveRelatedProductsData'])->name('seller-manage.saveRelatedProductsData')->middleware(['auth', 'is_seller']);
+    Route::post('/deleteRelatedProduct', [App\Http\Controllers\Seller\ProductsController::class, 'deleteRelatedProduct'])->name('seller-manage.deleteRelatedProduct')->middleware(['auth', 'is_seller']);
 
     //Product SEO
-    Route::get('/product-seo/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getProductSEOPageData'])->name('seller.product-seo')->middleware(['auth', 'is_seller']);
-    Route::post('/saveProductSEOData', [App\Http\Controllers\Seller\ProductsController::class, 'saveProductSEOData'])->name('seller.saveProductSEOData')->middleware(['auth', 'is_seller']);
+    Route::get('/product-seo/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getProductSEOPageData'])->name('seller-manage.product-seo')->middleware(['auth', 'is_seller']);
+    Route::post('/saveProductSEOData', [App\Http\Controllers\Seller\ProductsController::class, 'saveProductSEOData'])->name('seller-manage.saveProductSEOData')->middleware(['auth', 'is_seller']);
 
     //All File Upload
-    Route::post('/MediaUpload', [App\Http\Controllers\Backend\UploadController::class, 'MediaUpload'])->name('seller.MediaUpload')->middleware(['auth', 'is_seller']);
+    Route::post('/MediaUpload', [App\Http\Controllers\Backend\UploadController::class, 'MediaUpload'])->name('seller-manage.MediaUpload')->middleware(['auth', 'is_seller']);
 
     //All Combo
-    Route::post('/getTimezoneList', [App\Http\Controllers\Backend\ComboController::class, 'getTimezoneList'])->name('seller.getTimezoneList')->middleware(['auth', 'is_seller']);
-    Route::post('/getUserStatusList', [App\Http\Controllers\Backend\ComboController::class, 'getUserStatusList'])->name('seller.getUserStatusList')->middleware(['auth', 'is_seller']);
-    Route::post('/getUserRolesList', [App\Http\Controllers\Backend\ComboController::class, 'getUserRolesList'])->name('seller.getUserRolesList')->middleware(['auth', 'is_seller']);
-    Route::post('/getStatusList', [App\Http\Controllers\Backend\ComboController::class, 'getStatusList'])->name('seller.getStatusList')->middleware(['auth', 'is_seller']);
-    Route::post('/getCategoryList', [App\Http\Controllers\Backend\ComboController::class, 'getCategoryList'])->name('seller.getCategoryList')->middleware(['auth', 'is_seller']);
-    Route::post('/getBrandList', [App\Http\Controllers\Backend\ComboController::class, 'getBrandList'])->name('seller.getBrandList')->middleware(['auth', 'is_seller']);
+    Route::post('/getTimezoneList', [App\Http\Controllers\Backend\ComboController::class, 'getTimezoneList'])->name('seller-manage.getTimezoneList')->middleware(['auth', 'is_seller']);
+    Route::post('/getUserStatusList', [App\Http\Controllers\Backend\ComboController::class, 'getUserStatusList'])->name('seller-manage.getUserStatusList')->middleware(['auth', 'is_seller']);
+    Route::post('/getUserRolesList', [App\Http\Controllers\Backend\ComboController::class, 'getUserRolesList'])->name('seller-manage.getUserRolesList')->middleware(['auth', 'is_seller']);
+    Route::post('/getStatusList', [App\Http\Controllers\Backend\ComboController::class, 'getStatusList'])->name('seller-manage.getStatusList')->middleware(['auth', 'is_seller']);
+    Route::post('/getCategoryList', [App\Http\Controllers\Backend\ComboController::class, 'getCategoryList'])->name('seller-manage.getCategoryList')->middleware(['auth', 'is_seller']);
+    Route::post('/getBrandList', [App\Http\Controllers\Backend\ComboController::class, 'getBrandList'])->name('seller-manage.getBrandList')->middleware(['auth', 'is_seller']);
 
-        Route::get('/plans', [SubscriptionController::class, 'plans'])->name('seller.plans');
-        Route::post('/checkout', [SubscriptionController::class, 'checkout'])->name('seller.checkout');
-        Route::post('/subscribe/confirm', [SubscriptionController::class, 'confirm'])->name('seller.subscribe.confirm');
+        Route::get('/plans', [SubscriptionController::class, 'plans'])->name('seller-manage.plans');
+        Route::post('/checkout', [SubscriptionController::class, 'checkout'])->name('seller-manage.checkout');
+        Route::post('/subscribe/confirm', [SubscriptionController::class, 'confirm'])->name('seller-manage.subscribe.confirm');
 
 
 
 });
+Route::get('seller-manage/product-manage/{id}', [App\Http\Controllers\Seller\ProductsController::class, 'getProductPageDataManage'])->name('seller-manage.product-manage')->middleware(['auth', 'is_seller']);
+Route::get('categories/children', [App\Http\Controllers\Seller\ProductsController::class, 'getCategoryChildren'])->name('seller-manage.category.children')->middleware(['auth', 'is_seller']);
 

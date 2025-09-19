@@ -199,7 +199,7 @@
                                 @endif
                             </div>
                             <div>
-                                <a href="{{ route('seller.plans') }}" class="btn btn-outline-primary btn-sm">{{ __('Change Plan') }}</a>
+                                <a href="{{ route('seller-manage.plans') }}" class="btn btn-outline-primary btn-sm">{{ __('Change Plan') }}</a>
                             </div>
                         </div>
                     </div>

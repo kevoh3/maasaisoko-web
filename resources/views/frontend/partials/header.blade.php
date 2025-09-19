@@ -199,13 +199,13 @@
 				<div class="row">
 					<div class="col-lg-3">
 						<ul class="categories-wrap">
-							<li>
-								<a class="navCategoryListActive" href="javascript:void(0);">{{ __('Browse Categories') }}</a>
-								<ul class="nav-category-list">
-									@php echo CategoryMenuList(); @endphp
-									<li><a href="javascript:void(0);" class="btn cat-more-btn catMoreBtnActive"><span class="onCatMoreBtn">{{ __('Show More') }}</span></a></li>
-								</ul>
-							</li>
+{{--							<li>--}}
+{{--								<a class="navCategoryListActive" href="javascript:void(0);">{{ __('Browse Categories') }}</a>--}}
+{{--								<ul class="nav-category-list">--}}
+{{--									@php echo CategoryMenuList(); @endphp--}}
+{{--									<li><a href="javascript:void(0);" class="btn cat-more-btn catMoreBtnActive"><span class="onCatMoreBtn">{{ __('Show More') }}</span></a></li>--}}
+{{--								</ul>--}}
+{{--							</li>--}}
 						</ul>
 					</div>
 					<div class="col-lg-12">

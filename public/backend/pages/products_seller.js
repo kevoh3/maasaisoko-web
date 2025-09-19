@@ -13,19 +13,19 @@ $(function () {
 	});
 
 	resetForm("DataEntry_formId");
-	
+
 	$("#submit-form").on("click", function () {
         $("#DataEntry_formId").submit();
     });
 
 	$(document).on('click', '.pagination a', function(event){
-		event.preventDefault(); 
+		event.preventDefault();
 		var page = $(this).attr('href').split('page=')[1];
 		onPaginationDataLoad(page);
 	});
-	
+
 	$('input:checkbox').prop('checked',false);
-	
+
     $(".checkAll").on("click", function () {
         $("input:checkbox").not(this).prop("checked", this.checked);
     });
@@ -35,31 +35,31 @@ $(function () {
 			onProductSlug();
 		}
 	});
-	
-	$("#language_code").val(0).trigger("chosen:updated");
-	$("#language_code").on("change", function () {
-		onCategoryList();
-		onBrandList();
-		onRefreshData();
-	});
-	
+
+	// $("#language_code").val(0).trigger("chosen:updated");
+	// $("#language_code").on("change", function () {
+	// 	onCategoryList();
+	// 	onBrandList();
+	// 	onRefreshData();
+	// });
+
 	$("#category_id").val(0).trigger("chosen:updated");
 	$("#category_id").on("change", function () {
 		onRefreshData();
 	});
-	
+
 	$("#brand_id").val('all').trigger("chosen:updated");
 	$("#brand_id").on("change", function () {
 		onRefreshData();
 	});
-	
-	$("#lan").chosen();
-	$("#lan").trigger("chosen:updated");
-	$("#lan").on("change", function () {
-		onCategoryListForform();
-		onBrandListForform();
-	});
-	
+
+	// $("#lan").chosen();
+	// $("#lan").trigger("chosen:updated");
+	// $("#lan").on("change", function () {
+	// 	onCategoryListForform();
+	// 	onBrandListForform();
+	// });
+
 });
 
 function onCheckAll() {
@@ -71,7 +71,7 @@ function onCheckAll() {
 function onPaginationDataLoad(page) {
 
 	$.ajax({
-		url:base_url + "/seller/getProductsTableData?page="+page
+		url:base_url + "/seller-manage/getProductsTableData?page="+page
 		+"&search="+$("#search").val()
 		+"&language_code="+$('#language_code').val()
 		+"&category_id="+$('#category_id').val()
@@ -86,7 +86,7 @@ function onPaginationDataLoad(page) {
 function onRefreshData() {
 
 	$.ajax({
-		url:base_url + "/seller/getProductsTableData?search="+$("#search").val()
+		url:base_url + "/seller-manage/getProductsTableData?search="+$("#search").val()
 		+"&language_code="+$('#language_code').val()
 		+"&category_id="+$('#category_id').val()
 		+"&brand_id="+$('#brand_id').val(),
@@ -100,7 +100,7 @@ function onRefreshData() {
 function onSearch() {
 
 	$.ajax({
-		url: base_url + "/seller/getProductsTableData?search="+$("#search").val()
+		url: base_url + "/seller-manage/getProductsTableData?search="+$("#search").val()
 		+"&language_code="+$('#language_code').val()
 		+"&category_id="+$('#category_id').val()
 		+"&brand_id="+$('#brand_id').val(),
@@ -115,7 +115,7 @@ function resetForm(id) {
     $('#' + id).each(function () {
         this.reset();
     });
-	
+
 	$("#lan").trigger("chosen:updated");
 }
 
@@ -129,18 +129,18 @@ function onFormPanel() {
     resetForm("DataEntry_formId");
 	RecordId = '';
 
-	$("#lan").trigger("chosen:updated");
-	
+	// $("#lan").trigger("chosen:updated");
+
     $('#list-panel, .btn-form').hide();
     $('#form-panel, .btn-list').show();
-	
+
 	onCategoryListForform();
 	onBrandListForform();
 }
 
 function onEditPanel() {
     $('#list-panel, .btn-form').hide();
-    $('#form-panel, .btn-list').show();	
+    $('#form-panel, .btn-list').show();
 }
 
 function showPerslyError() {
@@ -171,9 +171,9 @@ function onConfirmWhenAddEdit() {
 
     $.ajax({
 		type : 'POST',
-		url: base_url + '/seller/saveProductsData',
+		url: base_url + '/seller-manage/saveProductsData',
 		data: $('#DataEntry_formId').serialize(),
-		success: function (response) {			
+		success: function (response) {
 			var msgType = response.msgType;
 			var msg = response.msg;
 
@@ -182,11 +182,11 @@ function onConfirmWhenAddEdit() {
 				onRefreshData();
 				onSuccessMsg(msg);
 				var id = response.id;
-				window.location.href= base_url + '/seller/product/'+id;
+				window.location.href= base_url + '/seller-manage/product-manage/'+id;
 			} else {
 				onErrorMsg(msg);
 			}
-			
+
 			onCheckAll();
 		}
 	});
@@ -195,14 +195,14 @@ function onConfirmWhenAddEdit() {
 function onDelete(id) {
 	RecordId = id;
 	var msg = TEXT["Do you really want to delete this record"];
-	onCustomModal(msg, "onConfirmDelete");	
+	onCustomModal(msg, "onConfirmDelete");
 }
 
 function onConfirmDelete() {
 
     $.ajax({
 		type : 'POST',
-		url: base_url + '/seller/deleteProducts',
+		url: base_url + '/seller-manage/deleteProducts',
 		data: 'id='+RecordId,
 		success: function (response) {
 			var msgType = response.msgType;
@@ -214,7 +214,7 @@ function onConfirmDelete() {
 			}else{
 				onErrorMsg(msg);
 			}
-			
+
 			onCheckAll();
 		}
     });
@@ -231,14 +231,14 @@ function onBulkAction() {
 		onErrorMsg(msg);
 		return;
 	}
-	
+
 	BulkAction = $("#bulk-action").val();
 	if(BulkAction == ''){
 		var msg = TEXT["Please select action"];
 		onErrorMsg(msg);
 		return;
 	}
-	
+
 	if(BulkAction == 'publish'){
 		var msg = TEXT["Do you really want to publish this records"];
 	}else if(BulkAction == 'draft'){
@@ -246,15 +246,15 @@ function onBulkAction() {
 	}else if(BulkAction == 'delete'){
 		var msg = TEXT["Do you really want to delete this records"];
 	}
-	
-	onCustomModal(msg, "onConfirmBulkAction");	
+
+	onCustomModal(msg, "onConfirmBulkAction");
 }
 
 function onConfirmBulkAction() {
 
     $.ajax({
 		type : 'POST',
-		url: base_url + '/seller/bulkActionProducts',
+		url: base_url + '/seller-manage/bulkActionProducts',
 		data: 'ids='+ids+'&BulkAction='+BulkAction,
 		success: function (response) {
 			var msgType = response.msgType;
@@ -267,7 +267,7 @@ function onConfirmBulkAction() {
 			}else{
 				onErrorMsg(msg);
 			}
-			
+
 			onCheckAll();
 		}
     });
@@ -281,7 +281,7 @@ function onProductSlug() {
 	if(strLength>0){
 		$.ajax({
 			type : 'POST',
-			url: base_url + '/seller/hasProductSlug',
+			url: base_url + '/seller-manage/hasProductSlug',
 			data: 'slug='+StrName,
 			success: function (response) {
 				var slug = response.slug;
@@ -292,17 +292,17 @@ function onProductSlug() {
 }
 
 function onCategoryList() {
-	
+
 	$.ajax({
 		type : 'POST',
-		url: base_url + '/seller/getCategoryList',
+		url: base_url + '/seller-manage/getCategoryList',
 		data: 'lan='+$('#language_code').val(),
 		success: function (data) {
 			var html = '<option value="0" selected="selected">'+TEXT['All Category']+'</option>';
 			$.each(data, function (key, obj) {
 				html += '<option value="' + obj.id + '">' + obj.name + '</option>';
 			});
-			
+
 			$("#category_id").html(html);
 			$("#category_id").chosen();
 			$("#category_id").trigger("chosen:updated");
@@ -311,17 +311,17 @@ function onCategoryList() {
 }
 
 function onBrandList() {
-	
+
 	$.ajax({
 		type : 'POST',
-		url: base_url + '/seller/getBrandList',
+		url: base_url + '/seller-manage/getBrandList',
 		data: 'lan='+$('#language_code').val(),
 		success: function (data) {
 			var html = '<option value="all" selected="selected">'+TEXT['All Brand']+'</option>';
 			$.each(data, function (key, obj) {
 				html += '<option value="' + obj.id + '">' + obj.name + '</option>';
 			});
-			
+
 			$("#brand_id").html(html);
 			$("#brand_id").chosen();
 			$("#brand_id").trigger("chosen:updated");
@@ -330,36 +330,36 @@ function onBrandList() {
 }
 
 function onCategoryListForform() {
-	
+
 	$.ajax({
 		type : 'POST',
-		url: base_url + '/seller/getCategoryList',
+		url: base_url + '/seller-manage/getCategoryList',
 		data: 'lan='+$('#lan').val(),
 		success: function (data) {
 			var html = '';
 			$.each(data, function (key, obj) {
 				html += '<option value="' + obj.id + '">' + obj.name + '</option>';
 			});
-			
-			$("#categoryid").html(html);
-			$("#categoryid").chosen();
-			$("#categoryid").trigger("chosen:updated");
+
+			// $("#categoryid").html(html);
+			// $("#categoryid").chosen();
+			// $("#categoryid").trigger("chosen:updated");
 		}
 	});
 }
 
 function onBrandListForform() {
-	
+
 	$.ajax({
 		type : 'POST',
-		url: base_url + '/seller/getBrandList',
+		url: base_url + '/seller-manage/getBrandList',
 		data: 'lan='+$('#lan').val(),
 		success: function (data) {
 			var html = '';
 			$.each(data, function (key, obj) {
 				html += '<option value="' + obj.id + '">' + obj.name + '</option>';
 			});
-			
+
 			$("#brandid").html(html);
 			$("#brandid").chosen();
 			$("#brandid").trigger("chosen:updated");

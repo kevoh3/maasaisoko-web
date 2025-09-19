@@ -8,11 +8,11 @@ $(function () {
 			'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 		}
 	});
-	
+
 	//Menu active
 	$('#select_product').parent().removeClass('active');
 	$('#select_product').addClass('active');
-	
+
 	$("#submit-form").on("click", function () {
         $("#DataEntry_formId").submit();
     });
@@ -20,31 +20,31 @@ $(function () {
 	$("#product_name").on("blur", function () {
 		onProductSlug();
 	});
-	
+
     $("#load_image").on('change', function() {
 		upload_form();
     });
-	
+
 	$("#brand_id").chosen();
 	$("#brand_id").trigger("chosen:updated");
-	
+
 	$("#cat_id").chosen();
 	$("#cat_id").trigger("chosen:updated");
 
 	$("#tax_id").chosen();
 	$("#tax_id").trigger("chosen:updated");
-	
+
 	$("#is_featured").chosen();
 	$("#is_featured").trigger("chosen:updated");
-	
+
 	$("#lan").chosen();
 	$("#lan").trigger("chosen:updated");
-	
+
 	$("#lan").on("change", function () {
 		onCategoryList();
 		onBrandList();
 	});
-	
+
 	//Summernote
 	$('#description').summernote({
 		codeviewFilter: true,
@@ -60,7 +60,7 @@ $(function () {
 		  ['table', ['table']],
 		  ['insert', ['link', 'unlink']],
 		]
-	});	
+	});
 });
 
 function showPerslyError() {
@@ -92,7 +92,7 @@ function onConfirmWhenAddEdit() {
 		type : 'POST',
 		url: base_url + '/seller/updateProductsData',
 		data: $('#DataEntry_formId').serialize(),
-		success: function (response) {			
+		success: function (response) {
 			var msgType = response.msgType;
 			var msg = response.msg;
 			if (msgType == "success") {
@@ -123,7 +123,7 @@ function onProductSlug() {
 }
 
 function onCategoryList() {
-	
+
 	$.ajax({
 		type : 'POST',
 		url: base_url + '/seller/getCategoryList',
@@ -133,7 +133,7 @@ function onCategoryList() {
 			$.each(data, function (key, obj) {
 				html += '<option value="' + obj.id + '">' + obj.name + '</option>';
 			});
-			
+
 			$("#cat_id").html(html);
 			$("#cat_id").chosen();
 			$("#cat_id").trigger("chosen:updated");
@@ -142,7 +142,7 @@ function onCategoryList() {
 }
 
 function onBrandList() {
-	
+
 	$.ajax({
 		type : 'POST',
 		url: base_url + '/seller/getBrandList',
@@ -152,7 +152,7 @@ function onBrandList() {
 			$.each(data, function (key, obj) {
 				html += '<option value="' + obj.id + '">' + obj.name + '</option>';
 			});
-			
+
 			$("#brand_id").html(html);
 			$("#brand_id").chosen();
 			$("#brand_id").trigger("chosen:updated");
@@ -171,9 +171,9 @@ function upload_form() {
 	var size  =  $('#load_image')[0].files[0].size;
 
 	var ext =  imgname.substr((imgname.lastIndexOf('.') +1));
-	
+
 	if(ext=='jpg' || ext=='JPG' || ext=='jpeg' || ext=='JPEG' || ext=='png' || ext=='PNG' || ext=='gif' || ext=='ico' || ext=='ICO' || ext=='svg' || ext=='SVG'){
-		
+
 		$.ajax({
 			url: base_url + '/seller/MediaUpload',
 			type: "POST",
@@ -190,9 +190,9 @@ function upload_form() {
 				var msg = dataList.msg;
 				var thumbnail = dataList.thumbnail;
 				var id = dataList.id;
-				
+
 				if (msgType == "success") {
-					
+
 					$("#f_thumbnail_thumbnail").val(thumbnail);
 					$("#view_thumbnail_image").html('<img src="'+public_path+'/media/'+thumbnail+'">');
 
@@ -203,9 +203,9 @@ function upload_form() {
 			},
 			error: function(){
 				return false;
-			}				
+			}
 		});
-		
+
 	}else{
 		onErrorMsg(TEXT['Sorry only you can upload jpg, png and gif file type']);
 	}

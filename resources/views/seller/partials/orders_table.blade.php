@@ -23,12 +23,12 @@
 			$sub_total = $row->total_amount;
 			$tax = $row->tax;
 			$shipping_fee = $row->shipping_fee;
-			
+
 			$total_amount = $row->total_amount + $row->tax + $row->shipping_fee;
-			
+
 			@endphp
 			<tr>
-				<td class="text-left"><a href="{{ route('seller.order', [$row->id]) }}">{{ $row->order_no }}</a></td>
+				<td class="text-left"><a href="{{ route('seller-manage.order', [$row->id]) }}">{{ $row->order_no }}</a></td>
 				<td class="text-left">{{ date('d-m-Y', strtotime($row->created_at)) }}</td>
 
 				@if ($row->customer_id != '')
@@ -42,29 +42,29 @@
 				@else
 				<td class="text-center">{{ NumberFormat($sub_total) }}{{ $gtext['currency_icon'] }}</td>
 				@endif
-				
+
 				@if($gtext['currency_position'] == 'left')
 				<td class="text-center">{{ $gtext['currency_icon'] }}{{ NumberFormat($tax) }}</td>
 				@else
 				<td class="text-center">{{ NumberFormat($tax) }}{{ $gtext['currency_icon'] }}</td>
 				@endif
-				
+
 				@if($gtext['currency_position'] == 'left')
 				<td class="text-center">{{ $gtext['currency_icon'] }}{{ NumberFormat($shipping_fee) }}</td>
 				@else
 				<td class="text-center">{{ NumberFormat($shipping_fee) }}{{ $gtext['currency_icon'] }}</td>
 				@endif
-				
+
 				@if($gtext['currency_position'] == 'left')
 				<td class="text-center">{{ $gtext['currency_icon'] }}{{ NumberFormat($total_amount) }}</td>
 				@else
 				<td class="text-center">{{ NumberFormat($total_amount) }}{{ $gtext['currency_icon'] }}</td>
 				@endif
-				
+
 				<td class="text-center">{{ $row->method_name }}</td>
 				<td class="text-center"><span class="status_btn pstatus_{{ $row->payment_status_id }}">{{ $row->pstatus_name }}</span></td>
 				<td class="text-center"><span class="status_btn ostatus_{{ $row->order_status_id }}">{{ $row->ostatus_name }}</span></td>
-				
+
 				<td class="text-center">
 					<div class="btn-group action-group">
 						<a class="action-btn" href="javascript:void(0);" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>

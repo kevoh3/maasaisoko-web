@@ -15,8 +15,8 @@
 			@if(isset(Auth::user()->role_id))
 				@if(Auth::user()->role_id == 1)
 					<li><a href="{{ route('backend.dashboard') }}"><i class="bi bi-stack"></i>{{ __('Dashboard') }}</a></li>
-				@elseif(Auth::user()->role_id == 3) 
-					<li><a href="{{ route('seller.dashboard') }}"><i class="bi bi-stack"></i>{{ __('Seller Dashboard') }}</a></li>
+				@elseif(Auth::user()->role_id == 3)
+					<li><a href="{{ route('seller-manage.dashboard') }}"><i class="bi bi-stack"></i>{{ __('Seller Dashboard') }}</a></li>
 				@endif
 			@endif
 			<li><a  href="{{ route('logout') }}"
