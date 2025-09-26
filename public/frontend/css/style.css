@@ -4416,6 +4416,7 @@ ul.errors-list li {
     -webkit-overflow-scrolling: touch;  /* nice inertia on iOS */
 }
 
+
 /* Optional: slimmer scrollbar */
 .submenu--scroll::-webkit-scrollbar,
 .dropdown--scroll::-webkit-scrollbar { width: 8px; }
