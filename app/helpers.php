@@ -285,7 +285,6 @@ function makeMegaMenu($menu_id, $menu_parent_id, $width_type, $width, $MenuType)
 							'.$title.$imageOrMegaLiList.'
 						</ul>';
 			}
-
 		//Menu list for Mobile
 		}else{
 
@@ -304,7 +303,6 @@ function makeMegaMenu($menu_id, $menu_parent_id, $width_type, $width, $MenuType)
 			}
 		}
 	}
-
 	//Menu list for Desktop
 	if($MenuType == 'HeaderMenuListForDesktop'){
 		if($width_type == 'full_width'){
@@ -320,6 +318,7 @@ function makeMegaMenu($menu_id, $menu_parent_id, $width_type, $width, $MenuType)
 
 	return $MenuList;
 }
+
 
 function mega_liList($menu_id, $menu_parent_id, $mega_menu_id, $MenuType){
 
@@ -461,6 +460,85 @@ function mega_liList($menu_id, $menu_parent_id, $mega_menu_id, $MenuType){
 //
 //	return $MenuList;
 //}
+//function makeDropdownMenu($menu_id, $menu_parent_id, $MenuType){
+//
+//    $datalist = Menu_child::where('menu_id', $menu_id)
+//        ->where('menu_parent_id', $menu_parent_id)
+//        ->orderBy('sort_order','ASC')
+//        ->get();
+//
+//    $li_List = '';
+//    $target_window = '';
+//    $hasGeo = false; // <— track if we output any geo items
+//
+//    foreach($datalist as $row){
+//
+//        $item_id    = $row->item_id;
+//        $custom_url = $row->custom_url;
+//
+//        $target_window = ($row->target_window == '_blank') ? ' target="_blank"' : '';
+//
+//        if($row->menu_type == 'page'){
+//            $li_List .= '<li><a'.$target_window.' href="'.route('frontend.page', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+//
+//        } elseif($row->menu_type == 'brand'){
+//            $li_List .= '<li><a'.$target_window.' href="'.route('frontend.brand', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+//
+//        } elseif($row->menu_type == 'geo_unit'){
+//            // mark that this submenu should be scrollable
+//            $hasGeo = true;
+//            // (add a class on li too if you want to style geo items specifically)
+//            $li_List .= '<li class="geo-unit-item"><a'.$target_window.' href="'.route('frontend.county', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+//
+//        } elseif($row->menu_type == 'shop'){
+//            $li_List .= '<li><a'.$target_window.' href="'.route('frontend.vendor', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+//
+//        } elseif($row->menu_type == 'custom_link'){
+//            $li_List .= '<li><a'.$target_window.' href="'.$custom_url.'">'.$row->item_label.'</a></li>';
+//
+//        } elseif($row->menu_type == 'product'){
+//            $li_List .= '<li><a'.$target_window.' href="'.route('frontend.product', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+//
+//        } elseif($row->menu_type == 'product_category'){
+//
+//            $thumb = !empty($row->thumbnail) ? asset('public/media/'.$row->thumbnail) : asset('public/media/placeholder.png');
+//            $url   = route('frontend.product-category', [$item_id, $custom_url]);
+//
+//            $li_List .= '<li class="product-category-item">
+//                <div class="icon">
+//                    <a'.$target_window.' href="'.$url.'">
+//                        <img src="'.$thumb.'" alt="'.$row->item_label.'" />
+//                    </a>
+//                </div>
+//                <div class="desc">
+//                    <a'.$target_window.' href="'.$url.'">'.$row->item_label.'</a>
+//                </div>
+//            </li>';
+//
+//        } elseif($row->menu_type == 'blog'){
+//            if($item_id == 0){
+//                $li_List .= '<li><a'.$target_window.' href="'.route('frontend.blog').'">'.$row->item_label.'</a></li>';
+//            }else{
+//                $li_List .= '<li><a'.$target_window.' href="'.route('frontend.blog-category', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+//            }
+//        }
+//    }
+//
+//    // Decide the list class
+//    if($MenuType == 'HeaderMenuListForDesktop'){
+//        // add submenu--scroll if it contains geo items
+//        $ulClass = 'submenu'.($hasGeo ? ' submenu--scroll' : '');
+//        $MenuList = '<ul class="'.$ulClass.'">'.$li_List.'</ul>';
+//
+//    }else{
+//        // mobile dropdown version
+//        $ulClass = 'dropdown'.($hasGeo ? ' dropdown--scroll' : '');
+//        $MenuList = '<ul class="'.$ulClass.'">'.$li_List.'</ul>';
+//    }
+//
+//    return $MenuList;
+//}
+
 function makeDropdownMenu($menu_id, $menu_parent_id, $MenuType){
 
     $datalist = Menu_child::where('menu_id', $menu_id)
@@ -469,77 +547,75 @@ function makeDropdownMenu($menu_id, $menu_parent_id, $MenuType){
         ->get();
 
     $li_List = '';
-    $target_window = '';
-    $hasGeo = false; // <— track if we output any geo items
+    $hasGeo  = false;
+    $hasCat  = false;
 
     foreach($datalist as $row){
 
         $item_id    = $row->item_id;
         $custom_url = $row->custom_url;
-
-        $target_window = ($row->target_window == '_blank') ? ' target="_blank"' : '';
+        $target     = ($row->target_window == '_blank') ? ' target="_blank"' : '';
 
         if($row->menu_type == 'page'){
-            $li_List .= '<li><a'.$target_window.' href="'.route('frontend.page', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+            $li_List .= '<li><a'.$target.' href="'.route('frontend.page', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
 
         } elseif($row->menu_type == 'brand'){
-            $li_List .= '<li><a'.$target_window.' href="'.route('frontend.brand', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+            $li_List .= '<li><a'.$target.' href="'.route('frontend.brand', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
 
         } elseif($row->menu_type == 'geo_unit'){
-            // mark that this submenu should be scrollable
             $hasGeo = true;
-            // (add a class on li too if you want to style geo items specifically)
-            $li_List .= '<li class="geo-unit-item"><a'.$target_window.' href="'.route('frontend.county', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+            $li_List .= '<li class="geo-unit-item"><a'.$target.' href="'.route('frontend.county', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
 
         } elseif($row->menu_type == 'shop'){
-            $li_List .= '<li><a'.$target_window.' href="'.route('frontend.vendor', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+            $li_List .= '<li><a'.$target.' href="'.route('frontend.vendor', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
 
         } elseif($row->menu_type == 'custom_link'){
-            $li_List .= '<li><a'.$target_window.' href="'.$custom_url.'">'.$row->item_label.'</a></li>';
+            $li_List .= '<li><a'.$target.' href="'.$custom_url.'">'.$row->item_label.'</a></li>';
 
         } elseif($row->menu_type == 'product'){
-            $li_List .= '<li><a'.$target_window.' href="'.route('frontend.product', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+            $li_List .= '<li><a'.$target.' href="'.route('frontend.product', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
 
         } elseif($row->menu_type == 'product_category'){
 
-            $thumb = !empty($row->thumbnail) ? asset('public/media/'.$row->thumbnail) : asset('public/media/placeholder.png');
+            $hasCat = true; // <— mark: contains product categories
+
+            $thumb = !empty($row->thumbnail)
+                ? asset('public/media/'.$row->thumbnail)
+                : asset('public/media/placeholder.png');
+
             $url   = route('frontend.product-category', [$item_id, $custom_url]);
 
             $li_List .= '<li class="product-category-item">
                 <div class="icon">
-                    <a'.$target_window.' href="'.$url.'">
+                    <a'.$target.' href="'.$url.'">
                         <img src="'.$thumb.'" alt="'.$row->item_label.'" />
                     </a>
                 </div>
                 <div class="desc">
-                    <a'.$target_window.' href="'.$url.'">'.$row->item_label.'</a>
+                    <a'.$target.' href="'.$url.'">'.$row->item_label.'</a>
                 </div>
             </li>';
 
         } elseif($row->menu_type == 'blog'){
             if($item_id == 0){
-                $li_List .= '<li><a'.$target_window.' href="'.route('frontend.blog').'">'.$row->item_label.'</a></li>';
-            }else{
-                $li_List .= '<li><a'.$target_window.' href="'.route('frontend.blog-category', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+                $li_List .= '<li><a'.$target.' href="'.route('frontend.blog').'">'.$row->item_label.'</a></li>';
+            } else {
+                $li_List .= '<li><a'.$target.' href="'.route('frontend.blog-category', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
             }
         }
     }
 
-    // Decide the list class
+    // Optional: force scroll if the list is just long
+    $tooMany = $datalist->count() > 12; // tweak threshold
+
     if($MenuType == 'HeaderMenuListForDesktop'){
-        // add submenu--scroll if it contains geo items
-        $ulClass = 'submenu'.($hasGeo ? ' submenu--scroll' : '');
-        $MenuList = '<ul class="'.$ulClass.'">'.$li_List.'</ul>';
-
-    }else{
-        // mobile dropdown version
-        $ulClass = 'dropdown'.($hasGeo ? ' dropdown--scroll' : '');
-        $MenuList = '<ul class="'.$ulClass.'">'.$li_List.'</ul>';
+        $ulClass = 'submenu'.(($hasGeo || $hasCat || $tooMany) ? ' submenu--scroll' : '');
+        return '<ul class="'.$ulClass.'">'.$li_List.'</ul>';
+    } else {
+        $ulClass = 'dropdown'.(($hasGeo || $hasCat || $tooMany) ? ' dropdown--scroll' : '');
+        return '<ul class="'.$ulClass.'">'.$li_List.'</ul>';
     }
-
-    return $MenuList;
 }
-
 
 
 //Footer Menu List
