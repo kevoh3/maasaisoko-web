@@ -102,7 +102,7 @@ function CategoryListForMobile(){
 function CategoryListOption(){
 	$lan = glan();
 
-	$datalist = Pro_category::where('lan', '=', $lan)->where('is_publish', '=', 1)->orderBy('name','ASC')->get();
+	$datalist = Pro_category::where('lan', '=', $lan)->where('is_publish', '=', 1)->whereNull('parent_id')->orderBy('name','ASC')->get();
 	$option_List = '';
 	foreach($datalist as $row){
 		$id = $row->id;
@@ -395,10 +395,26 @@ function makeDropdownMenu($menu_id, $menu_parent_id, $MenuType){
             $li_List .= '<li><a'.$target_window.' href="'.route('frontend.brand', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
 
         }
-        elseif($row->menu_type == 'geo_unit'){
-			$li_List .= '<li><a'.$target_window.' href="'.route('frontend.county', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+//        elseif($row->menu_type == 'geo_unit'){
+//			$li_List .= '<li><a'.$target_window.' href="'.route('frontend.county', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+//
+//		}
+        elseif ($row->menu_type == 'geo_unit') {
+            // Safe slug fallback
+            $slug = $custom_url ?: \Illuminate\Support\Str::slug($row->item_label);
 
-		}
+            // Build the URL: /county/{id}/{slug}
+            $href = route('frontend.county', [$item_id, $slug]);
+
+            // Optional: show a count badge if you store one on the row (remove if not needed)
+            $countHtml = isset($row->count) ? ' <span class="menu-count">'.$row->count.'</span>' : '';
+
+            // Add class + data-id for future “expand children on hover” JS hooks
+            $li_List .=
+                '<li class="geo-unit-item" data-geo-id="'.$item_id.'">'.
+                '<a'.$target_window.' href="'.$href.'">'.e($row->item_label).$countHtml.'</a>'.
+                '</li>';
+        }
         elseif($row->menu_type == 'shop'){
             $li_List .= '<li><a'.$target_window.' href="'.route('frontend.vendor', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
 
