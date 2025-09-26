@@ -368,99 +368,179 @@ function mega_liList($menu_id, $menu_parent_id, $mega_menu_id, $MenuType){
 	return $li_List;
 }
 
-function makeDropdownMenu($menu_id, $menu_parent_id, $MenuType){
-
-	$datalist = Menu_child::where('menu_id', '=', $menu_id)
-			->where('menu_parent_id', '=', $menu_parent_id)
-			->orderBy('sort_order','ASC')->get();
-
-	$li_List = '';
-	$target_window = '';
-	foreach($datalist as $row){
-
-		$item_id = $row->item_id;
-		$custom_url = $row->custom_url;
-
-		if($row->target_window == '_blank'){
-			$target_window = ' target="_blank"';
-		}else{
-			$target_window = '';
-		}
-
-		if($row->menu_type == 'page'){
-			$li_List .= '<li><a'.$target_window.' href="'.route('frontend.page', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
-
-		}
-        elseif($row->menu_type == 'brand'){
-            $li_List .= '<li><a'.$target_window.' href="'.route('frontend.brand', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
-
-        }
-//        elseif($row->menu_type == 'geo_unit'){
-//			$li_List .= '<li><a'.$target_window.' href="'.route('frontend.county', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+//function makeDropdownMenu($menu_id, $menu_parent_id, $MenuType){
+//
+//	$datalist = Menu_child::where('menu_id', '=', $menu_id)
+//			->where('menu_parent_id', '=', $menu_parent_id)
+//			->orderBy('sort_order','ASC')->get();
+//
+//	$li_List = '';
+//	$target_window = '';
+//	foreach($datalist as $row){
+//
+//		$item_id = $row->item_id;
+//		$custom_url = $row->custom_url;
+//
+//		if($row->target_window == '_blank'){
+//			$target_window = ' target="_blank"';
+//		}else{
+//			$target_window = '';
+//		}
+//
+//		if($row->menu_type == 'page'){
+//			$li_List .= '<li><a'.$target_window.' href="'.route('frontend.page', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
 //
 //		}
-        elseif ($row->menu_type == 'geo_unit') {
-            // Safe slug fallback
-            $slug = $custom_url ?: \Illuminate\Support\Str::slug($row->item_label);
+//        elseif($row->menu_type == 'brand'){
+//            $li_List .= '<li><a'.$target_window.' href="'.route('frontend.brand', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+//
+//        }
+////        elseif($row->menu_type == 'geo_unit'){
+////			$li_List .= '<li><a'.$target_window.' href="'.route('frontend.county', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+////
+////		}
+//        elseif ($row->menu_type == 'geo_unit') {
+//            // Safe slug fallback
+//            $slug = $custom_url ?: \Illuminate\Support\Str::slug($row->item_label);
+//
+//            // Build the URL: /county/{id}/{slug}
+//            $href = route('frontend.county', [$item_id, $slug]);
+//
+//            // Optional: show a count badge if you store one on the row (remove if not needed)
+//            $countHtml = isset($row->count) ? ' <span class="menu-count">'.$row->count.'</span>' : '';
+//
+//            // Add class + data-id for future “expand children on hover” JS hooks
+//            $li_List .=
+//                '<li class="geo-unit-item" data-geo-id="'.$item_id.'">'.
+//                '<a'.$target_window.' href="'.$href.'">'.e($row->item_label).$countHtml.'</a>'.
+//                '</li>';
+//        }
+//        elseif($row->menu_type == 'shop'){
+//            $li_List .= '<li><a'.$target_window.' href="'.route('frontend.vendor', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+//
+//        }
+//
+//        elseif($row->menu_type == 'custom_link'){
+//			$li_List .= '<li><a'.$target_window.' href="'.$custom_url.'">'.$row->item_label.'</a></li>';
+//
+//		}elseif($row->menu_type == 'product'){
+//			$li_List .= '<li><a'.$target_window.' href="'.route('frontend.product', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+//
+//		}elseif($row->menu_type == 'product_category'){
+//
+////			$li_List .= '<li><a'.$target_window.' href="'.route('frontend.product-category', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+//            $li_List .= '<li class="product-category-item">
+//    <div class="icon">
+//        <a' . $target_window . ' href="' . route('frontend.product-category', [$item_id, $custom_url]) . '">
+//            <img src="' . asset('public/media/' . $row->thumbnail) . '" alt="' . $row->item_label . '" />
+//        </a>
+//    </div>
+//    <div class="desc">
+//        <a' . $target_window . ' href="' . route('frontend.product-category', [$item_id, $custom_url]) . '">' . $row->item_label . '</a>
+//    </div>
+//</li>';
+//
+//
+//        }elseif($row->menu_type == 'blog'){
+//			if($item_id == 0){
+//				$li_List .= '<li><a'.$target_window.' href="'.route('frontend.blog').'">'.$row->item_label.'</a></li>';
+//			}else{
+//				$li_List .= '<li><a'.$target_window.' href="'.route('frontend.blog-category', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+//			}
+//		}
+//	}
+//
+//	//Menu list for Desktop
+//	if($MenuType == 'HeaderMenuListForDesktop'){
+//		$MenuList = '<ul class="submenu">'.$li_List.'</ul>';
+//
+//	//Menu list for Mobile
+//	}else{
+//		$MenuList = '<ul class="dropdown">'.$li_List.'</ul>';
+//	}
+//
+//	return $MenuList;
+//}
+function makeDropdownMenu($menu_id, $menu_parent_id, $MenuType){
 
-            // Build the URL: /county/{id}/{slug}
-            $href = route('frontend.county', [$item_id, $slug]);
+    $datalist = Menu_child::where('menu_id', $menu_id)
+        ->where('menu_parent_id', $menu_parent_id)
+        ->orderBy('sort_order','ASC')
+        ->get();
 
-            // Optional: show a count badge if you store one on the row (remove if not needed)
-            $countHtml = isset($row->count) ? ' <span class="menu-count">'.$row->count.'</span>' : '';
+    $li_List = '';
+    $target_window = '';
+    $hasGeo = false; // <— track if we output any geo items
 
-            // Add class + data-id for future “expand children on hover” JS hooks
-            $li_List .=
-                '<li class="geo-unit-item" data-geo-id="'.$item_id.'">'.
-                '<a'.$target_window.' href="'.$href.'">'.e($row->item_label).$countHtml.'</a>'.
-                '</li>';
-        }
-        elseif($row->menu_type == 'shop'){
+    foreach($datalist as $row){
+
+        $item_id    = $row->item_id;
+        $custom_url = $row->custom_url;
+
+        $target_window = ($row->target_window == '_blank') ? ' target="_blank"' : '';
+
+        if($row->menu_type == 'page'){
+            $li_List .= '<li><a'.$target_window.' href="'.route('frontend.page', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+
+        } elseif($row->menu_type == 'brand'){
+            $li_List .= '<li><a'.$target_window.' href="'.route('frontend.brand', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+
+        } elseif($row->menu_type == 'geo_unit'){
+            // mark that this submenu should be scrollable
+            $hasGeo = true;
+            // (add a class on li too if you want to style geo items specifically)
+            $li_List .= '<li class="geo-unit-item"><a'.$target_window.' href="'.route('frontend.county', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+
+        } elseif($row->menu_type == 'shop'){
             $li_List .= '<li><a'.$target_window.' href="'.route('frontend.vendor', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
 
-        }
+        } elseif($row->menu_type == 'custom_link'){
+            $li_List .= '<li><a'.$target_window.' href="'.$custom_url.'">'.$row->item_label.'</a></li>';
 
-        elseif($row->menu_type == 'custom_link'){
-			$li_List .= '<li><a'.$target_window.' href="'.$custom_url.'">'.$row->item_label.'</a></li>';
+        } elseif($row->menu_type == 'product'){
+            $li_List .= '<li><a'.$target_window.' href="'.route('frontend.product', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
 
-		}elseif($row->menu_type == 'product'){
-			$li_List .= '<li><a'.$target_window.' href="'.route('frontend.product', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+        } elseif($row->menu_type == 'product_category'){
 
-		}elseif($row->menu_type == 'product_category'){
+            $thumb = !empty($row->thumbnail) ? asset('public/media/'.$row->thumbnail) : asset('public/media/placeholder.png');
+            $url   = route('frontend.product-category', [$item_id, $custom_url]);
 
-//			$li_List .= '<li><a'.$target_window.' href="'.route('frontend.product-category', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
             $li_List .= '<li class="product-category-item">
-    <div class="icon">
-        <a' . $target_window . ' href="' . route('frontend.product-category', [$item_id, $custom_url]) . '">
-            <img src="' . asset('public/media/' . $row->thumbnail) . '" alt="' . $row->item_label . '" />
-        </a>
-    </div>
-    <div class="desc">
-        <a' . $target_window . ' href="' . route('frontend.product-category', [$item_id, $custom_url]) . '">' . $row->item_label . '</a>
-    </div>
-</li>';
+                <div class="icon">
+                    <a'.$target_window.' href="'.$url.'">
+                        <img src="'.$thumb.'" alt="'.$row->item_label.'" />
+                    </a>
+                </div>
+                <div class="desc">
+                    <a'.$target_window.' href="'.$url.'">'.$row->item_label.'</a>
+                </div>
+            </li>';
 
+        } elseif($row->menu_type == 'blog'){
+            if($item_id == 0){
+                $li_List .= '<li><a'.$target_window.' href="'.route('frontend.blog').'">'.$row->item_label.'</a></li>';
+            }else{
+                $li_List .= '<li><a'.$target_window.' href="'.route('frontend.blog-category', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
+            }
+        }
+    }
 
-        }elseif($row->menu_type == 'blog'){
-			if($item_id == 0){
-				$li_List .= '<li><a'.$target_window.' href="'.route('frontend.blog').'">'.$row->item_label.'</a></li>';
-			}else{
-				$li_List .= '<li><a'.$target_window.' href="'.route('frontend.blog-category', [$item_id, $custom_url]).'">'.$row->item_label.'</a></li>';
-			}
-		}
-	}
+    // Decide the list class
+    if($MenuType == 'HeaderMenuListForDesktop'){
+        // add submenu--scroll if it contains geo items
+        $ulClass = 'submenu'.($hasGeo ? ' submenu--scroll' : '');
+        $MenuList = '<ul class="'.$ulClass.'">'.$li_List.'</ul>';
 
-	//Menu list for Desktop
-	if($MenuType == 'HeaderMenuListForDesktop'){
-		$MenuList = '<ul class="submenu">'.$li_List.'</ul>';
+    }else{
+        // mobile dropdown version
+        $ulClass = 'dropdown'.($hasGeo ? ' dropdown--scroll' : '');
+        $MenuList = '<ul class="'.$ulClass.'">'.$li_List.'</ul>';
+    }
 
-	//Menu list for Mobile
-	}else{
-		$MenuList = '<ul class="dropdown">'.$li_List.'</ul>';
-	}
-
-	return $MenuList;
+    return $MenuList;
 }
+
+
 
 //Footer Menu List
 function FooterMenuList($MenuType){
