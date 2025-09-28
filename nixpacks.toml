@@ -13,3 +13,7 @@ cmds = [
 
 [start]
 cmd = "php artisan serve --host=0.0.0.0 --port=$PORT"
+
+[providers.php]
+version = "8.1"
+extensions = ["gd", "mbstring", "pdo", "pdo_mysql", "curl", "zip", "xml", "bcmath", "intl", "redis"]
