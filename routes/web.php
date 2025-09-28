@@ -128,6 +128,14 @@ Route::get('/thank', [App\Http\Controllers\Frontend\CheckoutFrontController::cla
 Route::get('/PayPalpayment-cancel', [App\Http\Controllers\Frontend\CheckoutFrontController::class, 'PayPalPaymentCancel'])->name('cancel.PayPalPayment');
 Route::get('/PayPalpayment-success', [App\Http\Controllers\Frontend\CheckoutFrontController::class, 'PayPalPaymentSuccess'])->name('success.PayPalPayment');
 
+//SasaPay
+Route::get('/sasapay/payment', [App\Http\Controllers\Frontend\SasaPayController::class, 'showPaymentForm'])->name('frontend.sasapay.payment');
+Route::post('/sasapay/initiate', [App\Http\Controllers\Frontend\SasaPayController::class, 'initiatePayment'])->name('frontend.sasapay.initiate');
+Route::post('/sasapay/callback', [App\Http\Controllers\Frontend\SasaPayController::class, 'handleCallback'])->name('frontend.sasapay.callback');
+Route::get('/sasapay/status', [App\Http\Controllers\Frontend\SasaPayController::class, 'checkPaymentStatus'])->name('frontend.sasapay.status');
+Route::get('/sasapay/success', [App\Http\Controllers\Frontend\SasaPayController::class, 'paymentSuccess'])->name('frontend.sasapay.success');
+Route::get('/sasapay/cancel', [App\Http\Controllers\Frontend\SasaPayController::class, 'paymentCancel'])->name('frontend.sasapay.cancel');
+
 //Order Tracking
 Route::get('/order-tracking', [App\Http\Controllers\Frontend\OrderTrackingController::class, 'getOrderTracking'])->name('frontend.order-tracking');
 
@@ -584,6 +592,7 @@ Route::prefix('backend')->group(function () {
 	Route::post('/PaypalSettingsUpdate', [App\Http\Controllers\Backend\SettingsController::class, 'PaypalSettingsUpdate'])->name('backend.PaypalSettingsUpdate')->middleware(['auth', 'is_admin']);
 	Route::post('/RazorpaySettingsUpdate', [App\Http\Controllers\Backend\SettingsController::class, 'RazorpaySettingsUpdate'])->name('backend.RazorpaySettingsUpdate')->middleware(['auth', 'is_admin']);
 	Route::post('/MollieSettingsUpdate', [App\Http\Controllers\Backend\SettingsController::class, 'MollieSettingsUpdate'])->name('backend.MollieSettingsUpdate')->middleware(['auth', 'is_admin']);
+	Route::post('/SasaPaySettingsUpdate', [App\Http\Controllers\Backend\SettingsController::class, 'SasaPaySettingsUpdate'])->name('backend.SasaPaySettingsUpdate')->middleware(['auth', 'is_admin']);
 	Route::post('/CODSettingsUpdate', [App\Http\Controllers\Backend\SettingsController::class, 'CODSettingsUpdate'])->name('backend.CODSettingsUpdate')->middleware(['auth', 'is_admin']);
 	Route::post('/BankSettingsUpdate', [App\Http\Controllers\Backend\SettingsController::class, 'BankSettingsUpdate'])->name('backend.BankSettingsUpdate')->middleware(['auth', 'is_admin']);
 
