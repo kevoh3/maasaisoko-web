@@ -1,13 +1,14 @@
 [providers.php]
 version = "8.1"
-extensions = ["gd", "mbstring", "pdo", "pdo_mysql", "curl", "zip", "xml", "bcmath", "intl", "redis"]
+extensions = ["mbstring", "pdo", "pdo_mysql", "curl", "zip", "xml", "bcmath", "intl", "redis"]
 
 [phases.setup]
 nixPkgs = ["nodejs-16_x", "npm-8_x"]
 
 [phases.install]
 cmds = [
-    "npm ci --only=production --no-audit --no-fund"
+    "npm ci --only=production --no-audit --no-fund",
+    "./install.sh"
 ]
 
 [phases.build]
