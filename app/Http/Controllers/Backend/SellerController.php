@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\Group;
 use App\Models\Package;
+use App\Models\SellerDeclaration;
 use App\Models\UserSubscription;
 use App\Models\User;
 use App\Models\Subscriber;
@@ -26,6 +27,7 @@ use App\Services\SmsService;
 use App\Services\WaaSService;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -496,6 +498,586 @@ class SellerController extends Controller
     /** Step-aware register (draft OR submit) with OTP enforcement on Step 1 when submitting */
 
     /** Step-aware register (draft OR submit) with OTP enforcement on Step 1 when submitting) */
+
+//    public function SellerRegister(Request $request)
+//    {
+//        $gtext       = gtext();
+//        $recaptchaOn = (int) $gtext['is_recaptcha'] === 1;
+//
+//        $saveMode = $request->input('save_mode', 'submit'); // 'draft' | 'submit'
+//        $isDraft  = $saveMode === 'draft';
+//        $step     = max(1, min(5, (int) $request->input('current_step', 1))); // 🔹 allow step 5 (review)
+//
+//        // reCAPTCHA only on final submit (step 5, not draft)
+//        if ($recaptchaOn && !$isDraft && $step === 5) {
+//            $request->validate(['g-recaptcha-response' => 'required']);
+//            $captcha   = $request->input('g-recaptcha-response');
+//            $secretkey = $gtext['secretkey'] ?? '';
+//            $ip        = $request->ip();
+//            $url = 'https://www.google.com/recaptcha/api/siteverify?secret='
+//                .urlencode($secretkey).'&response='.urlencode($captcha).'&remoteip='.$ip;
+//            $resp = @file_get_contents($url);
+//            $ok   = $resp ? json_decode($resp, true) : ['success' => false];
+//            if (empty($ok['success'])) {
+//                return back()->withFail(__('The recaptcha field is required'))->withInput();
+//            }
+//        }
+//
+//        // Per-step validation rules (unchanged idea; tweak for your current fields/steps)
+//        $rules = match ($step) {
+//            1 => [
+//                'username'                     => $isDraft ? 'nullable|regex:/^[A-Za-z0-9._-]{4,}$/' : 'required|regex:/^[A-Za-z0-9._-]{4,}$/',
+//                'password'                     => $isDraft ? 'nullable|confirmed|min:6' : 'required|confirmed|min:6',
+//                'shop_phone'                   => $isDraft ? 'nullable|string|max:30' : 'required|string|max:30',
+//                'seller_type'                  => $isDraft ? 'nullable|in:sole_proprietor,partnership,company' : 'required|in:sole_proprietor,partnership,company',
+//                'email'                        => 'nullable|email',
+//                'group_id'                     => 'nullable|integer|exists:groups,id',
+//
+//                'contact_person_name'          => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+//                'contact_person_designation'   => $isDraft ? 'nullable|in:proprietor,director,manager,agent' : 'required|in:proprietor,director,manager,agent',
+//                'contact_person_phone'         => $isDraft ? 'nullable|string|max:30' : 'required|string|max:30',
+//
+//                'address_street'               => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+//                'address_city'                 => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+//                'geo_unit_id'                  => $isDraft ? 'nullable|integer|exists:geo_units,id' : 'required|integer|exists:geo_units,id',
+//            ],
+//            2 => [
+//                // Keep your doc rules small; upload only what’s present
+//                'doc_sole_brs'       => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+//                'doc_sole_id'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+//                'doc_sole_kra'       => 'nullable|file|mimes:pdf|max:4096',
+//                'doc_sole_sbp'       => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+//                // add partnership/company variants as needed
+//            ],
+//            3 => [
+//                'account_name'       => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+//                'bank_name'          => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+//                'bank_branch'        => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+//                'account_number'     => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+//                'account_type'       => $isDraft ? 'nullable|in:current,savings' : 'required|in:current,savings',
+//                'swift_code'         => 'nullable|string|max:50',
+//                'mobile_money'       => 'nullable|string|max:30',
+//                'mobile_money_paybill'=> 'nullable|string|max:50',
+//            ],
+//            4 => [
+//                'shop_name'          => $isDraft ? 'nullable|string|max:200' : 'required|string|max:200',
+//                'store_category_id'  => $isDraft ? 'nullable|integer|exists:pro_categories,id' : 'required|integer|exists:pro_categories,id',
+//                'store_description'  => $isDraft ? 'nullable|string' : 'required|string|min:10',
+//                'store_logo'         => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
+//                'store_banner'       => 'nullable|file|mimes:jpg,jpeg,png,pdf,txt,doc,docx|max:8192',
+//                'store_city'         => $isDraft ? 'nullable|string|max:120' : 'required|string|max:120',
+//                'store_county'       => $isDraft ? 'nullable|string|max:120' : 'required|string|max:120',
+//                'store_sub_county'   => 'nullable|string|max:120',
+//                'store_ward'         => 'nullable|string|max:120',
+//                'store_coords'       => 'nullable|string|max:60',
+//            ],
+//            5 => [
+//                // Final confirm; usually no new fields beyond signature/recaptcha
+//                'signature_data'     => $isDraft ? 'nullable|string' : 'nullable|string', // optional
+//            ],
+//            default => [],
+//        };
+//
+//        // Step 1: unique email/username and OTP enforcement (non-draft)
+//        if ($step === 1) {
+//            // email uniqueness if provided
+//            if ($request->filled('email')) {
+//                $rules['email'] .= '|unique:users,email';
+//            }
+//            // username uniqueness
+//            if ($request->filled('username')) {
+//                $rules['username'] .= '|unique:users,name';
+//            }
+//
+//            if (!$isDraft) {
+//                if (!session('seller_otp_verified')) {
+//                    return back()->withFail(__('Please verify your phone (OTP) before continuing.'))->withInput();
+//                }
+//            }
+//        }
+//
+//        $validated = $request->validate($rules);
+//
+//        // Normalize phones (non-fatal)
+//        $request->merge([
+//            'shop_phone'           => $this->normalizeKEPhone($request->input('shop_phone')),
+//            'contact_person_phone' => $this->normalizeKEPhone($request->input('contact_person_phone')),
+//            'mobile_money'         => $this->normalizeKEPhone($request->input('mobile_money')),
+//        ]);
+//
+//        // Auto-activate setting
+//        $sellerSettings = gSellerSettings();
+//        $autoActive = (int)($sellerSettings['seller_auto_active'] ?? 0) === 1;
+//
+//        DB::beginTransaction();
+//        try {
+//            // Find/create the user by email OR username (for drafts without email yet, we can key by username)
+//            $user = null;
+//            if ($request->filled('email')) {
+//                $user = \App\Models\User::where('email', $request->input('email'))->first();
+//            }
+//            if (!$user && $request->filled('username')) {
+//                $user = \App\Models\User::where('name', $request->input('username'))->first();
+//            }
+//            if (!$user) {
+//                $user = new \App\Models\User();
+//                $user->role_id  = 3; // seller
+//            }
+//
+//            // Set core fields if present
+//            if ($request->filled('email'))       $user->email   = $request->input('email');
+//            if ($request->filled('username'))    $user->name    = $request->input('username');
+//            if ($request->filled('password')) {
+//                $user->password = \Illuminate\Support\Facades\Hash::make($request->input('password'));
+//                $user->bactive  = base64_encode($request->input('password')); // if you still need this
+//            }
+//
+//            // Step-specific fills (persist progressively)
+//            if ($step >= 1) {
+//                if ($request->filled('shop_phone'))          $user->phone       = $request->input('shop_phone');
+//                if ($request->filled('address_street') || $request->filled('address_city')) {
+//                    $user->address = trim(($request->input('address_street','')).' '.$request->input('address_city',''));
+//                }
+//                if ($request->filled('geo_unit_id'))         $user->geo_unit_id = (int)$request->input('geo_unit_id');
+//                if ($request->filled('group_id'))            $user->group_id    = (int)$request->input('group_id');
+//
+//                // You can map seller_type → classification if you want to keep using that column
+//                // e.g. individual/company mapping:
+//                if ($request->filled('seller_type')) {
+//                    $user->classification = $request->input('seller_type') === 'company' ? 'company' : 'individual';
+//                }
+//            }
+//
+//            if ($step >= 4) {
+//                if ($request->filled('shop_name')) {
+//                    $user->shop_name = $request->input('shop_name');
+//                    // ensure unique slug
+//                    $user->shop_url  = $this->uniqueShopSlug($request->input('shop_name'), $user->id ?? null);
+//                }
+//            }
+//
+//            // Status & KYC
+//            if ($isDraft) {
+//                $user->status_id  = 2;
+//                $user->kyc_status = 'not_submitted';
+//            } else {
+//                if ($step === 5) { // final confirm
+//                    $user->status_id  = $autoActive ? 1 : 2;
+//                    $user->kyc_status = 'pending';
+//                    $user->kyc_submitted_at = now();
+//                } else {
+//                    $user->status_id  = 2; // still pending/incomplete
+//                }
+//            }
+//
+//            // 🔹 Track progress
+//            $user->onboarding_step = max((int)($user->onboarding_step ?? 1), $step);
+//
+//            $user->save();
+//
+//            // Step 2: documents (save whatever is present)
+//            if ($step >= 2) {
+//                $docs = \App\Models\SellerDocument::firstOrNew(['user_id' => $user->id]);
+//                // Map any text fields as needed…
+//                // Save any uploaded files present in this request:
+//                foreach (['doc_sole_brs','doc_sole_id','doc_sole_kra','doc_sole_sbp'] as $f) {
+//                    if ($request->hasFile($f)) {
+//                        $path = $request->file($f)->store('seller_docs', 'public');
+//                        // You can store paths in separate columns or a JSON column; sample:
+//                        $col = $f.'_path';
+//                        $docs->{$col} = $path;
+//                    }
+//                }
+//                $docs->user_id = $user->id;
+//                $docs->save();
+//            }
+//
+//            // Step 3: settlement
+//            if ($step >= 3) {
+//                $settle = \App\Models\SellerSettlement::firstOrNew(['user_id' => $user->id]);
+//                foreach (['account_name','bank_name','bank_branch','account_number','swift_code','mobile_money','mobile_money_paybill','account_type'] as $f) {
+//                    if ($request->filled($f)) $settle->{$f} = $request->input($f);
+//                }
+//                $settle->user_id = $user->id;
+//                $settle->save();
+//            }
+//
+//            // Step 4: store
+//            if ($step >= 4) {
+//                $store = \App\Models\SellerStore::firstOrNew(['user_id' => $user->id]);
+//                if ($request->filled('store_category_id')) $store->store_category_id = (int)$request->input('store_category_id');
+//                if ($request->filled('store_description')) $store->store_description = $request->input('store_description');
+//                if ($request->hasFile('store_logo'))   $store->store_logo_path   = $request->file('store_logo')->store('seller_stores', 'public');
+//                if ($request->hasFile('store_banner')) $store->store_banner_path = $request->file('store_banner')->store('seller_stores', 'public');
+//
+//                // optional physical split
+//                foreach (['store_city','store_county','store_sub_county','store_ward','store_coords'] as $f) {
+//                    if ($request->filled($f)) $store->{$f} = $request->input($f);
+//                }
+//
+//                $store->user_id = $user->id;
+//                $store->save();
+//            }
+//
+//            // Step 5: capture signature image if you want (optional)
+//            if ($step === 5 && $request->filled('signature_data')) {
+//                // decode and store if needed
+//                // Storage::disk('public')->put('seller_signatures/'.$user->id.'.png', base64_decode(preg_replace('#^data:image/\w+;base64,#i','',$request->input('signature_data'))));
+//            }
+//
+//            DB::commit();
+//
+//            // Redirect flow
+//            if ($isDraft) {
+//                return back()
+//                    ->withSuccess(__('Draft saved. You can resume later from your account.'))
+//                    ->withInput(['current_step' => $step]); // stay on same step
+//            }
+//
+//            if ($step < 5) {
+//                return back()
+//                    ->withSuccess(__('Saved. Continue to next step.'))
+//                    ->withInput(['current_step' => $step + 1]);
+//            }
+//
+//            // Final
+//            if ((int)$user->status_id === 1) {
+//                return back()->withSuccess(__('Thanks! You have registered successfully. Please login.'));
+//            }
+//            return back()->withSuccess(__('Thanks! Registration submitted. Your account is pending review.'));
+//        } catch (\Throwable $e) {
+//            DB::rollBack();
+//            \Log::error('SellerRegister failed: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+//            return back()->withFail(__('Oops! Registration could not be completed. Please try again.'))
+//                ->withInput(['current_step' => $step]);
+//        }
+//    }
+//    public function SellerRegister(Request $request)
+//    {
+//        $gtext       = gtext();
+//        $recaptchaOn = (int) $gtext['is_recaptcha'] === 1;
+//
+//        $saveMode = $request->input('save_mode', 'submit'); // 'draft' | 'submit'
+//        $isDraft  = $saveMode === 'draft';
+//        $step     = max(1, min(5, (int) $request->input('current_step', 1)));
+//
+//        // reCAPTCHA only on final submit (step 5, not draft)
+//        if ($recaptchaOn && !$isDraft && $step === 5) {
+//            $request->validate(['g-recaptcha-response' => 'required']);
+//            $captcha   = $request->input('g-recaptcha-response');
+//            $secretkey = $gtext['secretkey'] ?? '';
+//            $ip        = $request->ip();
+//            $url = 'https://www.google.com/recaptcha/api/siteverify?secret='
+//                .urlencode($secretkey).'&response='.urlencode($captcha).'&remoteip='.$ip;
+//            $resp = @file_get_contents($url);
+//            $ok   = $resp ? json_decode($resp, true) : ['success' => false];
+//            if (empty($ok['success'])) {
+//                return back()->withFail(__('The recaptcha field is required'))->withInput();
+//            }
+//        }
+//
+//        // Validation (per step)
+//        $rules = match ($step) {
+//            1 => [
+//                'username'                     => $isDraft ? 'nullable|regex:/^[A-Za-z0-9._-]{4,}$/' : 'required|regex:/^[A-Za-z0-9._-]{4,}$/',
+//                'password'                     => $isDraft ? 'nullable|confirmed|min:6' : 'required|confirmed|min:6',
+//                'shop_phone'                   => $isDraft ? 'nullable|string|max:30' : 'required|string|max:30',
+//                'seller_type'                  => $isDraft ? 'nullable|in:sole_proprietor,partnership,company' : 'required|in:sole_proprietor,partnership,company',
+//                'email'                        => 'nullable|email',
+//                'group_id'                     => 'nullable|integer|exists:groups,id',
+//
+//                'contact_person_name'          => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+//                'contact_person_designation'   => $isDraft ? 'nullable|in:proprietor,director,manager,agent' : 'required|in:proprietor,director,manager,agent',
+//                'contact_person_phone'         => $isDraft ? 'nullable|string|max:30' : 'required|string|max:30',
+//                'contact_person_email'         => 'nullable|email',
+//
+//                'address_building'             => 'nullable|string|max:191',
+//                'address_street'               => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+//                'address_city'                 => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+//                'postal_box'                   => 'nullable|string|max:191',
+//                'postal_code'                  => 'nullable|string|max:191',
+//
+//                'geo_unit_id'                  => $isDraft ? 'nullable|integer|exists:geo_units,id' : 'required|integer|exists:geo_units,id',
+//                'geo_path'                     => 'nullable|string|max:191',
+//                'personal_kra_pin'             => 'nullable|string|max:50',
+//            ],
+//            2 => [
+//                // Upload only what's present
+//                'doc_sole_brs'             => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+//                'doc_sole_id'              => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+//                'doc_sole_kra'             => 'nullable|file|mimes:pdf|max:4096',
+//                'doc_sole_sbp'             => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+//
+//                // If you later add partnership/company file inputs, add rules here.
+//            ],
+//            3 => [
+//                'account_name'             => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+//                'bank_name'                => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+//                'bank_branch'              => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+//                'account_number'           => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+//                'account_type'             => $isDraft ? 'nullable|in:current,savings' : 'required|in:current,savings',
+//                'swift_code'               => 'nullable|string|max:50',
+//                'mobile_money'             => 'nullable|string|max:30',
+//                'mobile_money_paybill'     => 'nullable|string|max:50',
+//            ],
+//            4 => [
+//                'shop_name'                => $isDraft ? 'nullable|string|max:200' : 'required|string|max:200',
+//                'store_category_id'        => $isDraft ? 'nullable|integer|exists:pro_categories,id' : 'required|integer|exists:pro_categories,id',
+//                'store_description'        => $isDraft ? 'nullable|string' : 'required|string|min:10',
+//                'store_logo'               => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
+//                'store_banner'             => 'nullable|file|mimes:jpg,jpeg,png,pdf,txt,doc,docx|max:8192',
+//                'store_city'               => $isDraft ? 'nullable|string|max:120' : 'required|string|max:120',
+//                'store_county'             => $isDraft ? 'nullable|string|max:120' : 'required|string|max:120',
+//                'store_sub_county'         => 'nullable|string|max:120',
+//                'store_ward'               => 'nullable|string|max:120',
+//                'store_coords'             => 'nullable|string|max:60',
+//            ],
+//            5 => [
+//                'signature_data'           => 'nullable|string',
+//                'declaration_date'         => 'nullable|date',
+//            ],
+//            default => [],
+//        };
+//
+//        // Step 1: unique email/username and OTP enforcement (non-draft)
+//        if ($step === 1) {
+//            if ($request->filled('email')) {
+//                $rules['email'] .= '|unique:users,email';
+//            }
+//            if ($request->filled('username')) {
+//                $rules['username'] .= '|unique:users,name';
+//            }
+//            if (!$isDraft && !session('seller_otp_verified')) {
+//                return back()->withFail(__('Please verify your phone (OTP) before continuing.'))->withInput();
+//            }
+//        }
+//
+//        $validated = $request->validate($rules);
+//
+//        // Normalize phones (non-fatal)
+//        $request->merge([
+//            'shop_phone'           => $this->normalizeKEPhone($request->input('shop_phone')),
+//            'contact_person_phone' => $this->normalizeKEPhone($request->input('contact_person_phone')),
+//            'mobile_money'         => $this->normalizeKEPhone($request->input('mobile_money')),
+//        ]);
+//
+//        // Auto-activate setting
+//        $sellerSettings = gSellerSettings();
+//        $autoActive = (int)($sellerSettings['seller_auto_active'] ?? 0) === 1;
+//
+//        DB::beginTransaction();
+//        try {
+//            // Find/create the user by email OR username
+//            $user = null;
+//            if ($request->filled('email')) {
+//                $user = User::where('email', $request->input('email'))->first();
+//            }
+//            if (!$user && $request->filled('username')) {
+//                $user = User::where('name', $request->input('username'))->first();
+//            }
+//            if (!$user) {
+//                $user = new User();
+//                $user->role_id  = 3; // seller
+//            }
+//
+//            // Core fields
+//            if ($request->filled('email'))       $user->email   = $request->input('email');
+//            if ($request->filled('username'))    $user->name    = $request->input('username');
+//            if ($request->filled('password')) {
+//                $user->password = Hash::make($request->input('password'));
+//                $user->bactive  = base64_encode($request->input('password')); // legacy
+//            }
+//
+//            // Step 1 persistence (including new columns)
+//            if ($step >= 1) {
+//                if ($request->filled('shop_phone'))          $user->phone       = $request->input('shop_phone');
+//                if ($request->filled('address_street') || $request->filled('address_city')) {
+//                    $user->address = trim(($request->input('address_street','')).' '.$request->input('address_city',''));
+//                }
+//                if ($request->filled('address_city'))        $user->city        = $request->input('address_city'); // keep existing column in sync
+//                if ($request->filled('geo_unit_id'))         $user->geo_unit_id = (int)$request->input('geo_unit_id');
+//                if ($request->filled('geo_path'))            $user->geo_path    = $request->input('geo_path');
+//                if ($request->filled('group_id'))            $user->group_id    = (int)$request->input('group_id');
+//
+//                // NEW: dedicated contact & postal/address fields
+//                foreach ([
+//                             'contact_person_name',
+//                             'contact_person_designation',
+//                             'contact_person_phone',
+//                             'contact_person_email',
+//                             'address_building',
+//                             'address_street',
+//                             'postal_box',
+//                             'postal_code',
+//                         ] as $f) {
+//                    if ($request->filled($f)) $user->{$f} = $request->input($f);
+//                }
+//                // also mirror postal_code to legacy zip_code if provided
+//                if ($request->filled('postal_code')) $user->zip_code = $request->input('postal_code');
+//
+//                // classification mapping
+//                if ($request->filled('seller_type')) {
+//                    $user->classification = match ($request->input('seller_type')) {
+//                        'company'     => 'company',
+//                        'partnership' => 'partnership',
+//                        default       => 'individual',
+//                    };
+//                }
+//            }
+//
+//            // Step 4: store name & slug
+//            if ($step >= 4 && $request->filled('shop_name')) {
+//                $user->shop_name = $request->input('shop_name');
+//                $user->shop_url  = $this->uniqueShopSlug($request->input('shop_name'), $user->id ?? null);
+//            }
+//
+//            // Status & KYC
+//            if ($isDraft) {
+//                $user->status_id  = 2;
+//                $user->kyc_status = 'not_submitted';
+//            } else {
+//                if ($step === 5) {
+//                    $user->status_id  = $autoActive ? 1 : 2;
+//                    $user->kyc_status = 'pending';
+//                    $user->kyc_submitted_at = now();
+//                } else {
+//                    $user->status_id  = 2;
+//                }
+//            }
+//
+//            // Progress
+//            $user->onboarding_step = max((int)($user->onboarding_step ?? 1), $step);
+//            $user->save();
+//
+//            // Step 2: documents (map to your columns)
+//            if ($step >= 2) {
+//                $docs = SellerDocument::firstOrNew(['user_id' => $user->id]);
+//
+//                // Persist textual bits if available
+//                if ($request->filled('personal_kra_pin')) {
+//                    $docs->kra_pin = $request->input('personal_kra_pin');
+//                }
+//                if ($request->filled('contact_person_id')) {
+//                    $docs->document_number = $request->input('contact_person_id');
+//                }
+//
+//                // Files mapping (sole proprietor block)
+//                // - BRS (business registration) → business_license_file_path (closest fit)
+//                if ($request->hasFile('doc_sole_brs')) {
+//                    $docs->business_license_file_path = $request->file('doc_sole_brs')->store('seller_docs', 'public');
+//                }
+//                // - ID/Passport (single field in form) → additional_id_files (json array)
+//                if ($request->hasFile('doc_sole_id')) {
+//                    $path = $request->file('doc_sole_id')->store('seller_docs', 'public');
+//                    $arr  = (array) json_decode($docs->additional_id_files ?? '[]', true);
+//                    $arr[] = $path;
+//                    $docs->additional_id_files = json_encode(array_values(array_unique($arr)));
+//                }
+//                // - KRA PIN certificate (pdf) → kra_cert_file_path
+//                if ($request->hasFile('doc_sole_kra')) {
+//                    $docs->kra_cert_file_path = $request->file('doc_sole_kra')->store('seller_docs', 'public');
+//                }
+//                // - Single Business Permit (SBP) → document_file_path (or keep separate; we reuse this)
+//                if ($request->hasFile('doc_sole_sbp')) {
+//                    $docs->document_file_path = $request->file('doc_sole_sbp')->store('seller_docs', 'public');
+//                }
+//
+//                // (If you later add partnership/company inputs, extend here similarly.)
+//
+//                $docs->user_id = $user->id;
+//                $docs->save();
+//            }
+//
+//            // Step 3: settlement
+//            if ($step >= 3) {
+//                $settle = SellerSettlement::firstOrNew(['user_id' => $user->id]);
+//                foreach ([
+//                             'account_name','bank_name','bank_branch','account_number',
+//                             'swift_code','mobile_money','mobile_money_paybill','account_type'
+//                         ] as $f) {
+//                    if ($request->filled($f)) $settle->{$f} = $request->input($f);
+//                }
+//                $settle->user_id = $user->id;
+//                $settle->save();
+//            }
+//
+//            // Step 4: store
+//            if ($step >= 4) {
+//                $store = SellerStore::firstOrNew(['user_id' => $user->id]);
+//
+//                if ($request->filled('store_category_id')) $store->store_category_id = (int)$request->input('store_category_id');
+//                if ($request->filled('store_description')) $store->store_description = $request->input('store_description');
+//
+//                if ($request->hasFile('store_logo')) {
+//                    $store->store_logo_path = $request->file('store_logo')->store('seller_stores', 'public');
+//                }
+//                if ($request->hasFile('store_banner')) {
+//                    $store->store_banner_path = $request->file('store_banner')->store('seller_stores', 'public');
+//                }
+//
+//                // new physical split
+//                foreach (['store_city','store_county','store_sub_county','store_ward','store_coords'] as $f) {
+//                    if ($request->filled($f)) $store->{$f} = $request->input($f);
+//                }
+//
+//                $store->user_id = $user->id;
+//                $store->save();
+//            }
+//
+//            // Step 5: signature + declaration date
+//            if ($step === 5) {
+//                $decl = SellerDeclaration::firstOrNew(['user_id' => $user->id]);
+//
+//                // Save date if provided
+//                if ($request->filled('declaration_date')) {
+//                    $decl->declaration_date = $request->date('declaration_date');
+//                }
+//
+//                // Save signature image if provided
+//                if ($request->filled('signature_data')) {
+//                    $b64 = $request->input('signature_data');
+//                    $png = preg_replace('#^data:image/\w+;base64,#i','', $b64);
+//                    if ($png) {
+//                        $pngData = base64_decode($png, true);
+//                        if ($pngData !== false) {
+//                            $path = 'seller_signatures/'.$user->id.'_'.Str::random(6).'.png';
+//                            Storage::disk('public')->put($path, $pngData);
+//                            $decl->signature_path = $path;
+//                        }
+//                    }
+//                }
+//
+//                $decl->user_id = $user->id;
+//                $decl->save();
+//            }
+//
+//            DB::commit();
+//
+//            // Redirect flow
+//            if ($isDraft) {
+//                return back()
+//                    ->withSuccess(__('Draft saved. You can resume later from your account.'))
+//                    ->withInput(['current_step' => $step]); // stay on same step
+//            }
+//
+//            if ($step < 5) {
+//                return back()
+//                    ->withSuccess(__('Saved. Continue to next step.'))
+//                    ->withInput(['current_step' => $step + 1]);
+//            }
+//
+//            // Final
+//            if ((int)$user->status_id === 1) {
+//                return back()->withSuccess(__('Thanks! You have registered successfully. Please login.'));
+//            }
+//            return back()->withSuccess(__('Thanks! Registration submitted. Your account is pending review.'));
+//        } catch (\Throwable $e) {
+//            DB::rollBack();
+//            \Log::error('SellerRegister failed: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+//            return back()->withFail(__('Oops! Registration could not be completed. Please try again.'))
+//                ->withInput(['current_step' => $step]);
+//        }
+//    }
     public function SellerRegister(Request $request)
     {
         $gtext       = gtext();
@@ -503,9 +1085,35 @@ class SellerController extends Controller
 
         $saveMode = $request->input('save_mode', 'submit'); // 'draft' | 'submit'
         $isDraft  = $saveMode === 'draft';
-        $step     = max(1, min(4, (int) $request->input('current_step', 1)));
+        $step     = max(1, min(5, (int) $request->input('current_step', 1))); // allow 1..5
 
-        if ($recaptchaOn && !$isDraft && $step === 4) { // recaptcha only on final submit
+        /**
+         * Build a "safe old input" array to flash back to the form.
+         * - Excludes passwords, tokens, OTP code, signature image, and file fields (browsers won’t prefill them anyway).
+         * - You can still append/override keys via $extra.
+         */
+        $fileFields = [
+            // Sole
+            'doc_sole_brs','doc_sole_id','doc_sole_kra','doc_sole_sbp',
+            // Partnership
+            'doc_partner_brs','doc_partner_ids','doc_partner_kra','doc_partner_sbp','doc_partner_agreement',
+            // Company
+            'doc_company_certificate','doc_company_kra','doc_company_sbp','doc_company_ids','doc_company_board_resolution',
+            // Store
+            'store_logo','store_banner',
+        ];
+        $secretFields = [
+            '_token','password','password_confirmation','g-recaptcha-response','signature_data','otp_code'
+        ];
+        $oldSafe = function(array $extra = []) use ($request, $fileFields, $secretFields) {
+            return array_merge(
+                $request->except(array_merge($fileFields, $secretFields)),
+                $extra
+            );
+        };
+
+        // reCAPTCHA only on final submit (step 5, not draft)
+        if ($recaptchaOn && !$isDraft && $step === 5) {
             $request->validate(['g-recaptcha-response' => 'required']);
             $captcha   = $request->input('g-recaptcha-response');
             $secretkey = $gtext['secretkey'] ?? '';
@@ -515,64 +1123,89 @@ class SellerController extends Controller
             $resp = @file_get_contents($url);
             $ok   = $resp ? json_decode($resp, true) : ['success' => false];
             if (empty($ok['success'])) {
-                return back()->withFail(__('The recaptcha field is required'))->withInput();
+                return back()
+                    ->withFail(__('The recaptcha field is required'))
+                    ->withInput($oldSafe(['current_step' => $step]));
             }
         }
 
-        // Build rules per step (NO phone regex; treat as string)
+        // Validation rules per step
         $rules = match ($step) {
             1 => [
-                'name'          => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
-                'email'         => $isDraft ? 'nullable|email' : 'required|email',
-                'password'      => $isDraft ? 'nullable|confirmed|min:6' : 'required|confirmed|min:6',
-                'shop_name'     => $isDraft ? 'nullable|string|max:200' : 'required|string|max:200',
-                'shop_phone'    => $isDraft ? 'nullable|string|max:30' : 'required|string|max:30',
-                'geo_unit_id'   => $isDraft ? 'nullable|integer|exists:geo_units,id' : 'required|integer|exists:geo_units,id',
-                'address_line'  => $isDraft ? 'nullable|string|max:255' : 'required|string|max:255',
-                'classification'=> $isDraft ? 'nullable|in:individual,company' : 'required|in:individual,company',
-                'group_option'  => 'nullable|in:group',
-                'group_id'      => 'nullable|integer|exists:groups,id',
+                'username'                   => $isDraft ? 'nullable|regex:/^[A-Za-z0-9._-]{4,}$/' : 'required|regex:/^[A-Za-z0-9._-]{4,}$/',
+                'password'                   => $isDraft ? 'nullable|confirmed|min:6' : 'required|confirmed|min:6',
+                'shop_phone'                 => $isDraft ? 'nullable|string|max:30' : 'required|string|max:30',
+                'seller_type'                => $isDraft ? 'nullable|in:sole_proprietor,partnership,company' : 'required|in:sole_proprietor,partnership,company',
+                'email'                      => 'nullable|email',
+                'group_id'                   => 'nullable|integer|exists:groups,id',
+
+                'contact_person_name'        => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+                'contact_person_designation' => $isDraft ? 'nullable|in:proprietor,director,manager,agent' : 'required|in:proprietor,director,manager,agent',
+                'contact_person_phone'       => $isDraft ? 'nullable|string|max:30' : 'required|string|max:30',
+
+                'address_street'             => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+                'address_city'               => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+                'geo_unit_id'                => $isDraft ? 'nullable|integer|exists:geo_units,id' : 'required|integer|exists:geo_units,id',
             ],
             2 => [
-                'document_number'       => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
-                'document_file'         => $isDraft ? 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096' : 'required|file|mimes:pdf,jpg,jpeg,png|max:4096',
-                'business_license_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
-                'kra_pin'               => 'nullable|string|max:20',
-                'brand_auth_file'       => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
-                'contact_person_name'   => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
-                'contact_person_phone'  => $isDraft ? 'nullable|string|max:30' : 'required|string|max:30',
+                // Only validate files that are present
+                'doc_sole_brs'               => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+                'doc_sole_id'                => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+                'doc_sole_kra'               => 'nullable|file|mimes:pdf|max:4096',
+                'doc_sole_sbp'               => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+
+                'doc_partner_brs'            => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+                'doc_partner_ids.*'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+                'doc_partner_kra'            => 'nullable|file|mimes:pdf|max:4096',
+                'doc_partner_sbp'            => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+                'doc_partner_agreement'      => 'nullable|file|mimes:pdf|max:4096',
+
+                'doc_company_certificate'    => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+                'doc_company_kra'            => 'nullable|file|mimes:pdf|max:4096',
+                'doc_company_sbp'            => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+                'doc_company_ids.*'          => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+                'doc_company_board_resolution'=> 'nullable|file|mimes:pdf|max:4096',
             ],
             3 => [
-                'bank_name'      => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
-                'bank_branch'    => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
-                'account_name'   => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
-                'account_number' => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
-                'swift_code'     => 'nullable|string|max:50',
-                'mobile_money'   => 'nullable|string|max:30',
+                'account_name'               => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+                'bank_name'                  => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+                'bank_branch'                => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+                'account_number'             => $isDraft ? 'nullable|string|max:191' : 'required|string|max:191',
+                'account_type'               => $isDraft ? 'nullable|in:current,savings' : 'required|in:current,savings',
+                'swift_code'                 => 'nullable|string|max:50',
+                'mobile_money'               => 'nullable|string|max:30',
+                'mobile_money_paybill'       => 'nullable|string|max:50',
             ],
             4 => [
-                'store_category_id' => $isDraft ? 'nullable|integer|exists:pro_categories,id' : 'required|integer|exists:pro_categories,id',
-                'store_description' => $isDraft ? 'nullable|string' : 'required|string|min:10',
-                'shipping_methods'  => 'nullable|array',
-                'shipping_methods.*'=> 'in:local_pickup,within_county,nationwide',
-                'store_logo'        => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
-                'store_banner'      => 'nullable|image|mimes:jpg,jpeg,png|max:8192',
+                'shop_name'                  => $isDraft ? 'nullable|string|max:200' : 'required|string|max:200',
+                'store_category_id'          => $isDraft ? 'nullable|integer|exists:pro_categories,id' : 'required|integer|exists:pro_categories,id',
+                'store_description'          => $isDraft ? 'nullable|string' : 'required|string|min:10',
+                'store_logo'                 => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
+                'store_banner'               => 'nullable|file|mimes:jpg,jpeg,png,pdf,txt,doc,docx|max:8192',
+                'store_city'                 => $isDraft ? 'nullable|string|max:120' : 'required|string|max:120',
+                'store_county'               => $isDraft ? 'nullable|string|max:120' : 'required|string|max:120',
+                'store_sub_county'           => 'nullable|string|max:120',
+                'store_ward'                 => 'nullable|string|max:120',
+                'store_coords'               => 'nullable|string|max:60',
+            ],
+            5 => [
+                'signature_data'             => 'nullable|string', // optional
             ],
             default => [],
         };
 
-        // Unique email on step 1 only; enforce OTP (not for drafts)
+        // Extra uniqueness/OTP checks for step 1
         if ($step === 1) {
-            $existingUser = $request->filled('email')
-                ? User::where('email', $request->input('email'))->first()
-                : null;
-            $rules['email'] = ($isDraft ? 'nullable' : 'required').'|email'
-                .($existingUser ? '' : '|unique:users,email');
-
-            if (!$isDraft) {
-                if (!session('seller_otp_verified')) {
-                    return back()->withFail(__('Please verify your phone (OTP) before continuing.'))->withInput();
-                }
+            if ($request->filled('email')) {
+                $rules['email'] .= '|unique:users,email';
+            }
+            if ($request->filled('username')) {
+                $rules['username'] .= '|unique:users,name';
+            }
+            if (!$isDraft && !session('seller_otp_verified')) {
+                return back()
+                    ->withFail(__('Please verify your phone (OTP) before continuing.'))
+                    ->withInput($oldSafe(['current_step' => $step]));
             }
         }
 
@@ -585,128 +1218,190 @@ class SellerController extends Controller
             'mobile_money'         => $this->normalizeKEPhone($request->input('mobile_money')),
         ]);
 
-        // Seller auto-active toggle
+        // Auto-activate setting
         $sellerSettings = gSellerSettings();
         $autoActive = (int)($sellerSettings['seller_auto_active'] ?? 0) === 1;
 
         DB::beginTransaction();
         try {
-            // CREATE/UPDATE user so draft can be resumed
-            $existingUser = $request->filled('email')
-                ? User::where('email', $request->input('email'))->first()
-                : null;
-
-            if (!$existingUser) {
-                $user = new User();
-                $user->email = $validated['email'] ?? null;
-                $user->password = $request->filled('password') ? Hash::make($request->input('password')) : Hash::make(Str::random(12));
-                $user->bactive  = $request->filled('password') ? base64_encode($request->input('password')) : null;
+            // Find/create the user by email OR username
+            $user = null;
+            if ($request->filled('email')) {
+                $user = \App\Models\User::where('email', $request->input('email'))->first();
+            }
+            if (!$user && $request->filled('username')) {
+                $user = \App\Models\User::where('name', $request->input('username'))->first();
+            }
+            if (!$user) {
+                $user = new \App\Models\User();
                 $user->role_id  = 3; // seller
-            } else {
-                $user = $existingUser;
-                if ($request->filled('password')) {
-                    $user->password = Hash::make($request->input('password'));
-                    $user->bactive  = base64_encode($request->input('password'));
+            }
+
+            // Set core fields if present
+            if ($request->filled('email'))    $user->email = $request->input('email');
+            if ($request->filled('username')) $user->name  = $request->input('username');
+            if ($request->filled('password')) {
+                $user->password = \Illuminate\Support\Facades\Hash::make($request->input('password'));
+                $user->bactive  = base64_encode($request->input('password'));
+            }
+
+            // Step-specific fills (progressively)
+            if ($step >= 1) {
+                if ($request->filled('shop_phone')) $user->phone = $request->input('shop_phone');
+
+                if ($request->filled('address_street') || $request->filled('address_city')) {
+                    $user->address = trim(($request->input('address_street','')).' '.$request->input('address_city',''));
                 }
-                if ((int)$user->role_id !== 3) $user->role_id = 3;
+
+                if ($request->filled('geo_unit_id')) $user->geo_unit_id = (int)$request->input('geo_unit_id');
+                if ($request->filled('group_id'))    $user->group_id    = (int)$request->input('group_id');
+
+                // Map seller_type → classification for users table
+                if ($request->filled('seller_type')) {
+                    $user->classification = match ($request->input('seller_type')) {
+                        'company'      => 'company',
+                        'partnership'  => 'partnership',
+                        default        => 'individual',
+                    };
+                }
             }
 
-            // Core fields (only set when provided)
-            foreach ([
-                         'name'         => 'name',
-                         'shop_name'    => 'shop_name',
-                         'shop_phone'   => 'phone',
-                         'address_line' => 'address',
-                     ] as $reqKey => $userField) {
-                if ($request->filled($reqKey)) $user->{$userField} = $request->input($reqKey);
+            if ($step >= 4) {
+                if ($request->filled('shop_name')) {
+                    $user->shop_name = $request->input('shop_name');
+                    // ensure unique slug
+                    $user->shop_url  = $this->uniqueShopSlug($request->input('shop_name'), $user->id ?? null);
+                }
             }
-            if ($request->filled('geo_unit_id'))  $user->geo_unit_id = (int)$request->input('geo_unit_id');
-
-            if ($request->filled('shop_name')) {
-                $user->shop_url = $this->uniqueShopSlug($request->input('shop_name'), $user->id ?? null);
-            }
-
-            // Meta
-            if ($request->filled('classification'))  $user->classification  = $request->input('classification');
-            if ($request->filled('document_number')) $user->document_number = $request->input('document_number');
-            if ($request->filled('group_id'))        $user->group_id        = (int)$request->input('group_id');
 
             // Status & KYC
             if ($isDraft) {
                 $user->status_id  = 2;
                 $user->kyc_status = 'not_submitted';
             } else {
-                if ($step === 4) {
-                    // final submit
+                if ($step === 5) { // final confirm
                     $user->status_id  = $autoActive ? 1 : 2;
                     $user->kyc_status = 'pending';
                     $user->kyc_submitted_at = now();
                 } else {
-                    // mid-steps save
-                    $user->status_id  = 2;
+                    $user->status_id  = 2; // still in-progress
                 }
             }
 
+            // Track progress
+            $user->onboarding_step = max((int)($user->onboarding_step ?? 1), $step);
+
             $user->save();
 
-            // Step-specific persistence
+            // Step 2: documents
             if ($step >= 2) {
-                $docs = SellerDocument::firstOrNew(['user_id' => $user->id]);
-                if ($request->filled('document_number')) $docs->document_number = $request->input('document_number');
-                if ($request->filled('kra_pin'))         $docs->kra_pin         = $request->input('kra_pin');
+                $docs = \App\Models\SellerDocument::firstOrNew(['user_id' => $user->id]);
 
-                if ($request->hasFile('document_file'))         $docs->document_file_path         = $request->file('document_file')->store('seller_docs', 'public');
-                if ($request->hasFile('business_license_file')) $docs->business_license_file_path = $request->file('business_license_file')->store('seller_docs', 'public');
-                if ($request->hasFile('brand_auth_file'))       $docs->brand_auth_file_path       = $request->file('brand_auth_file')->store('seller_docs', 'public');
+                // (Optional) If you collect document_number / kra_pin on Step 1 you can set them here
+                if ($request->filled('personal_kra_pin')) {
+                    $docs->kra_pin = $request->input('personal_kra_pin');
+                }
+
+                // Save ANY uploaded files present
+                $map = [
+                    'doc_sole_brs' => 'document_file_path',
+                    'doc_sole_id'  => 'brand_auth_file_path', // or your preferred columns
+                    'doc_sole_kra' => 'business_license_file_path',
+                    'doc_sole_sbp' => 'business_license_file_path',
+
+                    'doc_partner_brs'       => 'document_file_path',
+                    'doc_partner_kra'       => 'business_license_file_path',
+                    'doc_partner_sbp'       => 'business_license_file_path',
+                    'doc_partner_agreement' => 'brand_auth_file_path',
+
+                    'doc_company_certificate'      => 'document_file_path',
+                    'doc_company_kra'              => 'business_license_file_path',
+                    'doc_company_sbp'              => 'business_license_file_path',
+                    'doc_company_board_resolution' => 'brand_auth_file_path',
+                ];
+
+                foreach ($map as $input => $column) {
+                    if ($request->hasFile($input)) {
+                        $docs->{$column} = $request->file($input)->store('seller_docs', 'public');
+                    }
+                }
+
+                // Handle multi-file arrays if you later want (e.g., doc_company_ids[], doc_partner_ids[])
+                // You could merge them to a single PDF or store JSON in a new column if needed.
 
                 $docs->user_id = $user->id;
                 $docs->save();
             }
 
+            // Step 3: settlement
             if ($step >= 3) {
-                $settle = SellerSettlement::firstOrNew(['user_id' => $user->id]);
-                foreach (['bank_name','bank_branch','account_name','account_number','swift_code','mobile_money'] as $f) {
+                $settle = \App\Models\SellerSettlement::firstOrNew(['user_id' => $user->id]);
+                foreach ([
+                             'account_name','bank_name','bank_branch','account_number',
+                             'swift_code','mobile_money','mobile_money_paybill','account_type'
+                         ] as $f) {
                     if ($request->filled($f)) $settle->{$f} = $request->input($f);
                 }
                 $settle->user_id = $user->id;
                 $settle->save();
             }
 
+            // Step 4: store
             if ($step >= 4) {
-                $store = SellerStore::firstOrNew(['user_id' => $user->id]);
+                $store = \App\Models\SellerStore::firstOrNew(['user_id' => $user->id]);
                 if ($request->filled('store_category_id')) $store->store_category_id = (int)$request->input('store_category_id');
                 if ($request->filled('store_description')) $store->store_description = $request->input('store_description');
-                if ($request->has('shipping_methods')) {
-                    $store->shipping_methods = array_values(array_unique(array_filter((array)$request->input('shipping_methods'))));
+
+                if ($request->hasFile('store_logo')) {
+                    $store->store_logo_path = $request->file('store_logo')->store('seller_stores', 'public');
                 }
-                if ($request->hasFile('store_logo'))   $store->store_logo_path   = $request->file('store_logo')->store('seller_stores', 'public');
-                if ($request->hasFile('store_banner')) $store->store_banner_path = $request->file('store_banner')->store('seller_stores', 'public');
+                if ($request->hasFile('store_banner')) {
+                    $store->store_banner_path = $request->file('store_banner')->store('seller_stores', 'public');
+                }
+
+                foreach (['store_city','store_county','store_sub_county','store_ward','store_coords'] as $f) {
+                    if ($request->filled($f)) $store->{$f} = $request->input($f);
+                }
+
                 $store->user_id = $user->id;
                 $store->save();
             }
 
-            // (Optional: your WAAS / Package / Mailchimp hooks here on final submit)
+            // Step 5: optional signature
+            if ($step === 5 && $request->filled('signature_data')) {
+                // Storage::disk('public')->put(
+                //     'seller_signatures/'.$user->id.'.png',
+                //     base64_decode(preg_replace('#^data:image/\w+;base64,#i','',$request->input('signature_data')))
+                // );
+            }
 
             DB::commit();
 
+            // Redirect flow (+ flash safe inputs so Step 2 knows seller_type, etc.)
             if ($isDraft) {
-                return back()->withSuccess(__('Draft saved. You can resume later from your account.'))
-                    ->withInput(['current_step' => $step]);
+                return back()
+                    ->withSuccess(__('Draft saved. You can resume later from your account.'))
+                    ->withInput($oldSafe(['current_step' => $step]));
             }
 
-            if ($step < 4) {
-                return back()->withSuccess(__('Saved. Continue to next step.'))
-                    ->withInput(['current_step' => $step + 1]);
+            if ($step < 5) {
+                return back()
+                    ->withSuccess(__('Saved. Continue to next step.'))
+                    ->withInput($oldSafe(['current_step' => $step + 1]));
             }
 
+            // Final
             if ((int)$user->status_id === 1) {
                 return back()->withSuccess(__('Thanks! You have registered successfully. Please login.'));
             }
+
             return back()->withSuccess(__('Thanks! Registration submitted. Your account is pending review.'));
         } catch (\Throwable $e) {
             DB::rollBack();
             \Log::error('SellerRegister failed: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            return back()->withFail(__('Oops! Registration could not be completed. Please try again.'))->withInput(['current_step' => $step]);
+            return back()
+                ->withFail(__('Oops! Registration could not be completed. Please try again.'))
+                ->withInput($oldSafe(['current_step' => $step]));
         }
     }
 

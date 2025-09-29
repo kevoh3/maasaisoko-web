@@ -76,12 +76,20 @@
         .otp-row .btn{white-space:nowrap}
         .is-valid { border-color:#22c55e !important; }
         .is-invalid { border-color:#ef4444 !important; }
+
+        /* Review table */
+        .review-grid {border:1px solid #eee;border-radius:10px;overflow:hidden}
+        .review-grid .row{margin:0;border-top:1px solid #f1f2f4}
+        .review-grid .row:first-child{border-top:none}
+        .review-grid .cell{padding:10px 12px}
+        .review-grid .label{background:#fafbfc;font-weight:600}
+        canvas#sigPad{width:100%;max-width:560px;border:1px dashed #cbd5e1;border-radius:8px}
     </style>
 @endpush
 
 @section('content')
     <main class="main">
-        <!-- Page Breadcrumb -->
+        <!-- Breadcrumb -->
         <div class="breadcrumb-section">
             <div class="container">
                 <div class="row align-items-center">
@@ -93,17 +101,11 @@
                             </ol>
                         </nav>
                     </div>
-                    <div class="col-lg-6">
-                        <div class="page-title">
-                            <h1>{{ __('Register') }}</h1>
-                        </div>
-                    </div>
+                    <div class="col-lg-6"><div class="page-title"><h1>{{ __('Register') }}</h1></div></div>
                 </div>
             </div>
         </div>
-        <!-- /Page Breadcrumb/ -->
 
-        <!-- Inner Section -->
         <section class="inner-section inner-section-bg">
             <div class="container">
                 <div class="row">
@@ -118,6 +120,18 @@
 
                         <div class="register">
                             <h4>{{ __('Create a seller account') }}</h4>
+                            <p>Karibu! Thank you for choosing to partner with us. We are excited to
+                                showcase your unique African Cultural artifacts to the world. To ensure a
+                                seamless and compliant experience for both you and our customers, please
+                                fill out this form in its entirety.
+                            </p>
+                            <hr>
+                            <p>
+                                Data Protection Clause: We are committed to protecting your privacy and
+                                personal data in accordance with the Kenya Data Protection Act, 2019. The
+                                information provided will be used solely for the purpose of merchant
+                                verification, payment processing, and platform management.
+                            </p>
                             <p>{{ __('Please fill in the information below') }}</p>
 
                             <form id="sellerWizardForm" class="form" method="POST" action="{{ route('frontend.sellerRegister') }}" enctype="multipart/form-data" novalidate>
@@ -126,58 +140,53 @@
                                 <input type="hidden" name="geo_path" id="geo_path" value="">
                                 <input type="hidden" name="save_mode" id="save_mode" value="">
                                 <input type="hidden" id="otp_ok" value="0">
+                                <input type="hidden" name="signature_data" id="signature_data" value="">
+                                <input type="hidden" name="current_step" id="current_step" value="{{ old('current_step', 1) }}">
 
                                 {{-- Progress --}}
                                 <div class="form-section mb-3">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div class="section-title m-0">{{ __('Seller Onboarding') }}</div>
-                                        <div id="wizStepText" class="small text-muted">{{ __('Step 1 of 4') }}</div>
+                                        <div id="wizStepText" class="small text-muted">{{ __('Step 1 of 5') }}</div>
                                     </div>
                                     <div class="progress mt-2 theme-progress" style="height:8px;">
-                                        <div id="wizProgress" class="progress-bar" role="progressbar" style="width: 25%;"></div>
+                                        <div id="wizProgress" class="progress-bar" role="progressbar" style="width: 20%;"></div>
                                     </div>
                                 </div>
 
-                                {{-- STEP 1 --}}
+                                {{-- STEP 1: Register Seller --}}
                                 <fieldset class="form-section wiz-step" data-step="1">
-                                    <legend class="section-title">{{ __('1) Registration') }}</legend>
+                                    <legend class="section-title">{{ __('1) Register Seller') }}</legend>
                                     <div class="row">
-                                        {{-- Full / Business Name --}}
-                                        <div class="col-md-6">
+                                        {{-- Username --}}
+                                        <div class="col-md-4">
                                             <div class="form-group">
-                                                <label>{{ __('Full Name / Business Name') }}</label>
-                                                <input type="text" name="name" class="form-control" placeholder="{{ __('e.g. Jane Wambui / Savannah Crafts Ltd') }}" required value="{{ old('name') }}">
+                                                <label>{{ __('Username') }}</label>
+                                                <input type="text" name="username" class="form-control" minlength="4" pattern="[A-Za-z0-9._-]{4,}" placeholder="{{ __('at least 4 chars, letters & numbers') }}" required value="{{ old('username') }}">
                                             </div>
                                         </div>
-                                        {{-- Email --}}
-                                        <div class="col-md-6">
+                                        {{-- Passwords --}}
+                                        <div class="col-md-4">
                                             <div class="form-group">
-                                                <label>{{ __('Email Address') }}</label>
-                                                <input type="email" name="email" class="form-control" placeholder="you@example.com" required value="{{ old('email') }}">
+                                                <label>{{ __('Password') }}</label>
+                                                <input type="password" name="password" class="form-control" minlength="6" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>{{ __('Confirm Password') }}</label>
+                                                <input type="password" name="password_confirmation" class="form-control" minlength="6" required>
                                             </div>
                                         </div>
 
-                                        {{-- Shop Phone + OTP --}}
+                                        {{-- Phone + OTP --}}
                                         <div class="col-md-8">
                                             <div class="form-group">
-                                                <label>{{ __('Shop Phone (Mobile)') }}</label>
+                                                <label>{{ __('Phone Number') }}</label>
                                                 <div class="d-flex gap-2 otp-row">
-                                                    <input
-                                                        type="tel"
-                                                        id="shop_phone"
-                                                        name="shop_phone"
-                                                        class="form-control"
-                                                        placeholder="+254712345678 or 0712345678"
-                                                        required
-                                                        value="{{ old('shop_phone') }}"
-                                                    >
-                                                    <button type="button" class="btn btn-outline-primary" id="btnSendOtp">
-                                                        {{ __('Request OTP') }}
-                                                    </button>
+                                                    <input type="tel" id="shop_phone" name="shop_phone" class="form-control" placeholder="+254712345678 or 0712345678" required value="{{ old('shop_phone') }}">
+                                                    <button type="button" class="btn btn-outline-primary" id="btnSendOtp">{{ __('Send Code') }}</button>
                                                 </div>
-                                                <small class="text-muted">
-                                                    {{ __('Any format is accepted here. We’ll just send your OTP to what you entered.') }}
-                                                </small>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
@@ -191,44 +200,121 @@
                                             </div>
                                         </div>
 
-                                        {{-- Physical Address --}}
-                                        <div class="col-md-12">
+                                        {{-- Seller Type --}}
+                                        <div class="col-md-4">
                                             <div class="form-group">
-                                                <label>{{ __('Physical Address') }}</label>
-                                                <input type="text" name="address_line" class="form-control" placeholder="{{ __('House/Building, Street/Road') }}" required value="{{ old('address_line') }}">
+                                                <label>{{ __('Seller Type') }}</label>
+                                                <select name="seller_type" id="seller_type" class="form-control" required>
+                                                    <option value="">{{ __('Select type') }}</option>
+                                                    <option value="sole_proprietor" @selected(old('seller_type')==='sole_proprietor')>{{ __('Sole Proprietor') }}</option>
+                                                    <option value="partnership" @selected(old('seller_type')==='partnership')>{{ __('Partnership') }}</option>
+                                                    <option value="company" @selected(old('seller_type')==='company')>{{ __('Company') }}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        {{-- Email --}}
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>{{ __('Email') }}</label>
+                                                <input type="email" name="email" class="form-control" placeholder="you@example.com" value="{{ old('email') }}">
+                                            </div>
+                                        </div>
+                                        {{-- Group optional --}}
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>{{ __('Group / Organisation (Optional)') }}</label>
+                                                <select name="group_id" class="form-control">
+                                                    <option value="">{{ __('None') }}</option>
+                                                    @foreach($groups as $g)
+                                                        <option value="{{ $g->id }}" @selected(old('group_id')==$g->id)>{{ $g->name }}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
                                         </div>
 
-                                        {{-- Location Cascader --}}
+                                        {{-- Primary Contact --}}
+                                        <div class="col-md-12"><hr></div>
+                                        <div class="col-md-12"><strong>{{ __('Primary Contact Person') }}</strong></div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>{{ __('Full Name') }}</label>
+                                                <input type="text" name="contact_person_name" class="form-control" value="{{ old('contact_person_name') }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>{{ __('Designation') }}</label>
+                                                <select name="contact_person_designation" class="form-control" required>
+                                                    <option value="">{{ __('Select') }}</option>
+                                                    <option value="proprietor">{{ __('Proprietor') }}</option>
+                                                    <option value="director">{{ __('Director') }}</option>
+                                                    <option value="manager">{{ __('Manager') }}</option>
+                                                    <option value="agent">{{ __('Agent') }}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>{{ __('Mobile Phone Number') }}</label>
+                                                <input type="tel" name="contact_person_phone" id="contact_person_phone" class="form-control" placeholder="+254..." required value="{{ old('contact_person_phone') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>{{ __('Email Address') }}</label>
+                                                <input type="email" name="contact_person_email" class="form-control" value="{{ old('contact_person_email') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>{{ __('ID/Passport Number') }}</label>
+                                                <input type="text" name="contact_person_id" class="form-control" value="{{ old('contact_person_id') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>{{ __('Personal KRA PIN') }}</label>
+                                                <input type="text" name="personal_kra_pin" class="form-control" placeholder="A123456789B" value="{{ old('personal_kra_pin') }}">
+                                            </div>
+                                        </div>
+
+                                        {{-- Physical Address --}}
+                                        <div class="col-md-12"><hr></div>
+                                        <div class="col-md-12"><strong>{{ __('Physical Address') }}</strong></div>
+                                        <div class="col-md-4">
+                                            <div class="form-group"><label>{{ __('Building Name') }}</label><input type="text" name="address_building" class="form-control" value="{{ old('address_building') }}"></div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group"><label>{{ __('Street/Road') }}</label><input type="text" name="address_street" class="form-control" required value="{{ old('address_street') }}"></div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group"><label>{{ __('City/Town') }}</label><input type="text" name="address_city" class="form-control" required value="{{ old('address_city') }}"></div>
+                                        </div>
+
+                                        {{-- Location Cascader (County → Constituency → Ward) --}}
                                         <div class="col-md-12">
                                             <div class="form-group">
-                                                <label>{{ __('Location (County → Constituency → Ward)') }}</label>
+                                                <label>{{ __('Location (County → Sub-County → Ward)') }}</label>
                                                 <div class="cascader" id="geoCascader" data-country="{{ (int)$countryId }}">
                                                     <button type="button" class="btn btn-light cascader-trigger w-100 text-start">
                                                         <i class="bi bi-geo-alt"></i>
                                                         <span id="geoTriggerText">{{ __('Choose County') }}</span>
                                                     </button>
-
                                                     <div class="cascader-panel" style="max-width:100%;">
                                                         <div class="cascader-cols">
-                                                            {{-- Counties --}}
                                                             <div class="cascader-col" id="col-counties" aria-label="Counties">
                                                                 <ul class="cascader-list">
                                                                     @forelse($counties as $c)
-                                                                        <li class="cascader-item county" data-id="{{ $c->id }}" data-name="{{ $c->name }}" title="{{ $c->name }}">
-                                                                            <span class="name">{{ $c->name }}</span>
-                                                                        </li>
+                                                                        <li class="cascader-item county" data-id="{{ $c->id }}" data-name="{{ $c->name }}"><span class="name">{{ $c->name }}</span></li>
                                                                     @empty
                                                                         <li class="cascader-item"><span class="name text-muted">{{ __('No counties found') }}</span></li>
                                                                     @endforelse
                                                                 </ul>
                                                             </div>
-                                                            {{-- Constituencies --}}
                                                             <div class="cascader-col" id="col-constits" aria-label="Constituencies">
                                                                 <div class="cascader-empty">{{ __('Hover a county…') }}</div>
                                                                 <ul class="cascader-list d-none"></ul>
                                                             </div>
-                                                            {{-- Wards --}}
                                                             <div class="cascader-col" id="col-wards" aria-label="Wards">
                                                                 <div class="cascader-empty">{{ __('Hover a constituency…') }}</div>
                                                                 <ul class="cascader-list d-none"></ul>
@@ -244,176 +330,85 @@
                                             </div>
                                         </div>
 
-                                        {{-- Store/Shop Name --}}
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{ __('Preferred Store/Shop Name') }}</label>
-                                                <input type="text" name="shop_name" class="form-control" placeholder="{{ __('e.g. Smart Store Clay City') }}" required value="{{ old('shop_name') }}">
-                                            </div>
+                                        {{-- Postal --}}
+                                        <div class="col-md-12"><hr></div>
+                                        <div class="col-md-12"><strong>{{ __('Postal Address') }}</strong></div>
+                                        <div class="col-md-4">
+                                            <div class="form-group"><label>{{ __('P.O. Box') }}</label><input type="text" name="postal_box" class="form-control" value="{{ old('postal_box') }}"></div>
                                         </div>
-
-                                        {{-- Business Type --}}
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{ __('Business Type') }}</label>
-                                                <select name="classification" id="classification" class="form-control" required>
-                                                    <option value="">{{ __('Select type') }}</option>
-                                                    <option value="individual" @selected(old('classification')==='individual')>{{ __('Individual') }}</option>
-                                                    <option value="company" @selected(old('classification')==='company')>{{ __('Company') }}</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        {{-- Group (optional) --}}
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{ __('Group / Organisation (Optional)') }}</label>
-                                                <select name="group_id" class="form-control">
-                                                    <option value="">{{ __('None') }}</option>
-                                                    @foreach($groups as $g)
-                                                        <option value="{{ $g->id }}" @selected(old('group_id')==$g->id)>{{ $g->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        {{-- Account password --}}
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{ __('Account Password') }}</label>
-                                                <input type="password" name="password" class="form-control" required>
-                                                <small class="text-muted">{{ __('Min 6 characters') }}</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{ __('Confirm Password') }}</label>
-                                                <input type="password" name="password_confirmation" class="form-control" required>
-                                            </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group"><label>{{ __('Postal Code') }}</label><input type="text" name="postal_code" class="form-control" value="{{ old('postal_code') }}"></div>
                                         </div>
                                     </div>
                                 </fieldset>
 
-                                {{-- STEP 2 --}}
+                                {{-- STEP 2: Documentation (conditional) --}}
                                 <fieldset class="form-section wiz-step d-none" data-step="2">
-                                    <legend class="section-title">{{ __('2) Verification') }}</legend>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label id="doc_label">{{ __('National ID / Passport Number') }}</label>
-                                                <input type="text" name="document_number" class="form-control" required value="{{ old('document_number') }}">
-                                                <small id="doc_help" class="form-text text-muted"></small>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{ __('Attach Copy (ID/Passport)') }}</label>
-                                                <input type="file" name="document_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required>
-                                            </div>
-                                        </div>
+                                    <legend class="section-title">{{ __('2) Seller Documentation') }}</legend>
 
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{ __('Business License / Certificate of Incorporation (attach)') }}</label>
-                                                <input type="file" name="business_license_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                            </div>
+                                    {{-- Company --}}
+                                    <div id="docs_company" class="d-none">
+                                        <div class="alert alert-secondary py-2 mb-3">{{ __('For Companies') }}</div>
+                                        <div class="row">
+                                            <div class="col-md-6"><div class="form-group"><label>{{ __('Certificate of Incorporation') }}</label><input type="file" name="doc_company_certificate" class="form-control" accept=".pdf,.jpg,.jpeg,.png"></div></div>
+                                            <div class="col-md-6"><div class="form-group"><label>{{ __('KRA Business PIN Certificate') }}</label><input type="file" name="doc_company_kra" class="form-control" accept=".pdf"></div></div>
+                                            <div class="col-md-6"><div class="form-group"><label>{{ __('Single Business Permit (SBP)') }}</label><input type="file" name="doc_company_sbp" class="form-control" accept=".pdf,.jpg,.jpeg"></div></div>
+                                            <div class="col-md-6"><div class="form-group"><label>{{ __('Identification Documents (all directors)') }}</label><input type="file" name="doc_company_ids[]" class="form-control" accept=".pdf,.jpg,.jpeg" multiple></div></div>
+                                            <div class="col-md-6"><div class="form-group"><label>{{ __('Board Resolution authorizing contact') }}</label><input type="file" name="doc_company_board_resolution" class="form-control" accept=".pdf"></div></div>
                                         </div>
+                                    </div>
 
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{ __('KRA PIN (Tax ID)') }}</label>
-                                                <input type="text" name="kra_pin" class="form-control" placeholder="A123456789B" value="{{ old('kra_pin') }}">
-                                            </div>
+                                    {{-- Partnership --}}
+                                    <div id="docs_partnership" class="d-none">
+                                        <div class="alert alert-secondary py-2 mb-3">{{ __('For Partnerships') }}</div>
+                                        <div class="row">
+                                            <div class="col-md-6"><div class="form-group"><label>{{ __('Business Name Registration Certificate (BRS)') }}</label><input type="file" name="doc_partner_brs" class="form-control" accept=".pdf,.jpg,.jpeg"></div></div>
+                                            <div class="col-md-6"><div class="form-group"><label>{{ __('Identification Documents (all partners)') }}</label><input type="file" name="doc_partner_ids[]" class="form-control" accept=".pdf,.jpg,.jpeg" multiple></div></div>
+                                            <div class="col-md-6"><div class="form-group"><label>{{ __('KRA Business PIN') }}</label><input type="file" name="doc_partner_kra" class="form-control" accept=".pdf"></div></div>
+                                            <div class="col-md-6"><div class="form-group"><label>{{ __('Single Business Permit (SBP)') }}</label><input type="file" name="doc_partner_sbp" class="form-control" accept=".pdf,.jpg,.jpeg"></div></div>
+                                            <div class="col-md-6"><div class="form-group"><label>{{ __('Partnership Agreement') }}</label><input type="file" name="doc_partner_agreement" class="form-control" accept=".pdf"></div></div>
                                         </div>
+                                    </div>
 
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{ __('Brand Authorization (if selling branded products)') }}</label>
-                                                <input type="file" name="brand_auth_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{ __('Contact Person (Name)') }}</label>
-                                                <input type="text" name="contact_person_name" class="form-control" value="{{ old('contact_person_name') }}" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{ __('Contact Person (Phone)') }}</label>
-                                                <input
-                                                    type="tel"
-                                                    name="contact_person_phone"
-                                                    id="contact_person_phone"
-                                                    class="form-control"
-                                                    placeholder="+254712345678 or 0712345678"
-                                                    required
-                                                    value="{{ old('contact_person_phone') }}"
-                                                >
-                                                <small class="text-muted">
-                                                    {{ __('Any format is accepted here. We’ll just send your OTP to what you entered (if used).') }}
-                                                </small>
-                                            </div>
+                                    {{-- Sole Proprietor --}}
+                                    <div id="docs_sole" class="">
+                                        <div class="alert alert-secondary py-2 mb-3">{{ __('For Individuals / Sole Proprietor') }}</div>
+                                        <div class="row">
+                                            <div class="col-md-6"><div class="form-group"><label>{{ __('Business Name Registration Certificate (BRS)') }}</label><input type="file" name="doc_sole_brs" class="form-control" accept=".pdf,.jpg,.jpeg"></div></div>
+                                            <div class="col-md-6"><div class="form-group"><label>{{ __('Identification Document (ID/Passport)') }}</label><input type="file" name="doc_sole_id" class="form-control" accept=".pdf,.jpg,.jpeg"></div></div>
+                                            <div class="col-md-6"><div class="form-group"><label>{{ __('Personal KRA PIN') }}</label><input type="file" name="doc_sole_kra" class="form-control" accept=".pdf"></div></div>
+                                            <div class="col-md-6"><div class="form-group"><label>{{ __('Single Business Permit (SBP)') }}</label><input type="file" name="doc_sole_sbp" class="form-control" accept=".pdf,.jpg,.jpeg"></div></div>
                                         </div>
                                     </div>
                                 </fieldset>
 
-                                {{-- STEP 3 --}}
+                                {{-- STEP 3: Settlement --}}
                                 <fieldset class="form-section wiz-step d-none" data-step="3">
-                                    <legend class="section-title">{{ __('3) Settlement / Payment') }}</legend>
+                                    <legend class="section-title">{{ __('3) Settlement / Bank Details') }}</legend>
                                     <div class="row">
-                                        <div class="col-md-6"><div class="form-group">
-                                                <label>{{ __('Bank Name') }}</label>
-                                                <input type="text" name="bank_name" class="form-control" required value="{{ old('bank_name') }}">
+                                        <div class="col-md-6"><div class="form-group"><label>{{ __('Bank Account Name') }}</label><input type="text" name="account_name" class="form-control" required value="{{ old('account_name') }}"></div></div>
+                                        <div class="col-md-6"><div class="form-group"><label>{{ __('Bank Name') }}</label><input type="text" name="bank_name" class="form-control" required value="{{ old('bank_name') }}"></div></div>
+                                        <div class="col-md-6"><div class="form-group"><label>{{ __('Branch Name') }}</label><input type="text" name="bank_branch" class="form-control" required value="{{ old('bank_branch') }}"></div></div>
+                                        <div class="col-md-6"><div class="form-group"><label>{{ __('SWIFT Code') }}</label><input type="text" name="swift_code" class="form-control" value="{{ old('swift_code') }}"></div></div>
+                                        <div class="col-md-6"><div class="form-group"><label>{{ __('Account Number') }}</label><input type="text" name="account_number" class="form-control" required value="{{ old('account_number') }}"></div></div>
+                                        <div class="col-md-6"><div class="form-group"><label>{{ __('Account Type') }}</label>
+                                                <select name="account_type" class="form-control" required>
+                                                    <option value="">{{ __('Select') }}</option>
+                                                    <option value="current">{{ __('Current') }}</option>
+                                                    <option value="savings">{{ __('Savings') }}</option>
+                                                </select>
                                             </div></div>
-                                        <div class="col-md-6"><div class="form-group">
-                                                <label>{{ __('Branch') }}</label>
-                                                <input type="text" name="bank_branch" class="form-control" required value="{{ old('bank_branch') }}">
-                                            </div></div>
-                                        <div class="col-md-6"><div class="form-group">
-                                                <label>{{ __('Account Name') }}</label>
-                                                <input type="text" name="account_name" class="form-control" required value="{{ old('account_name') }}">
-                                            </div></div>
-                                        <div class="col-md-6"><div class="form-group">
-                                                <label>{{ __('Account Number') }}</label>
-                                                <input type="text" name="account_number" class="form-control" required value="{{ old('account_number') }}">
-                                            </div></div>
-                                        <div class="col-md-6"><div class="form-group">
-                                                <label>{{ __('SWIFT Code') }}</label>
-                                                <input type="text" name="swift_code" class="form-control" value="{{ old('swift_code') }}">
-                                            </div></div>
-                                        <div class="col-md-6"><div class="form-group">
-                                                <label>{{ __('Mobile Money Number (Optional)') }}</label>
-                                                <input
-                                                    type="tel"
-                                                    name="mobile_money"
-                                                    id="mobile_money"
-                                                    class="form-control"
-                                                    placeholder="+254712345678 or 0712345678"
-                                                    value="{{ old('mobile_money') }}"
-                                                >
-                                                <small class="text-muted">
-                                                    {{ __('Any format is accepted here.') }}
-                                                </small>
-                                            </div></div>
+                                        <div class="col-md-6"><div class="form-group"><label>{{ __('Mobile Money Number') }}</label><input type="tel" name="mobile_money" id="mobile_money" class="form-control" placeholder="+254..." value="{{ old('mobile_money') }}"></div></div>
+                                        <div class="col-md-6"><div class="form-group"><label>{{ __('Mobile Money Paybill / Pochi') }}</label><input type="text" name="mobile_money_paybill" class="form-control" value="{{ old('mobile_money_paybill') }}"></div></div>
                                     </div>
                                 </fieldset>
 
-                                {{-- STEP 4 --}}
+                                {{-- STEP 4: Store Info --}}
                                 <fieldset class="form-section wiz-step d-none" data-step="4">
                                     <legend class="section-title">{{ __('4) Store Information') }}</legend>
                                     <div class="row">
-                                        <div class="col-md-6"><div class="form-group">
-                                                <label>{{ __('Store Logo') }}</label>
-                                                <input type="file" name="store_logo" class="form-control" accept=".jpg,.jpeg,.png">
-                                            </div></div>
-                                        <div class="col-md-6"><div class="form-group">
-                                                <label>{{ __('Store Banner') }}</label>
-                                                <input type="file" name="store_banner" class="form-control" accept=".jpg,.jpeg,.png">
-                                            </div></div>
-                                        <div class="col-md-6"><div class="form-group">
-                                                <label>{{ __('Store Category') }}</label>
+                                        <div class="col-md-6"><div class="form-group"><label>{{ __('Store Name (shown to customers)') }}</label><input type="text" name="shop_name" class="form-control" required value="{{ old('shop_name') }}"></div></div>
+                                        <div class="col-md-6"><div class="form-group"><label>{{ __('Store Category') }}</label>
                                                 <select name="store_category_id" class="form-control" required>
                                                     <option value="">{{ __('Select Category') }}</option>
                                                     @foreach($storeCategories as $sc)
@@ -421,30 +416,57 @@
                                                     @endforeach
                                                 </select>
                                             </div></div>
-                                        <div class="col-md-12"><div class="form-group">
-                                                <label>{{ __('Short Store Description') }}</label>
-                                                <textarea name="store_description" class="form-control" rows="3" required>{{ old('store_description') }}</textarea>
-                                            </div></div>
-                                        <div class="col-md-12"><div class="form-group">
-                                                <label>{{ __('Shipping Methods') }}</label>
-                                                <div class="d-flex gap-3 flex-wrap">
-                                                    <label><input type="checkbox" name="shipping_methods[]" value="local_pickup"> {{ __('Local Pickup') }}</label>
-                                                    <label><input type="checkbox" name="shipping_methods[]" value="within_county"> {{ __('Within County Courier') }}</label>
-                                                    <label><input type="checkbox" name="shipping_methods[]" value="nationwide"> {{ __('Nationwide Courier') }}</label>
-                                                </div>
-                                            </div></div>
-                                    </div>
+                                        <div class="col-md-12"><div class="form-group"><label>{{ __('Store Description (short)') }}</label><textarea name="store_description" class="form-control" rows="3" required>{{ old('store_description') }}</textarea></div></div>
+                                        <div class="col-md-6"><div class="form-group"><label>{{ __('Store Logo') }}</label><input type="file" name="store_logo" class="form-control" accept=".jpg,.jpeg,.png,.pdf"></div></div>
+                                        <div class="col-md-6"><div class="form-group"><label>{{ __('Store Banner') }}</label><input type="file" name="store_banner" class="form-control" accept=".jpg,.jpeg,.png,.pdf,.txt,.doc,.docx"></div></div>
 
-                                    <div class="alert alert-info">
-                                        {{ __('Note: Your documents will be verified. You will be notified when your store can start uploading/updating products.') }}
+                                        {{-- Store physical location split --}}
+                                        <div class="col-md-12"><hr></div>
+                                        <div class="col-md-12"><strong>{{ __('Store Location') }}</strong></div>
+                                        <div class="col-md-3"><div class="form-group"><label>{{ __('City/Town') }}</label><input type="text" name="store_city" class="form-control" required></div></div>
+                                        <div class="col-md-3"><div class="form-group"><label>{{ __('County') }}</label><input type="text" name="store_county" class="form-control" required></div></div>
+                                        <div class="col-md-3"><div class="form-group"><label>{{ __('Sub-County') }}</label><input type="text" name="store_sub_county" class="form-control"></div></div>
+                                        <div class="col-md-3"><div class="form-group"><label>{{ __('Ward') }}</label><input type="text" name="store_ward" class="form-control"></div></div>
+                                        <div class="col-md-6"><div class="form-group"><label>{{ __('Store Geographic Coordinates (lat,long)') }}</label><input type="text" name="store_coords" class="form-control" placeholder="-1.286389,36.817223"></div></div>
                                     </div>
+                                </fieldset>
+
+                                {{-- STEP 5: Review + Declaration --}}
+                                <fieldset class="form-section wiz-step d-none" data-step="5">
+                                    <legend class="section-title">{{ __('5) Review Application') }}</legend>
+
+                                    <div id="reviewBox" class="review-grid mb-3"></div>
 
                                     <div class="form-group form-check my-2">
                                         <input type="checkbox" id="agreeTerms" class="form-check-input" value="1" required>
                                         <label class="form-check-label" for="agreeTerms">
-                                            {!! __('I agree to the <a href="https://maasaisoko.co.ke/page/45/terms-and-conditions" target="_blank">Terms & Conditions</a> and the <a href="https://maasaisoko.co.ke/page/46/merchant-agreement" target="_blank">Merchant Agreement</a>.') !!}
+                                            {!! __('I, :name, hereby declare that the information provided is true and complete. I agree to the :tac and the :ma.', [
+                                                'name' => '<strong><span id="declName">'.e(old('contact_person_name')).'</span></strong>',
+                                                'tac'  => '<a href="https://maasaisoko.co.ke/page/45/terms-and-conditions" target="_blank">Terms & Conditions</a>',
+                                                'ma'   => '<a href="https://maasaisoko.co.ke/page/46/merchant-agreement" target="_blank">Merchant Agreement</a>',
+                                            ]) !!}
                                         </label>
                                     </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="d-block">{{ __('Digital Signature') }}</label>
+                                            <canvas id="sigPad" height="180"></canvas>
+                                            <div class="mt-2 d-flex gap-2">
+                                                <button type="button" id="sigClear" class="btn btn-sm btn-outline-secondary">{{ __('Clear') }}</button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="d-block">{{ __('Date') }}</label>
+                                            <input type="date" name="declaration_date" class="form-control" value="{{ now()->toDateString() }}" required>
+                                        </div>
+                                    </div>
+
+                                    @if($gtext['is_recaptcha'] == 1)
+                                        <div class="mt-3">
+                                            <div class="g-recaptcha" data-sitekey="{{ $gtext['sitekey'] ?? '' }}"></div>
+                                        </div>
+                                    @endif
                                 </fieldset>
 
                                 {{-- Wizard Controls --}}
@@ -465,12 +487,12 @@
                 </div>
             </div>
         </section>
-        <!-- /Inner Section/ -->
     </main>
 @endsection
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     @if($gtext['is_recaptcha'] == 1)
         <script src='https://www.google.com/recaptcha/api.js' async defer></script>
     @endif
@@ -496,50 +518,23 @@
         })();
     </script>
 
-    {{-- Classification helper --}}
-    <script>
-        (function () {
-            const classification = document.getElementById('classification');
-            const docLabel = document.getElementById('doc_label');
-            const docHelp  = document.getElementById('doc_help');
-
-            function setTxt(el, txt){ if(el) el.textContent = txt; }
-            function applyClassificationUI(value) {
-                switch (value) {
-                    case 'individual':
-                        setTxt(docLabel, '{{ __("National ID / Passport Number") }}');
-                        setTxt(docHelp,  '{{ __("Enter your National ID or Passport number.") }}');
-                        break;
-                    case 'company':
-                        setTxt(docLabel, '{{ __("Company Registration/Certificate Number") }}');
-                        setTxt(docHelp,  '{{ __("e.g. CPR/20XX/XXXXXX as on your certificate of incorporation.") }}');
-                        break;
-                    default:
-                        setTxt(docLabel, '{{ __("National ID / Passport Number") }}');
-                        setTxt(docHelp,  '');
-                }
-            }
-            if (classification) {
-                applyClassificationUI(classification.value || '');
-                classification.addEventListener('change', (e)=> applyClassificationUI(e.target.value));
-            }
-        })();
-    </script>
-
-    {{-- Wizard + Cascader + Draft + OTP (no client-side phone validation) --}}
+    {{-- Wizard + Cascader + Draft + OTP + Signature + Review --}}
     <script>
         (function(){
-            const steps = Array.from(document.querySelectorAll('.wiz-step'));
-            const nextBtn = document.getElementById('wizNext');
-            const prevBtn = document.getElementById('wizPrev');
-            const submitBtn = document.getElementById('wizSubmit');
+            const steps        = Array.from(document.querySelectorAll('.wiz-step'));
+            const nextBtn      = document.getElementById('wizNext');
+            const prevBtn      = document.getElementById('wizPrev');
+            const submitBtn    = document.getElementById('wizSubmit');
             const saveDraftBtn = document.getElementById('wizSaveDraft');
-            const progress = document.getElementById('wizProgress');
-            const stepText = document.getElementById('wizStepText');
-            const form = document.getElementById('sellerWizardForm');
-            const agree = document.getElementById('agreeTerms');
+            const progress     = document.getElementById('wizProgress');
+            const stepText     = document.getElementById('wizStepText');
+            const form         = document.getElementById('sellerWizardForm');
+            const agree        = document.getElementById('agreeTerms');
+            const stepField    = document.getElementById('current_step');
 
-            let idx = 0;
+            // open on the step the server told us
+            let idx = Math.max(1, parseInt(stepField.value || '1',10)) - 1;
+
             function show(i){
                 if (i < 0 || i >= steps.length) return;
                 steps.forEach((s,k)=> s.classList.toggle('d-none', k!==i));
@@ -551,7 +546,10 @@
                 progress.style.width = pct+'%';
                 stepText.textContent = `{{ __('Step') }} ${i+1} {{ __('of') }} ${steps.length}`;
                 idx = i;
+                stepField.value = (idx+1);
+                if (i===4 && typeof buildReview === 'function') buildReview();
             }
+
             function validateStep(i){
                 const fs = steps[i]; if (!fs) return true;
                 const required = fs.querySelectorAll('[required]');
@@ -571,32 +569,36 @@
                 }
                 return true;
             }
-            nextBtn.addEventListener('click', ()=>{ if(validateStep(idx)) show(idx+1); });
-            prevBtn.addEventListener('click', ()=> show(idx-1));
-            agree?.addEventListener('change', ()=> submitBtn.disabled = !agree.checked);
 
-            form.addEventListener('submit', function () {
-                submitBtn.disabled = true; submitBtn.textContent = '{{ __("Submitting…") }}';
-                nextBtn.disabled = true;
-                saveDraftBtn.disabled = true;
-            });
-
-            show(0);
-
-            // Save Draft (remove required for draft submit)
-            saveDraftBtn.addEventListener('click', ()=>{
-                const flag = document.getElementById('save_mode');
-                flag.value = 'draft';
-                const conEls = form.querySelectorAll('[required]');
-                conEls.forEach(el=>{
-                    el.setAttribute('data-was-required','1');
-                    el.removeAttribute('required');
-                });
-                if (window.Swal) Swal.fire({toast:true, icon:'info', title:'{{ __("Saving draft…") }}', position:'top-end', showConfirmButton:false, timer:1800});
+            // SAVE & CONTINUE → POST this step; server persists and returns with next step
+            nextBtn.addEventListener('click', ()=>{
+                if(!validateStep(idx)) return;
+                document.getElementById('save_mode').value = 'submit';
                 form.submit();
             });
 
-            /* --- OTP (frontend looks for {status:'ok'}) --- */
+            // BACK → just move UI locally
+            prevBtn.addEventListener('click', ()=> show(idx-1));
+
+            // SAVE DRAFT → POST this step as draft and remain
+            saveDraftBtn.addEventListener('click', ()=>{
+                document.getElementById('save_mode').value = 'draft';
+                form.querySelectorAll('[required]').forEach(el=>{ el.setAttribute('data-was-required','1'); el.removeAttribute('required'); });
+                if (window.Swal) Swal.fire({toast:true, icon:'info', title:'{{ __("Saving draft…") }}', position:'top-end', showConfirmButton:false, timer:1200});
+                form.submit();
+            });
+
+            // Final submit: attach signature etc.
+            form.addEventListener('submit', function () {
+                const sigData = (window._sigPad && !window._sigPad.isEmpty()) ? window._sigPad.toDataURL('image/png') : '';
+                document.getElementById('signature_data').value = sigData;
+                submitBtn.disabled = true; submitBtn.textContent = '{{ __("Submitting…") }}';
+                nextBtn.disabled = true; saveDraftBtn.disabled = true;
+            });
+
+            agree?.addEventListener('change', ()=> submitBtn.disabled = !agree.checked);
+
+            /* --- OTP --- */
             const btnSendOtp   = document.getElementById('btnSendOtp');
             const btnVerifyOtp = document.getElementById('btnVerifyOtp');
             const inpPhone     = document.getElementById('shop_phone');
@@ -611,13 +613,8 @@
             btnSendOtp?.addEventListener('click', async ()=>{
                 otpOk.value = '0';
                 const phone = (inpPhone.value || '').trim();
-                if (!phone){
-                    setOtpFail('{{ __("Enter a phone number first.") }}');
-                    inpPhone.focus();
-                    return;
-                }
-                btnSendOtp.disabled = true;
-                setOtpNeutral('{{ __("Requesting code…") }}');
+                if (!phone){ setOtpFail('{{ __("Enter a phone number first.") }}'); inpPhone.focus(); return; }
+                btnSendOtp.disabled = true; setOtpNeutral('{{ __("Requesting code…") }}');
                 try{
                     const res = await fetch("{{ route('seller.otp.send') }}", {
                         method:'POST',
@@ -625,28 +622,17 @@
                         body: new URLSearchParams({ phone })
                     });
                     const data = await res.json();
-                    if (res.ok && data?.status === 'ok'){
-                        setOtpNeutral('{{ __("Code sent. Please check your phone.") }}');
-                    } else {
-                        setOtpFail(data?.message || '{{ __("Could not send code.") }}');
-                    }
-                } catch(e){
-                    setOtpFail('{{ __("Network error. Try again.") }}');
-                } finally {
-                    btnSendOtp.disabled = false;
-                }
+                    if (res.ok && data?.status === 'ok'){ setOtpNeutral('{{ __("Code sent. Please check your phone.") }}'); }
+                    else { setOtpFail(data?.message || '{{ __("Could not send code.") }}'); }
+                } catch{ setOtpFail('{{ __("Network error. Try again.") }}'); }
+                finally { btnSendOtp.disabled = false; }
             });
 
             btnVerifyOtp?.addEventListener('click', async ()=>{
                 const phone = (inpPhone.value || '').trim();
                 const code  = (inpCode.value  || '').trim();
-                if (!phone || !code){
-                    setOtpFail('{{ __("Enter phone and the code you received.") }}');
-                    if (!phone) inpPhone.focus(); else inpCode.focus();
-                    return;
-                }
-                btnVerifyOtp.disabled = true;
-                setOtpNeutral('{{ __("Verifying…") }}');
+                if (!phone || !code){ setOtpFail('{{ __("Enter phone and the code you received.") }}'); if (!phone) inpPhone.focus(); else inpCode.focus(); return; }
+                btnVerifyOtp.disabled = true; setOtpNeutral('{{ __("Verifying…") }}');
                 try{
                     const res = await fetch("{{ route('seller.otp.verify') }}", {
                         method:'POST',
@@ -654,19 +640,13 @@
                         body: new URLSearchParams({ phone, code })
                     });
                     const data = await res.json();
-                    if (res.ok && data?.status === 'ok'){
-                        setOtpOK('{{ __("Phone verified.") }}');
-                    } else {
-                        setOtpFail(data?.message || '{{ __("Invalid code.") }}');
-                    }
-                } catch(e){
-                    setOtpFail('{{ __("Network error. Try again.") }}');
-                } finally {
-                    btnVerifyOtp.disabled = false;
-                }
+                    if (res.ok && data?.status === 'ok'){ setOtpOK('{{ __("Phone verified.") }}'); }
+                    else { setOtpFail(data?.message || '{{ __("Invalid code.") }}'); }
+                } catch{ setOtpFail('{{ __("Network error. Try again.") }}'); }
+                finally { btnVerifyOtp.disabled = false; }
             });
 
-            // --- GEO Cascader (uses query-param route: frontend.geo.children) ---
+            // --- GEO Cascader ---
             const cascader   = document.getElementById('geoCascader');
             const trigger    = cascader.querySelector('.cascader-trigger');
             const colCounties= document.getElementById('col-counties');
@@ -679,9 +659,7 @@
             const geoText    = document.getElementById('geoTriggerText');
             const geoHelp    = document.getElementById('geoSelectedHelp');
             const closeBtn   = document.getElementById('closeCascader');
-
             const geoChildrenURL = "{{ route('frontend.geo.children') }}"; // ?parent_id=
-
             function close(){ cascader.classList.remove('show'); }
             trigger.addEventListener('click', (e)=>{ e.stopPropagation(); cascader.classList.toggle('show'); });
             closeBtn.addEventListener('click', close);
@@ -692,34 +670,24 @@
                 colEl.querySelector('.cascader-empty')?.remove();
                 const ul = colEl.querySelector('ul.cascader-list');
                 ul.classList.add('d-none');
-                const d = document.createElement('div');
-                d.className = 'cascader-empty';
-                d.textContent = ph;
-                colEl.prepend(d);
+                const d = document.createElement('div'); d.className = 'cascader-empty'; d.textContent = ph; colEl.prepend(d);
             }
             function fillList(colEl, items, cls){
                 colEl.querySelector('.cascader-empty')?.remove();
-                const ul = colEl.querySelector('ul.cascader-list');
-                ul.classList.remove('d-none');
-                ul.innerHTML = '';
+                const ul = colEl.querySelector('ul.cascader-list'); ul.classList.remove('d-none'); ul.innerHTML = '';
                 items.forEach(it=>{
-                    const li = document.createElement('li');
-                    li.className = `cascader-item ${cls}`;
+                    const li = document.createElement('li'); li.className = `cascader-item ${cls}`;
                     li.dataset.id = it.id; li.dataset.name = it.name;
-                    li.innerHTML = `<span class="name">${it.name}</span>`;
-                    ul.appendChild(li);
+                    li.innerHTML = `<span class="name">${it.name}</span>`; ul.appendChild(li);
                 });
             }
             async function fetchChildren(parentId){
                 try{
                     const params = new URLSearchParams({ parent_id: parentId });
                     const res = await fetch(`${geoChildrenURL}?${params.toString()}`, { headers:{'X-Requested-With':'XMLHttpRequest'} });
-                    if(!res.ok) return [];
-                    return await res.json();
+                    if(!res.ok) return []; return await res.json();
                 }catch(e){ return []; }
             }
-
-            // county hover -> constituencies; click selects
             colCounties.querySelectorAll('.county').forEach(li=>{
                 li.addEventListener('mouseover', async ()=>{
                     clearCol(colConst, "{{ __('Loading…') }}");
@@ -729,15 +697,9 @@
                 });
                 li.addEventListener('click', ()=>{
                     const name = li.dataset.name;
-                    geoInput.value = li.dataset.id;
-                    geoPath.value  = name;
-                    geoText.textContent = name;
-                    geoHelp.textContent = name;
-                    close();
+                    geoInput.value = li.dataset.id; geoPath.value  = name; geoText.textContent = name; geoHelp.textContent = name; close();
                 });
             });
-
-            // constituency hover -> wards; click selects
             listConst.addEventListener('mouseover', async (e)=>{
                 const t = e.target.closest('.constituency'); if(!t) return;
                 clearCol(colWards, "{{ __('Loading…') }}");
@@ -747,23 +709,105 @@
             listConst.addEventListener('click', (e)=>{
                 const t = e.target.closest('.constituency'); if(!t) return;
                 const name = t.dataset.name;
-                geoInput.value = t.dataset.id;
-                geoPath.value  = name;
-                geoText.textContent = name;
-                geoHelp.textContent = name;
-                close();
+                geoInput.value = t.dataset.id; geoPath.value  = name; geoText.textContent = name; geoHelp.textContent = name; close();
             });
-
-            // ward click selects
             listWards.addEventListener('click', (e)=>{
                 const t = e.target.closest('.ward'); if(!t) return;
                 const name = t.dataset.name;
-                geoInput.value = t.dataset.id;
-                geoPath.value  = name;
-                geoText.textContent = name;
-                geoHelp.textContent = name;
-                close();
+                geoInput.value = t.dataset.id; geoPath.value  = name; geoText.textContent = name; geoHelp.textContent = name; close();
             });
+
+            // --- Documentation visibility by seller_type ---
+            const sellerTypeSel = document.getElementById('seller_type');
+            const docs = {
+                sole: document.getElementById('docs_sole'),
+                partnership: document.getElementById('docs_partnership'),
+                company: document.getElementById('docs_company'),
+            };
+            function applyDocVisibility(){
+                const v = sellerTypeSel.value;
+                docs.sole.classList.add('d-none');
+                docs.partnership.classList.add('d-none');
+                docs.company.classList.add('d-none');
+                if (v === 'sole_proprietor') docs.sole.classList.remove('d-none');
+                else if (v === 'partnership') docs.partnership.classList.remove('d-none');
+                else if (v === 'company') docs.company.classList.remove('d-none');
+            }
+            sellerTypeSel.addEventListener('change', applyDocVisibility);
+            applyDocVisibility();
+
+            // --- Signature pad ---
+            const canvas = document.getElementById('sigPad');
+            function resizeCanvas(){
+                if (!canvas) return;
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                const ctx = canvas.getContext("2d"); ctx.scale(ratio, ratio);
+                if (window._sigPad) window._sigPad.clear();
+            }
+            if (canvas) {
+                window._sigPad = new window.SignaturePad(canvas, { penColor: '#111' });
+                window.addEventListener('resize', resizeCanvas);
+                resizeCanvas();
+                document.getElementById('sigClear')?.addEventListener('click', ()=> window._sigPad.clear());
+            }
+
+            // --- Build review summary ---
+            const formEl = document.getElementById('sellerWizardForm');
+            function val(name){ const el = formEl.querySelector(`[name="${name}"]`); return el ? (el.type==='file' ? (el.files?.length? el.files[0].name : '') : el.value) : ''; }
+            function buildRow(label, value){
+                return `<div class="row">
+                    <div class="col-12 col-md-4 cell label">${label}</div>
+                    <div class="col-12 col-md-8 cell">${(value||'—')}</div>
+                </div>`;
+            }
+            window.buildReview = function(){
+                const decl = document.getElementById('declName');
+                if (decl) decl.textContent = val('contact_person_name') || '';
+                const html = [
+                    '<h6 class="px-3 pt-3 m-0">{{ __("Account") }}</h6>',
+                    buildRow('{{ __("Username") }}', val('username')),
+                    buildRow('{{ __("Seller Type") }}', (function(){ const sel = document.getElementById('seller_type'); return sel.options[sel.selectedIndex]?.text || ''; })()),
+                    buildRow('{{ __("Phone") }}', val('shop_phone')),
+                    buildRow('{{ __("Email") }}', val('email')),
+
+                    '<h6 class="px-3 pt-3">{{ __("Primary Contact") }}</h6>',
+                    buildRow('{{ __("Name") }}', val('contact_person_name')),
+                    buildRow('{{ __("Designation") }}', val('contact_person_designation')),
+                    buildRow('{{ __("Mobile") }}', val('contact_person_phone')),
+                    buildRow('{{ __("Email") }}', val('contact_person_email')),
+                    buildRow('{{ __("ID/Passport") }}', val('contact_person_id')),
+                    buildRow('{{ __("Personal KRA PIN") }}', val('personal_kra_pin')),
+
+                    '<h6 class="px-3 pt-3">{{ __("Address") }}</h6>',
+                    buildRow('{{ __("Building") }}', val('address_building')),
+                    buildRow('{{ __("Street/Road") }}', val('address_street')),
+                    buildRow('{{ __("City/Town") }}', val('address_city')),
+                    buildRow('{{ __("County/Constituency/Ward") }}', document.getElementById('geo_path').value || document.getElementById('geoSelectedHelp').textContent),
+                    buildRow('{{ __("P.O. Box") }}', val('postal_box')),
+                    buildRow('{{ __("Postal Code") }}', val('postal_code')),
+
+                    '<h6 class="px-3 pt-3">{{ __("Settlement") }}</h6>',
+                    buildRow('{{ __("Account Name") }}', val('account_name')),
+                    buildRow('{{ __("Bank / Branch") }}', `${val('bank_name')} / ${val('bank_branch')}`),
+                    buildRow('{{ __("Account Number") }}', val('account_number')),
+                    buildRow('{{ __("Account Type") }}', val('account_type')),
+                    buildRow('{{ __("SWIFT") }}', val('swift_code')),
+                    buildRow('{{ __("Mobile Money") }}', `${val('mobile_money')} ${val('mobile_money_paybill') ? ' / ' + val('mobile_money_paybill') : ''}`),
+
+                    '<h6 class="px-3 pt-3">{{ __("Store") }}</h6>',
+                    buildRow('{{ __("Store Name") }}', val('shop_name')),
+                    buildRow('{{ __("Category") }}', (function(){ const s=formEl.querySelector('[name="store_category_id"]'); return s && s.options[s.selectedIndex]?.text; })()),
+                    buildRow('{{ __("Description") }}', val('store_description')),
+                    buildRow('{{ __("Location") }}', `${val('store_city')}, ${val('store_county')}${val('store_sub_county')? ', '+val('store_sub_county'):''}${val('store_ward')? ', '+val('store_ward'):''}`),
+                    buildRow('{{ __("Coordinates") }}', val('store_coords')),
+                ].join('');
+                document.getElementById('reviewBox').innerHTML = html;
+            };
+
+            // Init on correct step
+            show(idx);
         })();
     </script>
 @endpush
