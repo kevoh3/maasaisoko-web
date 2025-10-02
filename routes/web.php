@@ -135,6 +135,7 @@ Route::post('/sasapay/callback', [App\Http\Controllers\Frontend\SasaPayControlle
 Route::get('/sasapay/status', [App\Http\Controllers\Frontend\SasaPayController::class, 'checkPaymentStatus'])->name('frontend.sasapay.status');
 Route::get('/sasapay/success', [App\Http\Controllers\Frontend\SasaPayController::class, 'paymentSuccess'])->name('frontend.sasapay.success');
 Route::get('/sasapay/cancel', [App\Http\Controllers\Frontend\SasaPayController::class, 'paymentCancel'])->name('frontend.sasapay.cancel');
+Route::get('/sasapay/failure', [App\Http\Controllers\Frontend\SasaPayController::class, 'paymentFailure'])->name('frontend.sasapay.failure');
 
 //Order Tracking
 Route::get('/order-tracking', [App\Http\Controllers\Frontend\OrderTrackingController::class, 'getOrderTracking'])->name('frontend.order-tracking');

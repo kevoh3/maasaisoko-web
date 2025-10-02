@@ -1,5 +1,0 @@
-# Force Railway to rebuild without cache
-node_modules/
-vendor/
-storage/
-bootstrap/cache/

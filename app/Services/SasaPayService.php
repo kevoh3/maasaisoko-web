@@ -34,10 +34,19 @@ class SasaPayService
         }
         
         if($isSandbox == 1){
-            $this->baseURL = 'https://sandbox.sasapay.app'; // Sandbox URL
+            // Per docs, sandbox host for API is sandbox.sasapay.app
+            $this->baseURL = 'https://sandbox.sasapay.app';
         } else {
-            $this->baseURL = 'https://api.sasapay.app'; // Production URL
+            $this->baseURL = 'https://api.sasapay.co.ke'; // Production URL
         }
+    }
+
+    /**
+     * Get merchant code
+     */
+    public function getMerchantCode()
+    {
+        return $this->merchantCode;
     }
 
     /**
@@ -46,29 +55,52 @@ class SasaPayService
     public function generateAccessToken()
     {
         try {
-            $client = new Client();
+            Log::info('SasaPay: Attempting to generate access token', [
+                'base_url' => $this->baseURL,
+                'client_id' => substr($this->clientId, 0, 10) . '...'
+            ]);
             
-            $response = $client->post($this->baseURL . '/oauth/token', [
+            $client = new Client([
+                'timeout' => 30,
+                'connect_timeout' => 10,
+            ]);
+
+            // Docs: GET /api/v1/auth/token/?grant_type=client_credentials with Basic Auth(client_id:client_secret)
+            $authHeader = 'Basic ' . base64_encode($this->clientId . ':' . $this->clientSecret);
+
+            $response = $client->get($this->baseURL . '/api/v1/auth/token/', [
                 'headers' => [
-                    'Content-Type' => 'application/x-www-form-urlencoded',
+                    'Authorization' => $authHeader,
+                    'Accept' => 'application/json',
+                    'User-Agent' => 'MaasaiSoko/1.0',
                 ],
-                'form_params' => [
-                    'grant_type' => 'client_credentials',
-                    'client_id' => $this->clientId,
-                    'client_secret' => $this->clientSecret,
-                ],
+                'query' => [
+                    'grant_type' => 'client_credentials'
+                ]
             ]);
 
             $data = json_decode($response->getBody(), true);
             
+            Log::info('SasaPay: Access token response', [
+                'status_code' => $response->getStatusCode(),
+                'has_access_token' => isset($data['access_token']),
+                'response_keys' => array_keys($data)
+            ]);
+            
             if (isset($data['access_token'])) {
+                Log::info('SasaPay: Access token generated successfully');
                 return $data['access_token'];
             }
             
             throw new \Exception('Failed to get access token: ' . json_encode($data));
             
         } catch (\Exception $e) {
-            Log::error('SasaPay Access Token Error: ' . $e->getMessage());
+            Log::error('SasaPay Access Token Error', [
+                'message' => $e->getMessage(),
+                'base_url' => $this->baseURL,
+                'client_id' => substr($this->clientId, 0, 10) . '...',
+                'error_type' => get_class($e)
+            ]);
             throw $e;
         }
     }
@@ -81,8 +113,17 @@ class SasaPayService
     public function createCheckoutPayment($paymentData)
     {
         try {
+            Log::info('SasaPay: Creating checkout payment', [
+                'amount' => $paymentData['amount'],
+                'reference' => $paymentData['transaction_reference'],
+                'currency' => $paymentData['currency_code'] ?? 'KES'
+            ]);
+            
             $accessToken = $this->generateAccessToken();
-            $client = new Client();
+            $client = new Client([
+                'timeout' => 30,
+                'connect_timeout' => 10,
+            ]);
             
             $payload = [
                 'MerchantCode' => $this->merchantCode,
@@ -101,20 +142,44 @@ class SasaPayService
                 'TkashEnabled' => $paymentData['tkash_enabled'] ?? true,
             ];
 
-            $response = $client->post($this->baseURL . '/api/v1/payments/checkout/', [
+            Log::info('SasaPay: Sending checkout request', [
+                'endpoint' => $this->baseURL . '/api/v1/payments/card-payments/',
+                'merchant_code' => $this->merchantCode,
+                'amount' => $payload['Amount'],
+                'reference' => $payload['Reference'],
+                'callback_url' => $this->callbackUrl,
+                'success_url' => $payload['SuccessUrl'],
+                'failure_url' => $payload['FailureUrl']
+            ]);
+
+            // Docs: POST /api/v1/payments/card-payments/
+            $response = $client->post($this->baseURL . '/api/v1/payments/card-payments/', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $accessToken,
                     'Content-Type' => 'application/json',
+                    'User-Agent' => 'MaasaiSoko/1.0',
                 ],
                 'json' => $payload,
             ]);
 
             $responseData = json_decode($response->getBody(), true);
             
+            Log::info('SasaPay: Checkout response received', [
+                'status_code' => $response->getStatusCode(),
+                // Docs show response key is "CheckoutUrl" (PascalCase)
+                'has_checkout_url' => isset($responseData['CheckoutUrl']) || isset($responseData['checkout_url']),
+                'response_keys' => array_keys($responseData)
+            ]);
+            
             return $responseData;
             
         } catch (\Exception $e) {
-            Log::error('SasaPay Checkout Payment Creation Error: ' . $e->getMessage());
+            Log::error('SasaPay Checkout Payment Creation Error', [
+                'message' => $e->getMessage(),
+                'amount' => $paymentData['amount'] ?? 'unknown',
+                'reference' => $paymentData['transaction_reference'] ?? 'unknown',
+                'error_type' => get_class($e)
+            ]);
             throw $e;
         }
     }
@@ -271,5 +336,22 @@ class SasaPayService
     public function generateTransactionReference()
     {
         return 'SP_' . time() . '_' . uniqid();
+    }
+
+    /**
+     * Get base URL for debugging
+     */
+    public function getBaseUrl()
+    {
+        return $this->baseURL;
+    }
+
+
+    /**
+     * Get callback URL for debugging
+     */
+    public function getCallbackUrl()
+    {
+        return $this->callbackUrl;
     }
 }

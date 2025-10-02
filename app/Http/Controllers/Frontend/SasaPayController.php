@@ -65,7 +65,9 @@ class SasaPayController extends Controller
                 'response' => $response
             ]);
 
-            if ($response && isset($response['checkout_url'])) {
+            // Accept either 'CheckoutUrl' (per docs) or 'checkout_url'
+            $checkoutUrl = $response['checkout_url'] ?? ($response['CheckoutUrl'] ?? null);
+            if ($response && $checkoutUrl) {
                 // Update order with transaction reference (column: transaction_no)
                 $order->update([
                     'payment_method' => 'SasaPay',
@@ -73,48 +75,47 @@ class SasaPayController extends Controller
                     'transaction_no' => $transactionReference,
                 ]);
 
-                // Create payment transaction record
-                PaymentTransaction::create([
-                    'wallet_id' => null,
-                    'amount' => $order->total_amount,
-                    'type' => 'payment',
-                    'status' => 'pending',
-                    'transaction_code' => $transactionReference,
-                    'description' => 'SasaPay payment for order #' . $order->order_no,
-                    'channel' => 'SasaPay',
-                    'reference_number' => $order->order_no,
-                    'transaction_date' => now(),
-                    'fees_and_charges' => 0,
-                    'running_balance' => 0,
-                    'party_b_name' => 'MaasaiSoko',
-                    'party_b_account_number' => $this->sasaPayService->merchantCode,
-                    'party_b_platform' => 'SasaPay'
-                ]);
+                // Get user's wallet ID for transaction tracking
+                $walletId = null;
+                if ($order->customer_id) {
+                    $wallet = \App\Models\Wallet::where('user_id', $order->customer_id)->first();
+                    $walletId = $wallet ? $wallet->id : null;
+                }
+
+                // Create payment transaction record (only if wallet exists)
+                if ($walletId) {
+                    PaymentTransaction::create([
+                        'wallet_id' => $walletId,
+                        'amount' => $order->total_amount,
+                        'type' => 'payment',
+                        'status' => 'pending',
+                        'transaction_code' => $transactionReference,
+                        'description' => 'SasaPay payment for order #' . $order->order_no,
+                        'channel' => 'SasaPay',
+                        'reference_number' => $order->order_no,
+                        'transaction_date' => now(),
+                        'fees_and_charges' => 0,
+                        'running_balance' => 0,
+                        'party_b_name' => 'MaasaiSoko',
+                        'party_b_account_number' => $this->sasaPayService->getMerchantCode(),
+                        'party_b_platform' => 'SasaPay'
+                    ]);
+                }
 
                 Log::info('SasaPay Initiate: redirecting to checkout', [
                     'order_id' => $order->id,
-                    'checkout_url' => $response['checkout_url']
+                    'checkout_url' => $checkoutUrl
                 ]);
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Redirecting to SasaPay checkout...',
-                    'transaction_reference' => $transactionReference,
-                    'checkout_url' => $response['checkout_url'],
-                    'redirect_url' => $response['checkout_url']
-                ]);
+                
+                // Redirect directly to SasaPay checkout
+                return redirect($checkoutUrl);
             }
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to initiate payment: ' . ($response['message'] ?? 'Unknown error')
-            ], 400);
+            return redirect()->back()->with('error', 'Failed to initiate payment: ' . ($response['message'] ?? 'Unknown error'));
 
         } catch (\Exception $e) {
             Log::error('SasaPay Initiate: error', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Payment initiation failed. Please try again.'
-            ], 500);
+            return redirect()->back()->with('error', 'Payment initiation failed. Please try again.');
         }
     }
 
@@ -207,9 +208,10 @@ class SasaPayController extends Controller
     {
         $orderId = $request->order_id;
         $order = Order_master::findOrFail($orderId);
+        $gtext = gtext();
 
         Log::info('SasaPay ShowForm: render', ['order_id' => $order->id]);
-        return view('frontend.sasapay-payment', compact('order'));
+        return view('frontend.sasapay-payment', compact('order', 'gtext'));
     }
 
     /**
@@ -220,7 +222,29 @@ class SasaPayController extends Controller
         $orderId = $request->order_id;
         $order = Order_master::findOrFail($orderId);
 
-        Log::info('SasaPay Success: user landed', ['order_id' => $order->id]);
+        // Update order status to paid
+        $order->update([
+            'payment_status_id' => 1, // Assuming 1 is paid status
+            'order_status_id' => 2    // Assuming 2 is confirmed status
+        ]);
+
+        // Clear the shopping cart
+        session()->forget('shopping_cart');
+        session()->forget('order_master_ids');
+
+        // Send order notification email if enabled
+        $gtext = gtext();
+        if($gtext['ismail'] == 1){
+            // Use the existing orderNotify method from CheckoutFrontController
+            $checkoutController = new \App\Http\Controllers\Frontend\CheckoutFrontController();
+            $checkoutController->orderNotify([$orderId]);
+        }
+
+        Log::info('SasaPay Success: payment completed and cart cleared', [
+            'order_id' => $order->id,
+            'user_id' => auth()->id()
+        ]);
+        
         return view('frontend.payment-success', compact('order'));
     }
 
@@ -239,6 +263,24 @@ class SasaPayController extends Controller
         ]);
 
         Log::info('SasaPay Cancel: user landed', ['order_id' => $order->id]);
+        return view('frontend.payment-cancel', compact('order'));
+    }
+
+    /**
+     * Handle failed payment
+     */
+    public function paymentFailure(Request $request)
+    {
+        $orderId = $request->order_id;
+        $order = Order_master::findOrFail($orderId);
+
+        // Update order status to failed
+        $order->update([
+            'payment_status_id' => 3, // Assuming 3 is failed status
+            'order_status_id' => 4    // Assuming 4 is failed status
+        ]);
+
+        Log::info('SasaPay Failure: user landed', ['order_id' => $order->id]);
         return view('frontend.payment-cancel', compact('order'));
     }
 }
